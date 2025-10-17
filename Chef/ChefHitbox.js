@@ -1,15 +1,10 @@
 let playerPosX;
 let playerPosY;
-let hitboxDia;
-let seaLevel;
 let visible;
+let hitboxLength;
 
 function setup() {
   createCanvas(400, 400);
-  seaLevel = 0;
-  playerPosX = 25;
-  playerPosY = height - 50 - seaLevel;
-  hitboxLength = 25;
   visible = false;
 }
 
@@ -25,5 +20,5 @@ function playerHitbox(x, y, length, visible) {
   } else {
     noStroke();
   }
-  rect(x, y, length, length);
+  rect(x - 25, y - 25, length, length);
 }
