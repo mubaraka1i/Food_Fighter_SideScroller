@@ -5,8 +5,8 @@ function setup() {
   health = 50;
 }
 
-function draw() {
-  background(220);
+function healthdraw() {
+  //background(220);
   text("HP: " + health, 15, 20);
 }
 
