@@ -20,5 +20,5 @@ function playerHitbox(x, y, length, visible) {
   } else {
     noStroke();
   }
-  rect(x - 25, y - 25, length, length);
+  rect(x, height - length - y, length, length);
 }
