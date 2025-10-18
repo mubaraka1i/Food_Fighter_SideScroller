@@ -1,10 +1,13 @@
 let player;
+let playerShoots;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   // Create a new Chef object from the class and store it in 'player'
-  //Commets to help bebo but anyone can check out to see what is being done
+  // Same concept with playershoots
+  // Commets to help bebo but anyone can check out to see what is being done
   player = new Chef(50, 0); // Start at x=50, y=0
+  playerShoots = new PlayerShoots();
 }
 
 function draw() {
@@ -12,10 +15,14 @@ function draw() {
 
   // Tell the Chef to update its position and physics
   player.update();
+
+  playerShoots.update();
   
   healthdraw()
   // Chef drawn to the screen
   player.draw();
+
+  playerShoots.draw();
 
   playerHitbox(player.currentX(),player.currentY(),50,true);
 }
@@ -36,6 +43,9 @@ function keyPressed() {
     case 'W':
     case 'ArrowUp':
       player.jump(); // Tell the Chef to jump
+      break;
+    case ' ':
+      playerShoots.shoot(player);
       break;
   }
   return false;

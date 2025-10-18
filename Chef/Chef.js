@@ -16,7 +16,13 @@ class Chef {
 
   // This method handles all the physics and logic updates
   update() {
-    // Horizontal movement based on internal state
+    if (this.isMovingLeft) {
+      this.facingDirection = 'left';
+    }
+    if (this.isMovingRight) {
+      this.facingDirection = 'right';
+    }
+
     if (this.isMovingLeft) {
       this.x -= this.speed;
     }
@@ -50,10 +56,17 @@ class Chef {
 
   // This method handles just drawing the chef
   draw() {
+    //Chef body
     fill(230, 48, 38);
-    // Use height, this.height, and this.y to draw from the bottom
-
     rect(this.x, height - this.height - this.y, this.width, this.height);
+
+    // Chef eyes
+    fill(0);
+    if (this.facingDirection === 'right') {
+      circle(this.x + this.width - 10, height - this.height - this.y + 15, 8);
+    } else {
+      circle(this.x + 10, height - this.height - this.y + 15, 8);
+    }
   }
 
   // --- METHODS TO BE CALLED BY SKETCH.JS ---
@@ -81,5 +94,14 @@ class Chef {
 
   currentY(){
     return this.y;
+  }
+
+  getShootInfo() {
+    return {
+      x: this.facingDirection === 'right' ? this.x + this.width : this.x,
+      y: height - this.height - this.y + this.height / 2,
+      direction: this.facingDirection,
+      speed: this.facingDirection === 'right' ? 10 : -10
+    };
   }
 }
