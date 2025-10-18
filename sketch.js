@@ -17,14 +17,14 @@ function draw() {
   player.update();
 
   playerShoots.update();
-  
+
   healthdraw()
   // Chef drawn to the screen
   player.draw();
-
+  // draws();
   playerShoots.draw();
 
-  playerHitbox(player.currentX(),player.currentY(),50,true);
+  playerHitbox(player.currentX(), player.currentY(), 50, true);
 }
 
 function keyPressed() {
