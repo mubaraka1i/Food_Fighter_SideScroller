@@ -1,19 +1,21 @@
-let health;
+class ChefHealth {
 
-function setup() {
-  createCanvas(400, 400);
-  health = 50;
-}
+  constructor(health) {
+    this.health = health;
+  }
 
-function healthdraw() {
-  //background(220);
-  text("HP: " + health, 15, 20);
-}
+  getHealth() {
+    return this.health;
+  }
+  healthDraw() {
+    text("HP: " + this.health, 15, 20);
+  }
 
-function healthInc(healing) {
-  health += healing;
-}
+  healthInc(healing) {
+    this.health += healing;
+  }
 
-function healthDec(damage) {
-  health -= damage;
+  healthDec(damage) {
+    this.health -= damage;
+  }
 }

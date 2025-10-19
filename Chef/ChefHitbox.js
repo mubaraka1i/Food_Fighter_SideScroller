@@ -1,24 +1,43 @@
-let playerPosX;
-let playerPosY;
-let visible;
-let hitboxLength;
+class ChefHitbox{
 
-function setup() {
-  createCanvas(400, 400);
-  visible = false;
-}
-
-function draw() {
-  background(220);
-  playerHitbox(playerPosX, playerPosY, hitboxLength, visible);
-}
-
-function playerHitbox(x, y, length, visible) {
-  noFill();
-  if (visible == true) {
-    stroke('black');
-  } else {
-    noStroke();
+  constructor(playerPosX, playerPosY, visible, hitBoxLength) {
+    this.playerPosX = playerPosX;
+    this.playerPosY = playerPosY;
+    this.visible = visible;
+    this.hitboxLength = hitBoxLength;
   }
-  rect(x, height - length - y, length, length);
+
+  updateX(x) {
+    this.playerPosX = x;
+  }
+
+  updateY(y) {
+    this.playerPosY = y;
+  }
+
+  drawPlayerHitbox() {
+    noFill();
+    if (this.visible == true) {
+      stroke('green');
+    } else {
+      noStroke();
+    }
+    rect(this.playerPosX, height - hitBoxLength - this.playerPosY, hitBoxLength, hitBoxLength);
+  }
+
+  playerHit(x, y) {
+    let hitX;
+    let hitY;
+    if (x <= this.playerPosX + 50 && x >= this.playerPosX) {
+      hitX = true;
+    }
+    if (y >= height - hitBoxLength - this.playerPosY && y <= height - playerPosY) {
+      hitY = true;
+    }
+    if (hitX && hitY) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

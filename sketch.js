@@ -1,8 +1,10 @@
 let player;
 let playerShoots;
+let health;
+let showHitboxes = true;
+let playerHitbox;
 let enemiesArray = [];
 let enemiesActive = false;
-let showHitboxes = true;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -11,6 +13,8 @@ function setup() {
   // Commets to help bebo but anyone can check out to see what is being done
   player = new Chef(50, 0); // Start at x=50, y=0
   playerShoots = new PlayerShoots();
+  health = new ChefHealth(50); // create a new health object starting at 50 HP
+  playerHitbox = new ChefHitbox(player.currentX, player.currentY, showHitboxes, 50);
 }
 
 function draw() {
@@ -26,8 +30,7 @@ function draw() {
   }
   checkCollisions();
 
-
-  //healthdraw()
+  health.healthDraw() // draws health on the screen
 
   // Chef drawn to the screen
   player.draw();
@@ -36,9 +39,9 @@ function draw() {
   let playerX = player.currentX(); 
   let playerY = player.currentY();
 
-
-  //playerHitbox(playerX, playerY, 50, true);
-  
+  playerHitbox.updateX(playerX);
+  playerHitbox.updateY(playerY);
+  playerHitbox.drawPlayerHitbox();
   
   //bebo draw function moved to sketch
   if (!enemiesActive && playerX >= width / 3) {

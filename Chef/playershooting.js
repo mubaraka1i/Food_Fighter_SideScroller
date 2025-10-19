@@ -14,7 +14,6 @@ class PlayerShoots {
         this.bullets.splice(i, 1);
         continue;
       }
-
     }
   }
 
