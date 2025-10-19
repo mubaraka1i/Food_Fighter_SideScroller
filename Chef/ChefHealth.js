@@ -8,6 +8,10 @@ class ChefHealth {
     return this.health;
   }
   healthDraw() {
+    fill(0);
+    noStroke(); 
+    textSize(16); 
+    textAlign(LEFT, TOP);
     text("HP: " + this.health, 15, 20);
   }
 

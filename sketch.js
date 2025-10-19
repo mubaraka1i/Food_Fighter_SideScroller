@@ -49,9 +49,6 @@ function draw() {
     enemiesActive = true;
   }
 
-  if (enemiesActive) {
-    updateEnemies();
-  }
 }
 
 function keyPressed() {

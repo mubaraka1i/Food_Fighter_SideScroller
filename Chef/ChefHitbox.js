@@ -22,22 +22,16 @@ class ChefHitbox{
     } else {
       noStroke();
     }
-    rect(this.playerPosX, height - hitBoxLength - this.playerPosY, hitBoxLength, hitBoxLength);
+    rectMode(CORNER);
+    //fixed this because playerPosY already accounts for the height calculation
+    rect(this.playerPosX, this.playerPosY, this.hitboxLength, this.hitboxLength);
   }
 
   playerHit(x, y) {
-    let hitX;
-    let hitY;
-    if (x <= this.playerPosX + 50 && x >= this.playerPosX) {
-      hitX = true;
-    }
-    if (y >= height - hitBoxLength - this.playerPosY && y <= height - playerPosY) {
-      hitY = true;
-    }
-    if (hitX && hitY) {
-      return true;
-    } else {
-      return false;
-    }
+    // 'x' and 'y' are the coordinates of the thing hitting the player
+    const hitX = x >= this.playerPosX && x <= this.playerPosX + this.hitboxLength;
+    const hitY = y >= this.playerPosY && y <= this.playerPosY + this.hitboxLength;
+
+    return hitX && hitY;
   }
 }
