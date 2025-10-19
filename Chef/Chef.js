@@ -93,7 +93,7 @@ class Chef {
   }
 
   currentY(){
-    return this.y;
+    return height - this.height - this.y;
   }
 
   getShootInfo() {

@@ -1,5 +1,8 @@
 let player;
 let playerShoots;
+let enemiesArray = [];
+let enemiesActive = false;
+let showHitboxes = true;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -18,13 +21,34 @@ function draw() {
 
   playerShoots.update();
 
-  healthdraw()
+  if (enemiesActive) {
+    updateEnemies();
+  }
+  checkCollisions();
+
+
+  //healthdraw()
+
   // Chef drawn to the screen
   player.draw();
-  // draws();
   playerShoots.draw();
 
-  playerHitbox(player.currentX(), player.currentY(), 50, true);
+  let playerX = player.currentX(); 
+  let playerY = player.currentY();
+
+
+  //playerHitbox(playerX, playerY, 50, true);
+  
+  
+  //bebo draw function moved to sketch
+  if (!enemiesActive && playerX >= width / 3) {
+    spawnEnemies();
+    enemiesActive = true;
+  }
+
+  if (enemiesActive) {
+    updateEnemies();
+  }
 }
 
 function keyPressed() {
@@ -32,17 +56,17 @@ function keyPressed() {
     case 'a':
     case 'A':
     case 'ArrowLeft':
-      player.moveLeft(true); // Tell the Chef to start moving left
+      player.moveLeft(true); 
       break;
     case 'd':
     case 'D':
     case 'ArrowRight':
-      player.moveRight(true); // Tell the Chef to start moving right
+      player.moveRight(true);
       break;
     case 'w':
     case 'W':
     case 'ArrowUp':
-      player.jump(); // Tell the Chef to jump
+      player.jump();
       break;
     case ' ':
       playerShoots.shoot(player);
@@ -56,12 +80,12 @@ function keyReleased() {
     case 'a':
     case 'A':
     case 'ArrowLeft':
-      player.moveLeft(false); // Tell the Chef to stop moving left
+      player.moveLeft(false); 
       break;
     case 'd':
     case 'D':
     case 'ArrowRight':
-      player.moveRight(false); // Tell the Chef to stop moving right
+      player.moveRight(false); 
       break;
   }
   return false;

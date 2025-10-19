@@ -1,30 +1,3 @@
-let enemiesArray = [];
-let enemiesActive = false;
-let chefX = 0; 
-let showHitboxes = true; 
-
-function setup() {
-  createCanvas(1000, 600);
-}
-
-function draws() {
-
-
-  
-  chefX += 3;
-
- 
-  if (!enemiesActive && chefX >= width / 3) {
-    spawnEnemies();
-    enemiesActive = true;
-  }
-
-  
-  if (enemiesActive) {
-    updateEnemies();
-  }
-}
-
 
 function spawnEnemies() {
   enemiesArray = [];
@@ -68,4 +41,5 @@ function enemyHitbox(x, y, r, visible) {
 
   rectMode(CENTER);
   rect(x, y, rectWidth, rectHeight);
+  rectMode(CORNER);
 }
