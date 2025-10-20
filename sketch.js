@@ -9,8 +9,7 @@ let playInitiated = false;
 let gameScale;
 
 function setup() {
-  gameScale = min(windowWidth / 800, windowHeight / 500);
-  createCanvas(800 * gameScale, 500 * gameScale);
+  createCanvas(windowWidth, windowHeight);
   // Create a new Chef object from the class and store it in 'player'
   // Same concept with playershoots
   // Commets to help bebo but anyone can check out to see what is being done
@@ -33,6 +32,13 @@ function draw() {
   titleScrn.screenDraw(title); // show title screen
 
   if (playInitiated) { // if they press Play
+
+    if (health.getHealth() <= 0) {
+      playInitiated = false;     // Stop the game
+      deathScrn.visible = true;  // Make the death screen visible
+      return; // Stop drawing the rest of the game
+    }
+
   // Tell the Chef to update its position and physics
     player.update();
 
@@ -63,9 +69,12 @@ function draw() {
       enemiesActive = true;
     }
   
-  } else if (health.getHealth <= 0) {
-      deathScrn.screenDraw(death); // display death screen
-    }
+  } else if (deathScrn.visible) {
+    deathScrn.screenDraw(death);
+    
+  } else {
+    titleScrn.screenDraw(title);
+  }
 
 }
 
@@ -87,8 +96,14 @@ function keyPressed() {
       player.jump();
       break;
     case 'Enter':
-      titleScrn.screenRemove(title); // remove title screen
+      if (titleScrn.visible) {
+      // If on the title screen, start the game
+      titleScrn.screenRemove(); // Hides title screen
       playInitiated = true;
+      } else if (deathScrn.visible) {
+        // If on the death screen, restart the game
+        restartGame();
+      }
       break;
     case ' ':
       playerShoots.shoot(player);
@@ -111,4 +126,17 @@ function keyReleased() {
       break;
   }
   return false;
+}
+
+// Restarts the game
+function restartGame() {
+  health = new ChefHealth(50);
+  player = new Chef(50, 0);
+  playerShoots = new PlayerShoots();
+  enemiesArray = [];
+  enemiesActive = false;
+  
+  // Hide death screen and show title screen
+  deathScrn.visible = false;
+  titleScrn.visible = true; 
 }
