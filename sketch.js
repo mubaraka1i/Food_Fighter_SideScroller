@@ -5,9 +5,12 @@ let showHitboxes = true;
 let playerHitbox;
 let enemiesArray = [];
 let enemiesActive = false;
+let playInitiated = false;
+let gameScale;
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  gameScale = min(windowWidth / 800, windowHeight / 500);
+  createCanvas(800 * gameScale, 500 * gameScale);
   // Create a new Chef object from the class and store it in 'player'
   // Same concept with playershoots
   // Commets to help bebo but anyone can check out to see what is being done
@@ -15,39 +18,54 @@ function setup() {
   playerShoots = new PlayerShoots();
   health = new ChefHealth(50); // create a new health object starting at 50 HP
   playerHitbox = new ChefHitbox(player.currentX, player.currentY, showHitboxes, 50);
+  titleScrn = new TitleScreen(0); // 0 indicates display title screen 
+  deathScrn = new TitleScreen(1); // 1 indicates display death screen
+}
+
+function preload() {
+  title = loadImage('Assets/titlescreen.png');
+  death = loadImage('Assets/titlescreen.png'); // not designed yet
 }
 
 function draw() {
   background(240, 248, 255);
 
+  titleScrn.screenDraw(title); // show title screen
+
+  if (playInitiated) { // if they press Play
   // Tell the Chef to update its position and physics
-  player.update();
+    player.update();
 
-  playerShoots.update();
+    playerShoots.update();
 
-  if (enemiesActive) {
-    updateEnemies();
-  }
-  checkCollisions();
+    if (enemiesActive) {
+      updateEnemies();
+    }
+    checkCollisions();
 
-  health.healthDraw() // draws health on the screen
-
-  // Chef drawn to the screen
-  player.draw();
-  playerShoots.draw();
-
-  let playerX = player.currentX(); 
-  let playerY = player.currentY();
-
-  playerHitbox.updateX(playerX);
-  playerHitbox.updateY(playerY);
-  playerHitbox.drawPlayerHitbox();
   
-  //bebo draw function moved to sketch
-  if (!enemiesActive && playerX >= width / 3) {
-    spawnEnemies();
-    enemiesActive = true;
-  }
+    health.healthDraw() // draws health on the screen
+
+    // Chef drawn to the screen
+    player.draw();
+    playerShoots.draw();
+
+    let playerX = player.currentX(); 
+    let playerY = player.currentY();
+
+    playerHitbox.updateX(playerX);
+    playerHitbox.updateY(playerY);
+    playerHitbox.drawPlayerHitbox();
+  
+    //bebo draw function moved to sketch
+    if (!enemiesActive && playerX >= width / 3) {
+      spawnEnemies();
+      enemiesActive = true;
+    }
+  
+  } else if (health.getHealth <= 0) {
+      deathScrn.screenDraw(death); // display death screen
+    }
 
 }
 
@@ -67,6 +85,10 @@ function keyPressed() {
     case 'W':
     case 'ArrowUp':
       player.jump();
+      break;
+    case 'Enter':
+      titleScrn.screenRemove(title); // remove title screen
+      playInitiated = true;
       break;
     case ' ':
       playerShoots.shoot(player);
