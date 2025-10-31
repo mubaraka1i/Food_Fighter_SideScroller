@@ -66,6 +66,7 @@ function draw() {
     //bebo draw function moved to sketch
     if (!enemiesActive && playerX >= width / 3) {
       spawnEnemies();
+      //spawnGroundEnemies();
       enemiesActive = true;
     }
   
