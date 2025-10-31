@@ -6,6 +6,8 @@ let playerHitbox;
 let enemiesArray = [];
 let playInitiated = false;
 let gameScale;
+let background1;
+let cameraX = 0;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -23,6 +25,8 @@ function setup() {
 function preload() {
   title = loadImage('Assets/titlescreen.png');
   death = loadImage('Assets/gameoverscreen.png');
+  background1 = new Level1Background();
+  background1.preload();
 }
 
 // This function will run constantly and spawn enemies over time
@@ -47,6 +51,9 @@ function draw() {
   titleScrn.screenDraw(title); // show title screen
 
   if (playInitiated) { // if they press Play
+    cameraX = player.currentX() - width ; // Centering camera on the square(chef)
+    background1.draw(cameraX); //Shows kitchen background based off where camera moves
+
 
     if (health.getHealth() <= 0) {
       playInitiated = false;     // Stop the game
