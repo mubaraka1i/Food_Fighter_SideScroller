@@ -1,4 +1,4 @@
-class ChefHitbox{
+class ChefHitbox {
 
   constructor(playerPosX, playerPosY, visible, hitBoxLength) {
     this.playerPosX = playerPosX;
@@ -27,11 +27,32 @@ class ChefHitbox{
     rect(this.playerPosX, this.playerPosY, this.hitboxLength, this.hitboxLength);
   }
 
-  playerHit(x, y) {
-    // 'x' and 'y' are the coordinates of the thing hitting the player
-    const hitX = x >= this.playerPosX && x <= this.playerPosX + this.hitboxLength;
-    const hitY = y >= this.playerPosY && y <= this.playerPosY + this.hitboxLength;
+  // --- UPDATED playerHit ---
+  // This now checks for RECTANGLE collision, which are ground enemies
+  playerHitRect(enemyX, enemyY, enemyW, enemyH) {
+    // Check for no overlap (Axis-Aligned Bounding Box)
+    if (this.playerPosX + this.hitboxLength < enemyX ||
+        this.playerPosX > enemyX + enemyW ||
+        this.playerPosY + this.hitboxLength < enemyY ||
+        this.playerPosY > enemyY + enemyH) {
+      return false;
+    } else {
+      return true; // Overlap!
+    }
+  }
 
-    return hitX && hitY;
+  // --- NEW METHOD: Check collision with a CIRCLE, which is flying enemies---
+  playerHitCircle(circleX, circleY, circleR) {
+    // Use p5.collide library function (diameter)
+    return collideRectCircle(
+      this.playerPosX,
+      this.playerPosY,
+      this.hitboxLength,
+      this.hitboxLength,
+      circleX,
+      circleY,
+      circleR * 2 
+    );
   }
 }
+

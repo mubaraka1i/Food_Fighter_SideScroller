@@ -1,43 +1,37 @@
-function spawnGroundEnemies() {
-  enemiesArray = [];
-  for (let i = 0; i < 5; i++) {
-    enemiesArray.push({
-      x: width + (i * 90),                   
-      y: height,
-      r: 20,                               
-      speed: 3                             
-    });
+class GroundEnemies {
+  constructor(x, y) {
+    this.x = x;
+    this.width = 50;
+    this.height = 50;
+    // Set its y-position to be on the ground
+    this.y = height - this.height; 
+    this.speed = 1.5;
   }
-}
 
-function updateGroundEnemies() {
-  for (let enemy of enemiesArray) {
-    enemy.x -= enemy.speed;
+  // Update its position based on the player's location
+  update(playerX) {
+    // Move towards the player
+    if (this.x < playerX) {
+      this.x += this.speed;
+    } else if (this.x > playerX) {
+      this.x -= this.speed;
+    }
+  }
 
-  
-    fill(10, 160, 40);
+  // Draw itself
+  draw() {
+    fill(10, 160, 40); 
     noStroke();
-    rect(enemy.x, enemy.y, enemy.r * 2);
-
-    
-    enemyHitbox(enemy.x, enemy.y, enemy.r, showHitboxes);
-  }
-}
-
-
-
-
-function enemyHitbox(x, y, r, visible) {
-  let rectWidth = (r * 2) + 2;   
-  let rectHeight = (r * 2) + 2;  
-
-  if (visible) {
-    noStroke();           
-    noFill();         
-  
+    rect(this.x, this.y, this.width, this.height);
   }
 
-  rectMode(CENTER);
-  rect(x, y, rectWidth, rectHeight);
-  rectMode(CORNER);
+  // Helper for collision detection
+  getHitbox() {
+    return {
+      x: this.x,
+      y: this.y,
+      w: this.width,
+      h: this.height
+    };
+  }
 }

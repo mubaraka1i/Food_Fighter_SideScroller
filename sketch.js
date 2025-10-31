@@ -4,7 +4,6 @@ let health;
 let showHitboxes = true;
 let playerHitbox;
 let enemiesArray = [];
-let enemiesActive = false;
 let playInitiated = false;
 let gameScale;
 
@@ -26,6 +25,22 @@ function preload() {
   death = loadImage('Assets/gameoverscreen.png');
 }
 
+// This function will run constantly and spawn enemies over time
+function spawnEnemies() {
+  // Spawn a new enemy every 2 seconds (120 frames at 60fps)
+  if (frameCount % 120 === 0) { 
+    
+    // Randomly spawn a ground or flying enemy
+    if (random() < 0.5) {
+      // Spawn ground enemy off-screen right
+      enemiesArray.push(new GroundEnemies(width + 50));
+    } else {
+      // Spawn flying enemy off-screen right, at a random height
+      enemiesArray.push(new FlyingEnemies(width + 50, random(100, height / 2)));
+    }
+  }
+}
+
 function draw() {
   background(240, 248, 255);
 
@@ -38,39 +53,37 @@ function draw() {
       deathScrn.visible = true;  // Make the death screen visible
       return; // Stop drawing the rest of the game
     }
-
-  // Tell the Chef to update its position and physics
-    player.update();
-
-    playerShoots.update();
-
-    if (enemiesActive) {
-      updateEnemies();
-    }
-    checkCollisions();
-
   
-    health.healthDraw() // draws health on the screen
+    spawnEnemies(); // Call the spawner every frame
 
-    // Chef drawn to the screen
-    player.draw();
-    playerShoots.draw();
+    //Tell the Chef to update its position and physics
+    player.update();
+    playerShoots.update();
 
     let playerX = player.currentX(); 
     let playerY = player.currentY();
-
     playerHitbox.updateX(playerX);
     playerHitbox.updateY(playerY);
+
+    // Update all enemies in the array
+    for (let i = enemiesArray.length - 1; i >= 0; i--) {
+      enemiesArray[i].update(playerX, playerY);
+    }
+
+    checkCollisions();
+
+    health.healthDraw() // draws health on the screen
+    // Chef drawn to the screen
+    player.draw();
+    playerShoots.draw();
     playerHitbox.drawPlayerHitbox();
-  
-    //bebo draw function moved to sketch
-    if (!enemiesActive && playerX >= width / 3) {
-      spawnEnemies();
-      //spawnGroundEnemies();
-      enemiesActive = true;
+
+    // Draw all enemies
+    for (let enemy of enemiesArray) {
+      enemy.draw();
     }
   
-  } else if (deathScrn.visible) {
+  }else if (deathScrn.visible) {
     deathScrn.screenDraw(death);
     
   } else {

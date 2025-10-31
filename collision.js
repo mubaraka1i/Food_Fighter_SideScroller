@@ -1,37 +1,52 @@
 function checkCollisions() {
-  // Get the bullets array from the playerShoots object
   const bullets = playerShoots.getBullets();
+  const playerHB = playerHitbox; // Get the player's hitbox object
 
-  //check if bullet hit enemy
-  for (let i = bullets.length - 1; i >= 0; i--) {
-    for (let j = enemiesArray.length - 1; j >= 0; j--) {
+  // Loop through all enemies backwards (safe for removal)
+  for (let i = enemiesArray.length - 1; i >= 0; i--) {
+    const enemy = enemiesArray[i];
+    const enemyHB = enemy.getHitbox(); // Get enemy's hitbox
+
+    // --- 1. Check Player-Enemy Collision ---
+    
+    // This check is for rectangle-vs-rectangle (GroundEnemy)
+    if (enemy instanceof GroundEnemies) {
+      if (playerHB.playerHitRect(enemyHB.x, enemyHB.y, enemyHB.w, enemyHB.h)) {
+        health.healthDec(10); // Damage player
+        enemiesArray.splice(i, 1); // Remove enemy
+        continue; // Skip to next enemy
+      }
+    }
+    // This check is for circle-vs-rectangle (FlyingEnemy)
+    else if (enemy instanceof FlyingEnemies) {
+      if (playerHB.playerHitCircle(enemyHB.x, enemyHB.y, enemyHB.r)) {
+        health.healthDec(10); // Damage player
+        enemiesArray.splice(i, 1); // Remove enemy
+        continue; // Skip to next enemy
+      }
+    }
+
+    // --- 2. Check Bullet-Enemy Collision ---
+    for (let j = bullets.length - 1; j >= 0; j--) {
+      const bullet = bullets[j];
       
-      const bullet = bullets[i];
-      const enemy = enemiesArray[j];
+      let hit = false;
+      // Check bullet (circle) vs GroundEnemy (rect)
+      if (enemy instanceof GroundEnemies) {
+        hit = collideRectCircle(enemyHB.x, enemyHB.y, enemyHB.w, enemyHB.h, bullet.x, bullet.y, bullet.size);
+      }
+      // Check bullet (circle) vs FlyingEnemy (circle)
+      else if (enemy instanceof FlyingEnemies) {
+        // Use p5.collide's circle vs circle check
+        hit = collideCircleCircle(enemyHB.x, enemyHB.y, enemyHB.r * 2, bullet.x, bullet.y, bullet.size);
+      }
 
-      // between the bullet's center and the enemy's center.
-      const distance = dist(bullet.x, bullet.y, enemy.x, enemy.y);
-
-      if (distance < (bullet.size / 2) + enemy.r) {
-        
-        // Collision detection
-        enemiesArray.splice(j, 1); // delete the enemy
-        bullets.splice(i, 1);      // delete the bullet
-        
-        break;
+      if (hit) {
+        enemiesArray.splice(i, 1); // Remove enemy
+        bullets.splice(j, 1);      // Remove bullet
+        break; // Stop checking this enemy, move to next
       }
     }
   }
-
-  //check if enemy hit chef
-  for (let i = enemiesArray.length - 1; i >= 0; i--) {
-    const enemy = enemiesArray[i];
-    
-    // Use the playerHitbox's collision detection method
-    if (playerHitbox.playerHit(enemy.x, enemy.y)) {
-      // Player hits enemy - lose health and remove enemy
-      health.healthDec(10);
-      enemiesArray.splice(i, 1);
-    }
-  }
 }
+
