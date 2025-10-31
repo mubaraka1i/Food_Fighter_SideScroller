@@ -12,7 +12,7 @@ class TitleScreen {
   screenDraw(screen) {
     if (!this.visible) return; // do nothing if hidden
 
-    this.curFrame = floor(frameCount / 7) % 2;
+    this.curFrame = floor(frameCount / 10) % 2;
     let frameW = screen.width / 2;
     let frameH = screen.height;
     let curX = this.curFrame * frameW;

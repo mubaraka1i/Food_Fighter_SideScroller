@@ -23,7 +23,7 @@ function setup() {
 
 function preload() {
   title = loadImage('Assets/titlescreen.png');
-  death = loadImage('Assets/titlescreen.png'); // not designed yet
+  death = loadImage('Assets/gameoverscreen.png');
 }
 
 function draw() {
