@@ -1,0 +1,28 @@
+class BossProjectile {
+  constructor(x, y, dx, dy) {
+    this.x = x;
+    this.y = y;
+    this.dx = dx;
+    this.dy = dy;
+    this.speed = 2.5;
+    this.size = 15;
+  }
+
+  update() {
+    this.x += this.dx * this.speed;
+    this.y += this.dy * this.speed;
+  }
+
+  draw() {
+    fill(255, 0, 255); 
+    ellipse(this.x, this.y, this.size);
+  }
+
+  getHitbox() {
+    return {
+      x: this.x,
+      y: this.y,
+      r: this.size / 2
+    };
+  }
+}
