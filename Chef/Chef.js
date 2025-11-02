@@ -23,8 +23,20 @@ class Chef {
       this.x += this.speed;
     }
 
-    // Simple gravity - just move downward
-    this.velocityY += 1; // Gravity pulls down 
+    
+    // Prevent chef from going past the right boundary of the level
+    if (this.x + this.width > levelWidth) {
+      this.x = levelWidth - this.width;
+    }
+
+    // Also prevent going past left boundary
+    if (this.x < 0) {
+      this.x = 0;
+    }
+
+    // Apply gravity only if not on ground
+    this.velocityY += 1; // Simple gravity - just move downward
+    
 
     // Update vertical position
     this.y += this.velocityY;
