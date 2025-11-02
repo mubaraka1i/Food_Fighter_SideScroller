@@ -4,18 +4,24 @@ class BossProjectile {
     this.y = y;
     this.dx = dx;
     this.dy = dy;
-    this.speed = 2.5;
+    this.speed = 4; 
     this.size = 15;
+    
   }
 
   update() {
+    let oldX = this.x;
+    let oldY = this.y;
+    
     this.x += this.dx * this.speed;
     this.y += this.dy * this.speed;
+    
   }
 
   draw() {
     fill(255, 0, 255); 
     ellipse(this.x, this.y, this.size);
+    
   }
 
   getHitbox() {

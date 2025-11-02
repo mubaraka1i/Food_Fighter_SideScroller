@@ -3,21 +3,19 @@ class PlayerShoots {
     this.bullets = [];
   }
 
-  // Call this every frame to update bullet positions
   update() {
     for (let i = this.bullets.length - 1; i >= 0; i--) {
-      // Move bullet
+      // Move bullet in world coordinates
       this.bullets[i].x += this.bullets[i].speed;
       
-      // Remove bullets that go off screen
-      if (this.bullets[i].x > width || this.bullets[i].x < 0) {
+      // Remove bullets that go off the level 
+      if (this.bullets[i].x > levelWidth || this.bullets[i].x < 0) {
         this.bullets.splice(i, 1);
         continue;
       }
     }
   }
 
-  // Call this every frame to draw bullets
   draw() {
     for (let bullet of this.bullets) {
       fill(255, 215, 0); // Gold color
@@ -25,7 +23,6 @@ class PlayerShoots {
     }
   }
 
-  // Call this when player shoots from sketch.js
   shoot(player) {
     const shootInfo = player.getShootInfo();
     
@@ -38,7 +35,6 @@ class PlayerShoots {
     });
   }
 
-  // Get bullets for collision detection will be used by bebo
   getBullets() {
     return this.bullets;
   }
