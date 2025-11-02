@@ -8,10 +8,10 @@ class LevelCreator {
         this.enemy2 = enemy2; // amount of enemy type spawn points
 
         this.bossTrigger = this.bossTrigger;
-        this.reducedEnd = end - bossTrigger; // end accounts for the boss fight
-        this.powerList = this.powerUpSpawn(start, reducedEnd, this.powerUps);
-        this.enemy1List = this.enemy1(start, reducedEnd, this.enemy1);
-        this.enemy2List = this.enemy2(start, reducedEnd, this.enemy2);
+        this.reducedEnd = this.end - this.bossTrigger; // end accounts for the boss fight
+        this.powerList = this.powerUpSpawn(this.start, this.reducedEnd, this.powerUps);
+        this.enemy1List = this.enemy1Spawn(this.start, this.reducedEnd, this.enemy1);
+        this.enemy2List = this.enemy2Spawn(this.start, this.reducedEnd, this.enemy2);
 
         // starts at the first threshold for enemies and power ups
         this.enemy1Curr = 0;
@@ -56,7 +56,7 @@ class LevelCreator {
         return powerList;
     }
 
-    enemy1(start, end, spawns) {
+    enemy1Spawn(start, end, spawns) {
         let enemy1List = [];
         let area = end - start;
         let threshold = floor(area / spawns);
@@ -66,7 +66,7 @@ class LevelCreator {
         return enemy1List;
     }
 
-    enemy1(start, end, spawns) {
+    enemy2Spawn(start, end, spawns) {
         let enemy2List = [];
         let area = end - start;
         let threshold = floor(area / spawns);
