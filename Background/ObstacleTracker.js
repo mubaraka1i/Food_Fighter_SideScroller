@@ -22,12 +22,12 @@ class ObstacleTracker {
         return this.obstacles;
     }
 
-    draw(strokeColor, fillColor) {
+    draw(strokeColor = 'black', fillColor = 'gray') {
         stroke(strokeColor);
         fill(fillColor);
-        for (let obstacle of obstacles) {
-            let x = obstacle.topLeft[0];
-            let y = obstacle.topLeft[1];
+        for (let obstacle of this.obstacles) {
+            let x = obstacle.topLeft()[0];
+            let y = obstacle.topLeft()[1];
             let w = obstacle.width;
             let h = obstacle.height;
             rect(x, y, w, h);

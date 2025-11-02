@@ -1,4 +1,9 @@
 class Level1Layout {
+
+    constructor() {
+        this.obstacles = new ObstacleTracker();
+    }
+
     levelMaker(height) {
         let obstacles = new ObstacleTracker();
 
@@ -48,6 +53,10 @@ class Level1Layout {
         obstacles.addObstacle(new ObstacleCreator([2035.7, height - 14], 28.4, 14));
         obstacles.addObstacle(new ObstacleCreator([2064.1, height - 7.4], 28.4, 7.4));
 
-        obstacles.draw();
+        this.obstacles.draw('black', 'gray');
+    }
+
+    getObstacles() {
+        return this.obstacles;
     }
 }

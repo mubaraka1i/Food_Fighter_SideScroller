@@ -7,7 +7,7 @@ class LevelCreator {
         this.enemy1 = enemy1; // amount of enemy type spawn points
         this.enemy2 = enemy2; // amount of enemy type spawn points
 
-        this.bossTrigger = this.bossTrigger;
+        this.bossTrigger = bossTrigger;
         this.reducedEnd = this.end - this.bossTrigger; // end accounts for the boss fight
         this.powerList = this.powerUpSpawn(this.start, this.reducedEnd, this.powerUps);
         this.enemy1List = this.enemy1Spawn(this.start, this.reducedEnd, this.enemy1);
@@ -43,10 +43,10 @@ class LevelCreator {
         let powerList = [];
         let possSpawns = spawns * 2;
         let area = end - start;
-        let frequency = floor(area / possSpawns);
+        let frequency = Math.floor(area / possSpawns);
         let random;
-        for (let i = 1; i <= frequency; i+=2) {
-            random = random();
+        for (let i = 1; i <= possSpawns; i+=2) {
+            random = Math.random();
             if (random < 0.5) {
                 powerList.push(frequency * i);
             } else {
@@ -59,7 +59,7 @@ class LevelCreator {
     enemy1Spawn(start, end, spawns) {
         let enemy1List = [];
         let area = end - start;
-        let threshold = floor(area / spawns);
+        let threshold = Math.floor(area / spawns);
         for (let i = 1; i <= spawns; i++) {
             enemy1List.push(threshold * i)
         }
@@ -69,7 +69,7 @@ class LevelCreator {
     enemy2Spawn(start, end, spawns) {
         let enemy2List = [];
         let area = end - start;
-        let threshold = floor(area / spawns);
+        let threshold = Math.floor(area / spawns);
         for (let i = 1; i <= spawns; i++) {
             enemy2List.push([threshold * (i + 0.5), true]); // format: x coordinate, active
         }
@@ -77,8 +77,8 @@ class LevelCreator {
     }
 
     enemy1Reached(playerX) {
-        if (playerX >= enemy1List[this.enemy1Curr] && ememy1Curr + 1 < this.enemy1List.length) {
-            enemy1Curr++;
+        if (playerX >= this.enemy1List[this.enemy1Curr] && this.ememy1Curr + 1 < this.enemy1List.length) {
+            this.enemy1Curr++;
             return true;
         } else {
             return false;
@@ -86,8 +86,8 @@ class LevelCreator {
     }
 
     enemy2Reached(playerX) {
-        if (playerX >= enemy2List[this.enemy2Curr] && ememy2Curr + 1 < this.enemy2List.length) {
-            enemy2Curr++;
+        if (playerX >= this.enemy2List[this.enemy2Curr] && this.ememy2Curr + 1 < this.enemy2List.length) {
+            this.enemy2Curr++;
             return true;
         } else {
             return false;
