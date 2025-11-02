@@ -1,25 +1,20 @@
 class ObstacleCreator {
-    constructor(bottomLeft, bottomRight, topRight, topLeft) {
+    constructor(topLeft, width, height) {
         // each argument is an array of coordinate pairs formatted as: (x, y);
-        this.bottomLeft = bottomLeft;
-        this.bottomRight = bottomRight;
-        this.topRight = topRight;
-        this.topleft = topLeft;
+        this.topLeft = this.topLeft;
+        this.width = width;
+        this.height = height;
     }
 
-    getBottomLeft() {
-        return this.bottomLeft;
-    }
-
-    getBottomRight() {
-        return this.bottomRight;
+    getTopLeft() {
+        return this.topLeft
     }
     
-    getTopLeft() {
-        return this.topLeft;
+    getWidth() {
+        return this.width;
     }
 
-    getTopRight() {
-        return this.topRight;
+    getHeight() {
+        return this.height;
     }
 }

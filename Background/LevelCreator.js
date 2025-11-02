@@ -1,5 +1,5 @@
-class levelCreator {
-    constructor(start, end, powerUps, enemy1, enemy2) {
+class LevelCreator {
+    constructor(start, end, powerUps, enemy1, enemy2, bossTrigger) {
         // start and end indicate the x coordinates where the level cannot scroll any further
         this.start = start;
         this.end = end;
@@ -7,7 +7,7 @@ class levelCreator {
         this.enemy1 = enemy1; // amount of enemy type spawn points
         this.enemy2 = enemy2; // amount of enemy type spawn points
 
-        this.bossTrigger = this.bossThreshold(start, end);
+        this.bossTrigger = this.bossTrigger;
         this.reducedEnd = end - bossTrigger; // end accounts for the boss fight
         this.powerList = this.powerUpSpawn(start, reducedEnd, this.powerUps);
         this.enemy1List = this.enemy1(start, reducedEnd, this.enemy1);
@@ -39,10 +39,6 @@ class levelCreator {
         return this.enemy2;
     }
 
-    bossThreshold(start, end) {
-        let area = end - start;
-        return area * 0.95;
-    }
     powerUpSpawn(start, end, spawns) {
         let powerList = [];
         let possSpawns = spawns * 2;
