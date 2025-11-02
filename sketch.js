@@ -9,7 +9,7 @@ let gameScale;
 let background1;
 let cameraX = 0;
 let level1;
-let layout;
+let layout1;
 
 let boss;
 let bossActive = false;
@@ -21,8 +21,7 @@ let bossSpawnPosition = 2500; // Boss spawns when player reaches this X position
 function setup() {
   createCanvas(windowWidth, windowHeight);
   level1 = new LevelCreator(0, levelWidth, 5, 5, 5, bossSpawnPosition);
-  layout = new Level1Layout();
-  layout.levelMaker(height);
+  layout1 = new Level1Layout();
   
   player = new Chef(50, height - 100);
   playerShoots = new PlayerShoots();
@@ -77,6 +76,9 @@ function draw() {
     push();
     translate(-cameraX, 0);
     background1.draw(cameraX);
+
+    // Draw obstacles (fix lag)
+    layout1.levelMaker(height);
     
     // Draw all game objects in world coordinates
     player.draw();
