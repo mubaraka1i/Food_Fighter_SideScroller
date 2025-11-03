@@ -22,7 +22,7 @@ class ObstacleTracker {
         return this.obstacles;
     }
 
-    obstacleDraw(strokeColor, fillColor) {
+    obstacleDraw(strokeColor, fillColor, playerX, width) {
         stroke(strokeColor);
         fill(fillColor);
         for (let obstacle of this.obstacles) {
@@ -30,7 +30,9 @@ class ObstacleTracker {
             let y = obstacle.topLeft[1];
             let w = obstacle.width;
             let h = obstacle.height;
-            rect(x, y, w, h);
+            if (abs(x - playerX) <= width / 8) {
+                rect(x, y, w, h);
+            }
         }
     }
 }

@@ -78,7 +78,7 @@ function draw() {
     background1.draw(cameraX);
 
     // Draw obstacles (fix lag)
-    layout1.levelMaker(height);
+    layout1.levelMaker(height, player.currentX(), width);
     
     // Draw all game objects in world coordinates
     player.draw();

@@ -4,7 +4,7 @@ class Level1Layout {
         this.obstacles = new ObstacleTracker();
     }
 
-    levelMaker(height) {
+    levelMaker(height, playerX, width) {
         this.obstacles.addObstacle(new ObstacleCreator([907.3, height - 7.4], 28.4, 7.4));
         this.obstacles.addObstacle(new ObstacleCreator([935.7, height - 14], 28.4, 14));
         this.obstacles.addObstacle(new ObstacleCreator([964.1, height - 30], 35.7, 30));
@@ -51,7 +51,7 @@ class Level1Layout {
         this.obstacles.addObstacle(new ObstacleCreator([2035.7, height - 14], 28.4, 14));
         this.obstacles.addObstacle(new ObstacleCreator([2064.1, height - 7.4], 28.4, 7.4));
 
-        this.obstacles.obstacleDraw("black", "gray");
+        this.obstacles.obstacleDraw("black", "gray", playerX, width);
     }
 
     getObstacles() {
