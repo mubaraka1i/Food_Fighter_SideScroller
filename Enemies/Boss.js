@@ -7,7 +7,7 @@ class Boss {
     this.x = this.startX;
     this.y = height - this.height; 
     
-    this.health = 25;
+    this.health = 10;
     this.projectiles = [];
     this.shootCooldown = 0;
     this.shootInterval = 90; 
@@ -90,7 +90,7 @@ class Boss {
       fill(255);
       rect(this.x, this.y - 50, this.width, 10);
       fill(0, 255, 0);
-      rect(this.x, this.y - 50, this.width * (this.health / 25), 10);
+      rect(this.x, this.y - 50, this.width * (this.health / 10), 10);
       
       // Projectiles
       for (let projectile of this.projectiles) {

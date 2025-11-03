@@ -79,7 +79,7 @@ function checkCollisions() {
         
         // Make sure it is using world coordinates for both player and projectile
         if (playerHB.playerHitCircle(projHB.x, projHB.y, projHB.r)) {
-          health.healthDec(5);
+          health.healthDec(1);
           bossProjectiles.splice(k, 1);
         }
       }
