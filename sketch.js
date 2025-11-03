@@ -11,7 +11,7 @@ let cameraX = 0;
 let level1;
 let layout1;
 let chefSprites = {};
-let obstaclesInitialized = false; // Add this line
+let obstaclesInitialized = false;
 let keyIsDown = {};
 
 let boss;

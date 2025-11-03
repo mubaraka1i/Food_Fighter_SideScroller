@@ -21,39 +21,23 @@ class Chef {
   // DOESNT FIX IT YET ;-;
   updateInput() {
     // Horizontal movement
-    if (keyIsDown.a || keyIsDown.A || keyIsDown.ArrowLeft) this.moveLeft(true);
-    else this.moveLeft(false);
-
-    if (keyIsDown.d || keyIsDown.D || keyIsDown.ArrowRight) this.moveRight(true);
-    else this.moveRight(false);
+    this.isMovingLeft = keyIsDown['a'] || keyIsDown['A'] || keyIsDown['ArrowLeft'];
+    this.isMovingRight = keyIsDown['d'] || keyIsDown['D'] || keyIsDown['ArrowRight'];
 
     // Ducking
-    if (keyIsDown.s || keyIsDown.S || keyIsDown.ArrowDown) playerHitbox.duck();
-    else playerHitbox.cancelDuck();
+    if (keyIsDown['s'] || keyIsDown['S'] || keyIsDown['ArrowDown']) {
+      playerHitbox.duck();
+    } else {
+      playerHitbox.cancelDuck();
+    }
 
-    // Jumping
-    if ((keyIsDown.w || keyIsDown.W || keyIsDown.ArrowUp) && this.isOnGround) {
+    // Jumping (Single press)
+    if ((keyIsDown['w'] || keyIsDown['W'] || keyIsDown['ArrowUp']) && this.isOnGround) {
       this.jump();
-      this.jumpPressed = true;
-      this.moveLeft(false);
-      this.moveRight(false);
-    }
-  
-    // Reset when keys are released
-    
-    // Jumping
-    if (!(keyIsDown.w || keyIsDown.W || keyIsDown.ArrowUp)) {
-      this.jumpPressed = false;
-    }
-    
-    // Left
-    if (!(keyIsDown.a || keyIsDown.A || keyIsDown.ArrowLeft)) {
-      this.moveLeft(false);
-    }
-    
-    // Right
-    if (!(keyIsDown.d || keyIsDown.D || keyIsDown.ArrowRight)) {
-      this.moveRight(false);
+      // Set the key to false immediately so it doesn't re-trigger
+      keyIsDown['w'] = false; 
+      keyIsDown['W'] = false;
+      keyIsDown['ArrowUp'] = false;
     }
   }
 
