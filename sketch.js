@@ -10,6 +10,7 @@ let background1;
 let cameraX = 0;
 let level1;
 let layout1;
+let obstaclesInitialized = false; // Add this line
 
 let boss;
 let bossActive = false;
@@ -77,8 +78,13 @@ function draw() {
     translate(-cameraX, 0);
     background1.draw(cameraX);
 
-    // Draw obstacles (fix lag)
-    layout1.levelMaker(height, player.currentX(), width);
+    // prevents constant redraw that causes lag
+    if (!obstaclesInitialized) {
+        layout1.levelMaker(height, player.currentX(), width);
+        obstaclesInitialized = true;
+    } else {
+        layout1.getObstacles().obstacleDraw("black", "gray", player.currentX(), width);
+    }
     
     // Draw all game objects in world coordinates
     player.draw();
