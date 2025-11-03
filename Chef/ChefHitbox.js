@@ -15,6 +15,14 @@ class ChefHitbox{
     this.isDucking = false;
   }
 
+  getCenterX() {
+    return this.x + this.hitWidth / 2;
+  }
+  
+  getCenterY() {
+    return this.y + this.hitHeight / 2;
+  }
+
   update() {
     // Always center hitbox horizontally
     this.hitWidth = this.defaultWidth * 0.6; // adjust ratio as needed

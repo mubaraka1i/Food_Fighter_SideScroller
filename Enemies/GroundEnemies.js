@@ -1,8 +1,8 @@
 class GroundEnemies {
   constructor(x, y) {
     this.x = x;
-    this.width = 50;
-    this.height = 50;
+    this.width = 150;
+    this.height = 150;
     // Set its y-position to be on the ground
     this.y = height - this.height; 
     this.speed = 1.5;

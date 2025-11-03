@@ -47,7 +47,7 @@ function setup() {
   level1 = new LevelCreator(0, levelWidth, 5, 5, 5, bossSpawnPosition);
   layout1 = new Level1Layout();
   
-  player = new Chef(50, height - 100, chefSprites);
+  player = new Chef(50, 0, chefSprites);
   playerShoots = new PlayerShoots();
   health = new ChefHealth(50, chefHat);
   playerHitbox = new ChefHitbox(player, showHitboxes);
@@ -122,9 +122,8 @@ function draw() {
     
     health.healthDraw(); // outside of push-pop so health is fixed to screen
 
-
-    let playerX = player.currentX(); 
-    let playerY = player.currentY();
+    let playerHitboxX = playerHitbox.getCenterX();
+    let playerHitboxY = playerHitbox.getCenterY();
 
     if (health.getHealth() <= 0) {
       playInitiated = false;
@@ -132,7 +131,7 @@ function draw() {
       return;
     }
 
-    if (!bossActive && playerX >= bossSpawnPosition) {
+    if (!bossActive && player.currentX() >= bossSpawnPosition) {
         spawnBoss();
     }
     
@@ -142,16 +141,15 @@ function draw() {
     }
 
     player.update();
+    playerHitbox.update();
     playerShoots.update();
 
-    playerHitbox.update();
-
     for (let i = enemiesArray.length - 1; i >= 0; i--) {
-      enemiesArray[i].update(playerX, playerY);
+      enemiesArray[i].update(playerHitboxX, playerHitboxY);
     }
 
     if (bossActive && boss !== null) {
-        boss.update(playerX, playerY);
+        boss.update(playerHitboxX, playerHitboxY);
     }
 
     checkCollisions();
@@ -188,8 +186,8 @@ function keyReleased() {
 
 // Restarts the game
 function restartGame() {
-  health = new ChefHealth(50);
-  player = new Chef(50, height - 100, chefSprites);
+  health = new ChefHealth(50, chefHat);
+  player = new Chef(50, 0, chefSprites); 
   playerHitbox = new ChefHitbox(player, showHitboxes);
   playerShoots = new PlayerShoots();
   enemiesArray = [];
@@ -197,6 +195,8 @@ function restartGame() {
   boss = null;
   cameraX = 0;
   
+  keyIsDown = {};
+
   deathScrn.visible = false;
   titleScrn.visible = true; 
   playInitiated = false;

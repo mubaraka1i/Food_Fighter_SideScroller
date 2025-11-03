@@ -164,9 +164,18 @@ class Chef {
   }
 
   getShootInfo() {
+    let shootY = playerHitbox.getCenterY(); // Get the hitbox's true center Y
+    
+    // Determine X based on facing direction and hitbox
+    let shootX;
+    if (this.facingDirection === 'right') {
+      shootX = playerHitbox.x + playerHitbox.hitWidth; // Right edge of hitbox
+    } else {
+      shootX = playerHitbox.x; // Left edge of hitbox
+    }
     return {
-      x: this.facingDirection === 'right' ? this.x + this.width : this.x,
-      y: this.y + this.height / 2,
+      x: shootX,
+      y: shootY,
       direction: this.facingDirection,
       speed: this.facingDirection === 'right' ? 10 : -10
     };

@@ -7,9 +7,9 @@ class FlyingEnemies {
   }
 
   // Update its position based on the player's location
-  update(playerX, playerY) {
+  update(playerHitboxX, playerHitboxY) {
     // Calculate the angle towards the player
-    let angle = atan2(playerY - this.y, playerX - this.x);
+    let angle = atan2(playerHitboxY - this.y, playerHitboxX - this.x);
     
     // Move on that angle
     this.x += cos(angle) * this.speed;

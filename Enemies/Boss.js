@@ -15,7 +15,7 @@ class Boss {
     this.slidingIn = true;
   }
 
-  update(playerX, playerY) {
+  update(playerHitboxX, playerHitboxY) {
     if (this.slidingIn) {
       this.x -= this.slideSpeed;
       if (this.x <= this.targetX) {
@@ -38,19 +38,19 @@ class Boss {
       if (this.shootCooldown > 0) {
         this.shootCooldown--;
       } else {
-        this.shootAtPlayer(playerX, playerY);
+        this.shootAtPlayer(playerHitboxX, playerHitboxY);
         this.shootCooldown = this.shootInterval;
       }
     }
   }
 
-  shootAtPlayer(playerX, playerY) {
+  shootAtPlayer(playerHitboxX, playerHitboxY) {
     // Calculate direction from boss to player
     let bossCenterX = this.x + this.width / 2;
     let bossCenterY = this.y + this.height / 2;
     
-    let dx = playerX - bossCenterX;
-    let dy = playerY - bossCenterY;
+    let dx = playerHitboxX - bossCenterX;
+    let dy = playerHitboxY - bossCenterY;
     
     // direction
     let distance = Math.sqrt(dx * dx + dy * dy);
