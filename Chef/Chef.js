@@ -15,6 +15,7 @@ class Chef {
     this.isDucking = false;
     this.sprites = sprites;
     this.jumpPressed = false;
+    this.isTakingDamage = false;
   }
 
   // NEW: Calling this in draw() every frame to avoid key conflicts
@@ -82,8 +83,10 @@ class Chef {
       this.y = groundLevel;
       this.velocityY = 0;
       this.isOnGround = true;
+      this.isTakingDamage = false; // Reset damage flag when landing
     } else if (this.isOnObstacle()) {
       this.isOnGround = true; // Make sure we're marked as on ground when on obstacle
+      this.isTakingDamage = false; // Reset damage flag when landing on obstacle
     } else {
       this.isOnGround = false;
     }
@@ -107,10 +110,23 @@ class Chef {
   }
 
   jump() {
-    if (this.isOnGround) {
+    if (this.isOnGround && !this.isTakingDamage) {
       this.velocityY = -this.jumpStrength; // Negative Y to jump up
       this.isOnGround = false;
     }
+  }
+
+  // Cancel jump when taking damage
+  takeDamage() {
+    this.isTakingDamage = true;
+    
+    // If player is moving jumping, cancel the jump
+    if (this.velocityY < 0) {
+      this.velocityY = 0; // Stop upward movement and start falling immediately
+    }
+    
+    // Add a small downward force to ensure falling
+    this.velocityY += 2;
   }
 
   moveLeft(isPressed) {
@@ -191,6 +207,7 @@ class Chef {
           this.y = obsY - this.height;
           this.velocityY = 0;
           this.isOnGround = true;
+          this.isTakingDamage = false;
         }
         // Check if hitting bottom of obstacle (jumping into it)
         else if (oldY >= obsY + obsH && this.velocityY < 0) {

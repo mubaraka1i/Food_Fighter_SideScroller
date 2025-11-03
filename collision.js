@@ -10,12 +10,14 @@ function checkCollisions() {
     // Check Player-Enemy Collision 
     if (enemy instanceof GroundEnemies) {
       if (playerHB.playerHitRect(enemyHB.x, enemyHB.y, enemyHB.w, enemyHB.h)) {
+        player.takeDamage();
         health.healthDec(10);
         enemiesArray.splice(i, 1);
         continue;
       }
     } else if (enemy instanceof FlyingEnemies) {
       if (playerHB.playerHitCircle(enemyHB.x, enemyHB.y, enemyHB.r)) {
+        player.takeDamage();
         health.healthDec(10);
         enemiesArray.splice(i, 1);
         continue;
@@ -51,6 +53,7 @@ function checkCollisions() {
     if (!boss.isSlidingIn()) {
       // Check Player vs Boss
       if (playerHB.playerHitRect(bossHB.x, bossHB.y, bossHB.w, bossHB.h)) {
+        player.takeDamage();
         health.healthDec(1);
       }
 
@@ -79,6 +82,7 @@ function checkCollisions() {
         
         // Make sure it is using world coordinates for both player and projectile
         if (playerHB.playerHitCircle(projHB.x, projHB.y, projHB.r)) {
+          player.takeDamage();
           health.healthDec(1);
           bossProjectiles.splice(k, 1);
         }
