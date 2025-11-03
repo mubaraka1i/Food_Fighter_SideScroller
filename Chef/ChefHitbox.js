@@ -1,54 +1,77 @@
-class ChefHitbox {
+class ChefHitbox{
 
-  constructor(playerPosX, playerPosY, visible, hitBoxLength) {
-    this.playerPosX = playerPosX;
-    this.playerPosY = playerPosY;
+  constructor(player, visible) {
+    this.player = player;
     this.visible = visible;
-    this.hitboxLength = hitBoxLength;
+    
+    this.defaultHeight = player.height; // full standing height
+    this.defaultWidth = player.width;
+    
+    this.hitHeight = this.defaultHeight - 18;
+    this.hitWidth = this.defaultWidth * 0.6;
+    this.x = this.player.x + (this.defaultWidth - this.hitWidth) / 2;
+    this.y = this.player.y;
+    this.duckHeight = 74; // crouch height
+    this.isDucking = false;
   }
 
-  updateX(x) {
-    this.playerPosX = x;
-  }
+  update() {
+    // Always center hitbox horizontally
+    this.hitWidth = this.defaultWidth * 0.6; // adjust ratio as needed
+    this.x = this.player.x + (this.defaultWidth - this.hitWidth) / 2;
 
-  updateY(y) {
-    this.playerPosY = y;
+    if (this.isDucking) {
+      this.hitHeight = this.duckHeight; // height when ducking
+      this.y = this.player.y + (this.defaultHeight - this.duckHeight);
+    } else {
+      this.hitHeight = this.defaultHeight - 18; // height when standing
+      this.y = this.player.y + 18; // keeping hitbox aligned
+    }
+  }
+  
+  duck() {
+    if (this.player.isOnGround) this.isDucking = true;
+  }
+  
+  cancelDuck() {
+    this.isDucking = false;
   }
 
   drawPlayerHitbox() {
+    if (!this.visible) return;
+    push();
     noFill();
-    if (this.visible == true) {
-      stroke('green');
-    } else {
-      noStroke();
-    }
-    rectMode(CORNER);
-    //fixed this because playerPosY already accounts for the height calculation
-    rect(this.playerPosX, this.playerPosY, this.hitboxLength, this.hitboxLength);
+    stroke('green');
+    rect(this.x, this.y, this.hitWidth, this.hitHeight);
+    pop();
   }
 
-  // --- UPDATED playerHit ---
+  playerHit(x, y) {
+    // 'x' and 'y' are the coordinates of the thing hitting the player
+    const hitX = x >= this.x && x <= this.x + this.hitHeight;
+    const hitY = y >= this.y && y <= this.y + this.hitHeight;
+
+    return hitX && hitY;
+  }
+  
+    // --- UPDATED playerHit ---
   // This now checks for RECTANGLE collision, which are ground enemies
   playerHitRect(enemyX, enemyY, enemyW, enemyH) {
     // Check for no overlap (Axis-Aligned Bounding Box)
-    if (this.playerPosX + this.hitboxLength < enemyX ||
-        this.playerPosX > enemyX + enemyW ||
-        this.playerPosY + this.hitboxLength < enemyY ||
-        this.playerPosY > enemyY + enemyH) {
-      return false;
-    } else {
-      return true; // Overlap!
-    }
+    return !(this.x + this.hitWidth < enemyX ||
+             this.x > enemyX + enemyW ||
+             this.y + this.hitHeight < enemyY ||
+             this.y > enemyY + enemyH);
   }
 
   // --- NEW METHOD: Check collision with a CIRCLE, which is flying enemies---
   playerHitCircle(circleX, circleY, circleR) {
     // Use p5.collide library function (diameter)
     return collideRectCircle(
-      this.playerPosX,
-      this.playerPosY,
-      this.hitboxLength,
-      this.hitboxLength,
+      this.x,
+      this.y,
+      this.hitWidth,
+      this.hitHeight,
       circleX,
       circleY,
       circleR * 2 

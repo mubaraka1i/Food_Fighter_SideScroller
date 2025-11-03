@@ -1,9 +1,9 @@
 class Chef {
-  constructor(startX, startY) {
+  constructor(startX, startY, sprites) {
     this.x = startX;
     this.y = startY; 
-    this.width = 50;
-    this.height = 50;
+    this.width = 150;
+    this.height = 150;
     this.speed = 5;
     this.velocityY = 0;
     this.jumpStrength = 16;
@@ -12,6 +12,49 @@ class Chef {
     this.isMovingRight = false;
     this.facingDirection = 'right';
     this.groundTolerance = 5; // tolerance for ground detection
+    this.isDucking = false;
+    this.sprites = sprites;
+    this.jumpPressed = false;
+  }
+
+  // NEW: Calling this in draw() every frame to avoid key conflicts
+  // DOESNT FIX IT YET ;-;
+  updateInput() {
+    // Horizontal movement
+    if (keyIsDown.a || keyIsDown.A || keyIsDown.ArrowLeft) this.moveLeft(true);
+    else this.moveLeft(false);
+
+    if (keyIsDown.d || keyIsDown.D || keyIsDown.ArrowRight) this.moveRight(true);
+    else this.moveRight(false);
+
+    // Ducking
+    if (keyIsDown.s || keyIsDown.S || keyIsDown.ArrowDown) playerHitbox.duck();
+    else playerHitbox.cancelDuck();
+
+    // Jumping
+    if ((keyIsDown.w || keyIsDown.W || keyIsDown.ArrowUp) && this.isOnGround) {
+      this.jump();
+      this.jumpPressed = true;
+      this.moveLeft(false);
+      this.moveRight(false);
+    }
+  
+    // Reset when keys are released
+    
+    // Jumping
+    if (!(keyIsDown.w || keyIsDown.W || keyIsDown.ArrowUp)) {
+      this.jumpPressed = false;
+    }
+    
+    // Left
+    if (!(keyIsDown.a || keyIsDown.A || keyIsDown.ArrowLeft)) {
+      this.moveLeft(false);
+    }
+    
+    // Right
+    if (!(keyIsDown.d || keyIsDown.D || keyIsDown.ArrowRight)) {
+      this.moveRight(false);
+    }
   }
 
   update() {
@@ -62,18 +105,21 @@ class Chef {
     }
   }
 
-  draw() {
-    // Chef body 
-    fill(230, 48, 38);
-    rect(this.x, this.y, this.width, this.height);
+  draw() { // Display chef sprite animation
+    let img;
+    if (playerHitbox.isDucking) img = this.sprites.duck;
+    else if (!this.isOnGround) img = this.velocityY < 0 ? this.sprites.jump : this.sprites.fall;
+    else if (this.isMovingLeft || this.isMovingRight) {
+      const frameIndex = floor(frameCount / 6) % this.sprites.walk.length;
+      img = this.sprites.walk[frameIndex];
+    } else img = this.sprites.stand;
 
-    // Chef eyes
-    fill(0);
-    if (this.facingDirection === 'right') {
-      circle(this.x + this.width - 10, this.y + 15, 8);
-    } else {
-      circle(this.x + 10, this.y + 15, 8);
-    }
+    push();
+    translate(this.x, this.y);
+    if (this.facingDirection === 'left') scale(-1,1);
+    imageMode(CORNER);
+    image(img, this.facingDirection === 'left' ? -this.width : 0, 0, this.width, this.height);
+    pop();
   }
 
   jump() {
@@ -97,6 +143,24 @@ class Chef {
 
   currentY(){
     return this.y;
+  }
+
+  duck() {
+    if (this.isOnGround && !this.isDucking) {
+      this.isDucking = true;
+      const heightDifference = this.height - this.duckHeight;
+      this.y += heightDifference; // move chef down to stay on the ground
+      this.height = this.duckHeight;
+    }
+  }
+  
+  cancelDuck() {
+    if (this.isDucking) {
+      this.isDucking = false;
+      const heightDifference = 50 - this.height;
+      this.y -= heightDifference; // move back up
+      this.height = 50;
+    }
   }
 
   getShootInfo() {

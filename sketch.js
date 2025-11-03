@@ -10,7 +10,9 @@ let background1;
 let cameraX = 0;
 let level1;
 let layout1;
+let chefSprites = {};
 let obstaclesInitialized = false; // Add this line
+let keyIsDown = {};
 
 let boss;
 let bossActive = false;
@@ -19,25 +21,39 @@ let bossActive = false;
 let levelWidth = 3000;
 let bossSpawnPosition = 2500; // Boss spawns when player reaches this X position in the world
 
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  level1 = new LevelCreator(0, levelWidth, 5, 5, 5, bossSpawnPosition);
-  layout1 = new Level1Layout();
-  
-  player = new Chef(50, height - 100);
-  playerShoots = new PlayerShoots();
-  health = new ChefHealth(50);
-  playerHitbox = new ChefHitbox(player.currentX(), player.currentY(), showHitboxes, 50);
-  titleScrn = new TitleScreen(0);
-  deathScrn = new TitleScreen(1);
-  boss = null;
-}
-
 function preload() {
   title = loadImage('Assets/titlescreen.png');
   death = loadImage('Assets/gameoverscreen.png');
   background1 = new Level1Background();
   background1.preload();
+  chefHat = loadImage('Assets/chef_health.png');
+  
+  // Load Chef sprites
+  chefSprites = {
+    stand: loadImage('Assets/chef_stand.png'),
+    walk: [
+      loadImage('Assets/chef_walk1.png'),
+      loadImage('Assets/chef_walk2.png'),
+      loadImage('Assets/chef_walk3.png')
+    ],
+    duck:  loadImage('Assets/chef_duck.png'),
+    jump:  loadImage('Assets/chef_jump.png'),
+    fall:  loadImage('Assets/chef_fall.png')
+  };
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  level1 = new LevelCreator(0, levelWidth, 5, 5, 5, bossSpawnPosition);
+  layout1 = new Level1Layout();
+  
+  player = new Chef(50, height - 100, chefSprites);
+  playerShoots = new PlayerShoots();
+  health = new ChefHealth(50, chefHat);
+  playerHitbox = new ChefHitbox(player, showHitboxes);
+  titleScrn = new TitleScreen(0);
+  deathScrn = new TitleScreen(1);
+  boss = null;
 }
 
 // BOSS SPAWNING FUNCTION
@@ -77,6 +93,8 @@ function draw() {
     push();
     translate(-cameraX, 0);
     background1.draw(cameraX);
+    
+    player.updateInput(); // constantly update simultaneous input
 
     // prevents constant redraw that causes lag
     if (!obstaclesInitialized) {
@@ -101,8 +119,9 @@ function draw() {
         boss.draw();
     }
     pop();
+    
+    health.healthDraw(); // outside of push-pop so health is fixed to screen
 
-    health.healthDraw();
 
     let playerX = player.currentX(); 
     let playerY = player.currentY();
@@ -125,8 +144,7 @@ function draw() {
     player.update();
     playerShoots.update();
 
-    playerHitbox.updateX(playerX);
-    playerHitbox.updateY(playerY);
+    playerHitbox.update();
 
     for (let i = enemiesArray.length - 1; i >= 0; i--) {
       enemiesArray[i].update(playerX, playerY);
@@ -146,57 +164,33 @@ function draw() {
 }
 
 function keyPressed() {
-  switch (key) {
-    case 'a':
-    case 'A':
-    case 'ArrowLeft':
-      player.moveLeft(true); 
-      break;
-    case 'd':
-    case 'D':
-    case 'ArrowRight':
-      player.moveRight(true);
-      break;
-    case 'w':
-    case 'W':
-    case 'ArrowUp':
-      player.jump();
-      break;
-    case 'Enter':
-      if (titleScrn.visible) {
-        titleScrn.screenRemove();
-        playInitiated = true;
-      } else if (deathScrn.visible) {
-        restartGame();
-      }
-      break;
-    case ' ':
-      playerShoots.shoot(player);
-      break;
+  keyIsDown[key] = true;
+
+  // Single-trigger keys
+  if (key === 'Enter') {
+    if (titleScrn.visible) {
+      titleScrn.screenRemove();
+      playInitiated = true;
+    } else if (deathScrn.visible) {
+      restartGame();
+    }
+  } else if (key === ' ') {
+    playerShoots.shoot(player);
   }
-  return false;
+
+  return false; // prevent default browser behavior
 }
 
 function keyReleased() {
-  switch (key) {
-    case 'a':
-    case 'A':
-    case 'ArrowLeft':
-      player.moveLeft(false); 
-      break;
-    case 'd':
-    case 'D':
-    case 'ArrowRight':
-      player.moveRight(false); 
-      break;
-  }
-  return false;
+  keyIsDown[key] = false; // mark key as pressed
+  return false; // prevent default browser behavior
 }
 
 // Restarts the game
 function restartGame() {
   health = new ChefHealth(50);
-  player = new Chef(50, height - 100);
+  player = new Chef(50, height - 100, chefSprites);
+  playerHitbox = new ChefHitbox(player, showHitboxes);
   playerShoots = new PlayerShoots();
   enemiesArray = [];
   bossActive = false;
