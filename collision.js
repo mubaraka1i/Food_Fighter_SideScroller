@@ -1,5 +1,5 @@
 function checkCollisions() {
-  const bullets = playerShoots.bullets;
+  const bullets = playerShoots.getBullets();
   const playerHB = playerHitbox;
 
   // Loop through all enemies backwards

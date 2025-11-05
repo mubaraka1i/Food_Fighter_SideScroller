@@ -34,4 +34,9 @@ class PlayerShoots {
       direction: shootInfo.direction
     });
   }
+  
+  getBullets() {
+    return this.bullets;
+  }
+
 }

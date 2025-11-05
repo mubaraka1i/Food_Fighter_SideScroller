@@ -45,7 +45,7 @@ class ChefHitbox{
     this.isDucking = false;
   }
 
-  draw() {
+  drawPlayerHitbox() {
     if (!this.visible) return;
     push();
     noFill(); 

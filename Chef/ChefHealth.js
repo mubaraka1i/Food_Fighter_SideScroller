@@ -5,7 +5,11 @@ class ChefHealth {
     this.healthImg = img;
   }
 
-  draw() {
+  getHealth() {
+    return this.health;
+  }
+
+  healthDraw() {
     fill(0);
     noStroke(); 
     textSize(16); 
