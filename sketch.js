@@ -12,7 +12,8 @@ let level1;
 let layout1;
 let chefSprites = {};
 let obstaclesInitialized = false;
-let keyIsDown = {};
+//let keyIsDown = {};
+const keys = {}
 
 let boss;
 let bossActive = false;
@@ -40,6 +41,7 @@ function preload() {
     jump:  loadImage('Assets/chef_jump.png'),
     fall:  loadImage('Assets/chef_fall.png')
   };
+
 }
 
 function setup() {
@@ -54,6 +56,15 @@ function setup() {
   titleScrn = new TitleScreen(0);
   deathScrn = new TitleScreen(1);
   boss = null;
+
+
+  document.addEventListener('keydown', (e) => {
+    keys[e.key.toLowerCase()] = true;
+  });
+  
+  document.addEventListener('keyup', (e) => {
+    keys[e.key.toLowerCase()] = false;
+  });
 }
 
 // BOSS SPAWNING FUNCTION
@@ -79,6 +90,26 @@ function spawnEnemies() {
     } else {
       enemiesArray.push(new FlyingEnemies(spawnX, random(100, height / 2)));
     }
+  }
+}
+
+// Handle shooting and menu controls
+function handleControls() {
+  // Shooting
+  if (keys[' ']) {
+    playerShoots.shoot(player);
+    keys[' '] = false; // Prevent continuous shooting
+  }
+  
+  // Enter key for menu
+  if (keys['enter']) {
+    if (titleScrn.visible) {
+      titleScrn.screenRemove();
+      playInitiated = true;
+    } else if (deathScrn.visible) {
+      restartGame();
+    }
+    keys['enter'] = false;
   }
 }
 
@@ -140,6 +171,8 @@ function draw() {
         spawnEnemies();
     }
 
+    handleControls();
+
     player.update();
     playerHitbox.update();
     playerShoots.update();
@@ -195,7 +228,10 @@ function restartGame() {
   boss = null;
   cameraX = 0;
   
-  keyIsDown = {};
+  //keyIsDown = {};
+  for (let key in keys) {
+    keys[key] = false;
+  }
 
   deathScrn.visible = false;
   titleScrn.visible = true; 

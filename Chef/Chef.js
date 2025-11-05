@@ -21,24 +21,23 @@ class Chef {
   // NEW: Calling this in draw() every frame to avoid key conflicts
   // DOESNT FIX IT YET ;-;
   updateInput() {
-    // Horizontal movement
-    this.isMovingLeft = keyIsDown['a'] || keyIsDown['A'] || keyIsDown['ArrowLeft'];
-    this.isMovingRight = keyIsDown['d'] || keyIsDown['D'] || keyIsDown['ArrowRight'];
+    // Horizontal movement using JavaScript keys
+    this.isMovingLeft = keys['a'] || keys['arrowleft'];
+    this.isMovingRight = keys['d'] || keys['arrowright'];
 
     // Ducking
-    if (keyIsDown['s'] || keyIsDown['S'] || keyIsDown['ArrowDown']) {
+    if (keys['s'] || keys['arrowdown']) {
       playerHitbox.duck();
     } else {
       playerHitbox.cancelDuck();
     }
 
     // Jumping (Single press)
-    if ((keyIsDown['w'] || keyIsDown['W'] || keyIsDown['ArrowUp']) && this.isOnGround) {
+    if ((keys['w'] || keys['arrowup']) && this.isOnGround && !this.isTakingDamage) {
       this.jump();
-      // Set the key to false immediately so it doesn't re-trigger
-      keyIsDown['w'] = false; 
-      keyIsDown['W'] = false;
-      keyIsDown['ArrowUp'] = false;
+      // Clear the jump keys to prevent retriggering
+      keys['w'] = false;
+      keys['arrowup'] = false;
     }
   }
 
