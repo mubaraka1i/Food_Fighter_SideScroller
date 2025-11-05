@@ -4,7 +4,7 @@ class ChefHitbox{
     this.player = player;
     this.visible = visible;
     
-    this.defaultHeight = player.height; // full standing height
+    this.defaultHeight = player.height; // full standing heigh-t
     this.defaultWidth = player.width;
     
     this.hitHeight = this.defaultHeight - 18;
@@ -45,10 +45,10 @@ class ChefHitbox{
     this.isDucking = false;
   }
 
-  drawPlayerHitbox() {
+  draw() {
     if (!this.visible) return;
     push();
-    noFill();
+    noFill(); 
     stroke('green');
     rect(this.x, this.y, this.hitWidth, this.hitHeight);
     pop();
