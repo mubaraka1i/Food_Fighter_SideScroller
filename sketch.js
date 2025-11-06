@@ -12,7 +12,6 @@ let level1;
 let layout1;
 let chefSprites = {};
 let obstaclesInitialized = false;
-//let keyIsDown = {};
 const keys = {}
 
 let boss;
@@ -100,17 +99,6 @@ function handleControls() {
     playerShoots.shoot(player);
     keys[' '] = false; // Prevent continuous shooting
   }
-  
-  // Enter key for menu
-  if (keys['enter']) {
-    if (titleScrn.visible) {
-      titleScrn.screenRemove();
-      playInitiated = true;
-    } else if (deathScrn.visible) {
-      restartGame();
-    }
-    keys['enter'] = false;
-  }
 }
 
 function draw() {
@@ -195,8 +183,6 @@ function draw() {
 }
 
 function keyPressed() {
-  keyIsDown[key] = true;
-
   // Single-trigger keys
   if (key === 'Enter') {
     if (titleScrn.visible) {
@@ -205,15 +191,7 @@ function keyPressed() {
     } else if (deathScrn.visible) {
       restartGame();
     }
-  } else if (key === ' ') {
-    playerShoots.shoot(player);
   }
-
-  return false; // prevent default browser behavior
-}
-
-function keyReleased() {
-  keyIsDown[key] = false; // mark key as pressed
   return false; // prevent default browser behavior
 }
 
@@ -228,7 +206,6 @@ function restartGame() {
   boss = null;
   cameraX = 0;
   
-  //keyIsDown = {};
   for (let key in keys) {
     keys[key] = false;
   }
