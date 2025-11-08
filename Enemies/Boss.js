@@ -95,6 +95,7 @@ class Boss {
       // Projectiles
       for (let projectile of this.projectiles) {
         projectile.draw();
+        projectile.drawHitbox();
       }
     }
   }
