@@ -22,17 +22,29 @@ class ObstacleTracker {
         return this.obstacles;
     }
 
-    obstacleDraw(strokeColor, fillColor, playerX, width) {
-        stroke(strokeColor);
-        fill(fillColor);
-        for (let obstacle of this.obstacles) {
+    obstacleDraw(primaryColor, secondaryColor, playerX, screenWidth) {
+        for (let i = 0; i < this.obstacles.length; i++) {
+            let obstacle = this.obstacles[i];
             let x = obstacle.topLeft[0];
             let y = obstacle.topLeft[1];
             let w = obstacle.width;
             let h = obstacle.height;
-            if (abs(x - playerX) <= width / 8) {
+            
+            // Check if obstacle is visible on screen (within camera view)
+            if (x + w > playerX - screenWidth/2 && x < playerX + screenWidth/2) {
+                // Alternate between primary and secondary colors for visual variety
+                let fillColor = i % 2 === 0 ? primaryColor : secondaryColor;
+                
+                push();
+                noStroke();
+                fill(fillColor);
                 rect(x, y, w, h);
+                pop();
             }
         }
+    }
+
+    clearObstacles() {
+        this.obstacles = [];
     }
 }

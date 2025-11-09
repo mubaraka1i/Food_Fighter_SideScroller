@@ -179,7 +179,7 @@ function draw() {
 
     // prevents constant redraw that causes lag
     if (obstaclesInitialized) {
-      currentLayout.getObstacles().obstacleDraw("black", "gray", player.currentX(), width);
+      currentLayout.drawObstacles(player.currentX(), width);
     }
 
     // Draw all game objects in world coordinates

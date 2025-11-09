@@ -51,10 +51,14 @@ class Level1Layout {
         this.obstacles.addObstacle(new ObstacleCreator([2035.7, height - 14], 28.4, 14));
         this.obstacles.addObstacle(new ObstacleCreator([2064.1, height - 7.4], 28.4, 7.4));
 
-        this.obstacles.obstacleDraw("black", "gray", playerX, width);
+        //this.obstacles.obstacleDraw("black", "gray", playerX, width);
     }
 
     getObstacles() {
         return this.obstacles;
+    }
+
+    drawObstacles(playerX, width) {
+        this.obstacles.obstacleDraw("black", "gray", playerX, width);
     }
 }
