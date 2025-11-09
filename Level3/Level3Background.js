@@ -1,11 +1,7 @@
-class Level1Background {
-  constructor() {
-    this.levelWidth = 7000;
-    this.img = null;
-  }
-  
-  preload() {
-    this.img = loadImage('Assets/Kitchen3.png');
+class Level3Background {
+  constructor(img, levelWidth) {
+    this.levelWidth = levelWidth;
+    this.img = img;
   }
   
   draw(cameraX) {

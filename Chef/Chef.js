@@ -16,6 +16,9 @@ class Chef {
     this.sprites = sprites;
     this.jumpPressed = false;
     this.isTakingDamage = false;
+    // To prevent retriggering
+    keys['w'] = false;
+    keys['arrowup'] = false;
   }
 
   // NEW: Calling this in draw() every frame to avoid key conflicts
@@ -41,7 +44,7 @@ class Chef {
     }
   }
 
-  update() {
+  update(currentLayout) {
     // Store old position for collision response
     let oldX = this.x;
     let oldY = this.y;
@@ -73,17 +76,21 @@ class Chef {
     // Update vertical position
     this.y += this.velocityY;
 
-    // Check collision with obstacles after movement
-    this.handleObstacleCollision(oldX, oldY);
+    let obstacleTracker = (currentLayout && currentLayout.getObstacles()) ? currentLayout.getObstacles() : null;
 
-    // Improved ground collision with tolerance
+    if (obstaclesInitialized && obstacleTracker) {
+      this.handleObstacleCollision(oldX, oldY, obstacleTracker);
+    }
+
     let groundLevel = height - this.height;
-    if (this.y >= groundLevel - this.groundTolerance && !this.isOnObstacle()) {
+    let onObs = obstaclesInitialized && obstacleTracker ? this.isOnObstacle(obstacleTracker) : false;
+
+    if (this.y >= groundLevel - this.groundTolerance && !onObs) {
       this.y = groundLevel;
       this.velocityY = 0;
       this.isOnGround = true;
       this.isTakingDamage = false; // Reset damage flag when landing
-    } else if (this.isOnObstacle()) {
+    } else if (onObs) {
       this.isOnGround = true; // Make sure we're marked as on ground when on obstacle
       this.isTakingDamage = false; // Reset damage flag when landing on obstacle
     } else {
@@ -182,11 +189,10 @@ class Chef {
 
   //chef obstacle interaction
 
-  handleObstacleCollision(oldX, oldY) {
-    if (!layout1 || !layout1.getObstacles()) return;
-    
-    const obstacles = layout1.getObstacles().getObstacles();
-    this.isOnGround = false; // Reset ground state
+  handleObstacleCollision(oldX, oldY, obstacleTracker) {
+    if (!obstacleTracker) return;
+
+    const obstacles = obstacleTracker.getObstacles();
     
     for (let obstacle of obstacles) {
       let obsX = obstacle.topLeft[0];
@@ -224,10 +230,10 @@ class Chef {
     }
   }
 
-  isOnObstacle() {
-    if (!layout1 || !layout1.getObstacles()) return false;
+  isOnObstacle(obstacleTracker) {
+    if (!obstacleTracker) return false;
     
-    const obstacles = layout1.getObstacles().getObstacles();
+    const obstacles = obstacleTracker.getObstacles();
     for (let obstacle of obstacles) {
       let obsX = obstacle.topLeft[0];
       let obsY = obstacle.topLeft[1];

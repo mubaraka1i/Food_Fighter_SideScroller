@@ -26,22 +26,21 @@ function checkCollisions() {
 
     // Check Bullet-Enemy Collision 
     for (let j = bullets.length - 1; j >= 0; j--) {
+      if (!bullets[j]) continue; 
+      
       const bullet = bullets[j];
       
       let hit = false;
-      // Check bullet (circle) vs GroundEnemy (rect)
       if (enemy instanceof GroundEnemies) {
         hit = collideRectCircle(enemyHB.x, enemyHB.y, enemyHB.w, enemyHB.h, bullet.x, bullet.y, bullet.size);
-      }
-      // Check bullet (circle) vs FlyingEnemy (circle)
-      else if (enemy instanceof FlyingEnemies) {
+      } else if (enemy instanceof FlyingEnemies) {
         hit = collideCircleCircle(enemyHB.x, enemyHB.y, enemyHB.r * 2, bullet.x, bullet.y, bullet.size);
       }
 
       if (hit) {
         enemiesArray.splice(i, 1);
         bullets.splice(j, 1);
-        break;
+        break; 
       }
     }
   }
@@ -67,8 +66,7 @@ function checkCollisions() {
           if (boss.getHealth() <= 0) {
             bossActive = false;
             boss = null;
-            playInitiated = false;
-            deathScrn.visible = true;
+            goToNextLevel();
             return;
           }
         }
