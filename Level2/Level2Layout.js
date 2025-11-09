@@ -14,10 +14,7 @@ class Level2Layout {
         const groundLevel = height;
         const platformHeight = 50;
         
-        // Create a more forgiving progression with overlapping platforms
-        // and safety platforms below challenging sections
         
-        // Starting area - gentle introduction
         this.obstacles.addObstacle(new ObstacleCreator([800, groundLevel - platformHeight], 200, platformHeight));
         
         // First small gap with safety platform below
@@ -45,20 +42,16 @@ class Level2Layout {
         // Big counter area for recovery
         this.obstacles.addObstacle(new ObstacleCreator([2600, groundLevel - 150], 400, platformHeight));
         
-        // Fridge/platform section with gradual descent
-        this.obstacles.addObstacle(new ObstacleCreator([3100, groundLevel - 250], 150, platformHeight));
-        this.obstacles.addObstacle(new ObstacleCreator([3350, groundLevel - 200], 150, platformHeight));
-        this.obstacles.addObstacle(new ObstacleCreator([3600, groundLevel - 150], 150, platformHeight));
-        this.obstacles.addObstacle(new ObstacleCreator([3850, groundLevel - 100], 150, platformHeight));
+        this.obstacles.addObstacle(new ObstacleCreator([3100, groundLevel - 250], 400, platformHeight)); // Extended width
+        this.obstacles.addObstacle(new ObstacleCreator([3600, groundLevel - 200], 400, platformHeight)); // Extended width
+        this.obstacles.addObstacle(new ObstacleCreator([4100, groundLevel - 150], 400, platformHeight)); // Extended width
+        this.obstacles.addObstacle(new ObstacleCreator([4600, groundLevel - 100], 400, platformHeight)); // Extended width
         
-        // Final approach to boss - wide platforms
-        this.obstacles.addObstacle(new ObstacleCreator([4200, groundLevel - 100], 300, platformHeight));
-        this.obstacles.addObstacle(new ObstacleCreator([4700, groundLevel - 150], 400, platformHeight));
-        this.obstacles.addObstacle(new ObstacleCreator([5300, groundLevel - 200], 500, platformHeight));
-        this.obstacles.addObstacle(new ObstacleCreator([6000, groundLevel - 150], 600, platformHeight));
+        // Final approach to boss - wide connected platforms
+        this.obstacles.addObstacle(new ObstacleCreator([5100, groundLevel - 100], 400, platformHeight));
+        this.obstacles.addObstacle(new ObstacleCreator([5600, groundLevel - 150], 400, platformHeight));
+        
 
-        // Draw them with appropriate colors
-        //this.obstacles.obstacleDraw(this.cookieColor, this.counterColor, playerX, width);
     }
 
     getObstacles() {

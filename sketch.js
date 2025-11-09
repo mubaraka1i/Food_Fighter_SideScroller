@@ -74,6 +74,24 @@ function setup() {
 
 //LEVEL MANAGER FUNCTION
 function loadLevel(levelNumber) {
+    if (levelNumber > 3) { // Change this number when we implement level 4 and 5
+      playInitiated = false;
+      titleScrn.visible = true;
+      deathScrn.visible = false;
+      
+      // Reset to level 1 for the next playthrough
+      currentLevel = 1;
+      
+      // Clear all game state
+      enemiesArray = [];
+      boss = null;
+      bossActive = false;
+      cameraX = 0;
+      
+      return;
+
+  }
+
   currentLevel = levelNumber;
   obstaclesInitialized = false;
   enemiesArray = [];
@@ -105,7 +123,6 @@ function loadLevel(levelNumber) {
       currentLayout = new Level3Layout();
       // currentBackground = new Level3Background(level3BackgroundImg, levelWidth);
       // currentLayout = new Level3Layout();
-      // For now, just restart level 1. Bebo you can delete loadlevel and implement like mine
       break;
     // Add cases for levels 4 and 5 here
     default:
@@ -113,7 +130,8 @@ function loadLevel(levelNumber) {
       playInitiated = false;
       titleScrn.visible = true;
       deathScrn.visible = false;
-      break;
+      currentLevel = 1; // Reset to level 1
+      return;
   }
 
   // Spawn the obstacles for the newly loaded level
@@ -247,6 +265,8 @@ function keyPressed() {
   // Single-trigger keys
   if (key === 'Enter') {
     if (titleScrn.visible) {
+      // Reset the game completely before starting
+      completeGameReset();
       titleScrn.screenRemove();
       playInitiated = true;
     } else if (deathScrn.visible) {
@@ -256,22 +276,89 @@ function keyPressed() {
   return false; // prevent default browser behavior
 }
 
+// Completely reset the game for a fresh start
+function completeGameReset() {
+  // Reset to level 1
+  currentLevel = 1;
+  
+  // Clear all game objects
+  enemiesArray = [];
+  boss = null;
+  bossActive = false;
+  cameraX = 0;
+  
+  // Reset player
+  if (player) {
+    player.x = 50;
+    player.y = 0;
+    player.velocityY = 0;
+    player.isTakingDamage = false;
+    player.isOnGround = false;
+    player.isDucking = false;
+  }
+  
+  // Reset player shoots
+  if (playerShoots) {
+    playerShoots.bullets = [];
+  }
+  
+  // Reset health
+  if (health) {
+    health.health = 50;
+  }
+  
+  // Reset screens
+  playInitiated = false;
+  titleScrn.visible = true;
+  deathScrn.visible = false;
+  
+  // Clear any keys that might be stuck
+  for (let key in keys) {
+    keys[key] = false;
+  }
+  
+  // Load level 1 to reset obstacles and layout
+  loadLevel(1);
+}
+
 // Restarts the game
 function restartGame() {
-  health = new ChefHealth(50, chefHat);
-  player = new Chef(50, 0, chefSprites);
-  playerHitbox = new ChefHitbox(player, showHitboxes);
-  playerShoots = new PlayerShoots(); 
-
-  // Right now i have it going back to level one but we can discuss if
-  // We want that or continue on the same level
-  loadLevel(currentLevel);
+  if (health) {
+    health.health = 50;
+  }
+  
+  if (player) {
+    player.x = 50;
+    player.y = 0;
+    player.velocityY = 0;
+    player.isTakingDamage = false;
+    player.isOnGround = false;
+    player.isDucking = false;
+  }
+  
+  if (playerShoots) {
+    playerShoots.bullets = [];
+  }
+  
+  if (playerHitbox) {
+    playerHitbox.update();
+  }
+  
+  // Clear enemies and boss
+  enemiesArray = [];
+  boss = null;
+  bossActive = false;
+  cameraX = 0;
+  
+  if (currentLayout && currentLayout.levelMaker) {
+    currentLayout.levelMaker(height, player.currentX(), width);
+    obstaclesInitialized = true;
+  }
 
   for (let key in keys) {
     keys[key] = false;
   }
 
   deathScrn.visible = false;
-  titleScrn.visible = true;
-  playInitiated = false;
+  playInitiated = true;
 }

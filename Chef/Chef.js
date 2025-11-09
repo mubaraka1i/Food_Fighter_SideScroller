@@ -154,18 +154,28 @@ class Chef {
   duck() {
     if (this.isOnGround && !this.isDucking) {
       this.isDucking = true;
-      const heightDifference = this.height - this.duckHeight;
+      if (!this.originalHeight) {
+        this.originalHeight = this.height;
+      }
+      const duckHeight = 74;
+      const heightDifference = this.height - duckHeight;
       this.y += heightDifference; // move chef down to stay on the ground
-      this.height = this.duckHeight;
+      this.height = duckHeight;
     }
   }
   
   cancelDuck() {
     if (this.isDucking) {
       this.isDucking = false;
-      const heightDifference = 50 - this.height;
-      this.y -= heightDifference; // move back up
-      this.height = 50;
+      if (this.originalHeight) {
+        const heightDifference = this.originalHeight - this.height;
+        this.y -= heightDifference; // move back up
+        this.height = this.originalHeight;
+      } else {
+        // Fallback if originalHeight wasn't set
+        this.height = 150; // Default height
+        this.y = height - this.height; // Reset to ground level
+      }
     }
   }
 
