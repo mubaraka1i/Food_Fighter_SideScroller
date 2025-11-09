@@ -10,6 +10,8 @@ let background1;
 let cameraX = 0;
 let chefSprites = {};
 let obstaclesInitialized = false;
+let powerList;
+let levelCreate;
 const keys = {}
 
 let boss;
@@ -95,6 +97,7 @@ function loadLevel(levelNumber) {
   currentLevel = levelNumber;
   obstaclesInitialized = false;
   enemiesArray = [];
+  powerList = [];
   boss = null;
   bossActive = false;
   cameraX = 0;
@@ -108,6 +111,8 @@ function loadLevel(levelNumber) {
       bossSpawnPosition = 2500;
       currentBackground = new Level1Background(level1BackgroundImg, levelWidth);
       currentLayout = new Level1Layout();
+      levelCreate = new LevelCreator(0, levelWidth, 10, 10, 10, bossSpawnPosition, currentLayout, height);
+      powerList = levelCreate.powerUpSpawn(0, bossSpawnPosition, 10, currentLayout);
       break;
     case 2:
       levelWidth = 7000; 
@@ -136,6 +141,7 @@ function loadLevel(levelNumber) {
   // Spawn the obstacles for the newly loaded level
   if (currentLayout && currentLayout.levelMaker) {
     currentLayout.levelMaker(height, player.currentX(), width);
+
     obstaclesInitialized = true;
   }
 }
@@ -166,6 +172,13 @@ function spawnBoss() {
   bossActive = true;
   // Clear out all other enemies when boss spawns
   enemiesArray = []
+}
+
+function spawnPowerUps() {
+  for (let powerUp of powerList) {
+    powerUp.changePowerY(currentLayout.getRefHeight(powerUp.getPowerX, height));
+    levelCreate.drawPowerUp(powerUp.getPowerX(), powerUp.getPowerY(), 25);
+  }
 }
 
 // ENEMY SPAWNING FUNCTION
@@ -215,7 +228,7 @@ function draw() {
     playerShoots.draw();
     playerHitbox.drawPlayerHitbox();
 
-   
+    spawnPowerUps();
 
     // Draw all enemies
     for (let enemy of enemiesArray) {

@@ -50,15 +50,26 @@ class Level1Layout {
         this.obstacles.addObstacle(new ObstacleCreator([2000, height - 30], 35.7, 30));
         this.obstacles.addObstacle(new ObstacleCreator([2035.7, height - 14], 28.4, 14));
         this.obstacles.addObstacle(new ObstacleCreator([2064.1, height - 7.4], 28.4, 7.4));
-
-        //this.obstacles.obstacleDraw("black", "gray", playerX, width);
     }
 
     getObstacles() {
         return this.obstacles;
     }
 
+    getRefHeight(circleX, height) {
+        let obstacleList = this.obstacles.getObstacles();
+        for (let obstacle of obstacleList) {
+            let topLeft = obstacle.getTopLeft();
+            let obstacleX = topLeft[0];
+            if (obstacleX <= circleX + 12.5 && obstacleX + (obstacle.getWidth() >= circleX - 12.5)) {
+                return topLeft[1] - 50;
+            }
+        }
+        return height - 50;
+    }
+
     drawObstacles(playerX, width) {
         this.obstacles.obstacleDraw("black", "gray", playerX, width);
     }
+
 }
