@@ -110,13 +110,12 @@ function loadLevel(levelNumber) {
       currentLayout = new Level1Layout();
       break;
     case 2:
-      levelWidth = 7000; // From your Level2Background file
-      bossSpawnPosition = 6500; // Example spawn position for level 2
+      levelWidth = 7000; 
+      bossSpawnPosition = 6500; 
       currentBackground = new Level2Background(level2BackgroundImg, levelWidth);
-      currentLayout = new Level2Layout(); // We will create this file
+      currentLayout = new Level2Layout();
       break;
     case 3:
-      // Placeholder for when you implement Level 3
       levelWidth = 7000;
       bossSpawnPosition = 6500;
       currentBackground = new Level3Background(level3BackgroundImg, levelWidth);
@@ -148,14 +147,25 @@ function goToNextLevel() {
 
 // BOSS SPAWNING FUNCTION
 function spawnBoss() {
-  // Spawn boss at fixed position in WORLD coordinates
   let bossX = levelWidth - 200; // 200px from the end of the level
   let bossY = height - 150; // On the ground
-  boss = new Boss(bossX, bossY);
+  
+  // Create the appropriate boss for the current level
+  switch(currentLevel) {
+    case 1:
+      boss = new OriginalBoss(bossX, bossY);
+      break;
+    case 2:
+      boss = new CookieBoss(bossX, bossY);
+      break;
+    case 3:
+      boss = new NachosBoss(bossX, bossY);
+      break;
+  }
+  
   bossActive = true;
-
   // Clear out all other enemies when boss spawns
-  enemiesArray = [];
+  enemiesArray = []
 }
 
 // ENEMY SPAWNING FUNCTION
@@ -213,7 +223,7 @@ function draw() {
     }
 
     // Draw the boss if he exists
-    if (bossActive && boss !== null) {
+    if (boss !== null) {
       boss.draw();
     }
     pop();
@@ -248,7 +258,7 @@ function draw() {
       enemiesArray[i].update(playerHitboxX, playerHitboxY);
     }
 
-    if (bossActive && boss !== null) {
+    if (boss !== null) {
       boss.update(playerHitboxX, playerHitboxY);
     }
 

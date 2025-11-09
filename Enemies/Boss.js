@@ -1,18 +1,27 @@
 class Boss {
-  constructor(x, y) {
+  constructor(x, y, type) {
+    this.type = type;
     this.width = 100;
     this.height = 150;
-    this.startX = x + 300; 
-    this.targetX = x; 
-    this.x = this.startX;
-    this.y = height - this.height; 
     
-    this.health = 10;
-    this.projectiles = [];
-    this.shootCooldown = 0;
-    this.shootInterval = 90; 
+    // SLIDING ANIMATION :
+    this.targetX = x;          
+    this.startX = x + 300;      
+    this.x = this.startX;       
+    this.y = y;
+    
     this.slideSpeed = 8;
     this.slidingIn = true;
+    this.projectiles = [];
+    this.shootCooldown = 0;
+    
+    // Default values that can be overridden by child classes
+    this.health = 10;
+    this.maxHealth = 10;
+    this.shootInterval = 90;
+    this.minionSpawnCooldown = 0;
+    this.minionSpawnInterval = 180;
+    this.maxMinions = 3;
   }
 
   update(playerHitboxX, playerHitboxY) {
@@ -27,39 +36,46 @@ class Boss {
       for (let i = this.projectiles.length - 1; i >= 0; i--) {
         this.projectiles[i].update();
         
-        // Remove projectiles that go off screen (world coordinates)
+        // Remove projectiles that go off screen
         if (this.projectiles[i].x < -100 || this.projectiles[i].x > levelWidth + 100 || 
             this.projectiles[i].y < -100 || this.projectiles[i].y > height + 100) {
           this.projectiles.splice(i, 1);
         }
       }
       
-      // Handle shooting
+      // Handle shooting - to be overridden by child classes
       if (this.shootCooldown > 0) {
         this.shootCooldown--;
       } else {
         this.shootAtPlayer(playerHitboxX, playerHitboxY);
         this.shootCooldown = this.shootInterval;
       }
+      
+      // Handle minion spawning - to be overridden by child classes
+      if (this.minionSpawnCooldown > 0) {
+        this.minionSpawnCooldown--;
+      } else {
+        this.spawnMinions();
+        this.minionSpawnCooldown = this.minionSpawnInterval;
+      }
     }
   }
 
+  // Methods to be overridden by child classes
   shootAtPlayer(playerHitboxX, playerHitboxY) {
-    // Calculate direction from boss to player
+    // Default shooting behavior - can be overridden
     let bossCenterX = this.x + this.width / 2;
     let bossCenterY = this.y + this.height / 2;
     
     let dx = playerHitboxX - bossCenterX;
     let dy = playerHitboxY - bossCenterY;
     
-    // direction
     let distance = Math.sqrt(dx * dx + dy * dy);
     if (distance > 0) {
-      dx /= distance;
-      dy /= distance;
+      dx = dx / distance * 0.1; 
+      dy = dy / distance * 0.1;
     }
     
-    // Create projectile
     this.projectiles.push(new BossProjectile(
       bossCenterX,
       bossCenterY,
@@ -68,12 +84,17 @@ class Boss {
     ));
   }
 
+  spawnMinions() {
+    // Default minion spawning - can be overridden
+    // Child classes can add their own minions to enemiesArray
+  }
+
   draw() {
-    // Draw boss body
+    // Default boss drawing - can be overridden
     fill(255, 0, 0);
     rect(this.x, this.y, this.width, this.height);
     
-    // Draw boss details
+    // Default boss details
     fill(255);
     rect(this.x + 20, this.y - 30, this.width - 40, 30); // Chef hat
     
@@ -86,18 +107,21 @@ class Boss {
     ellipse(this.x + 70, this.y + 50, 10, 10);
     
     if (!this.slidingIn) {
-      // Health bar
-      fill(255);
-      rect(this.x, this.y - 50, this.width, 10);
-      fill(0, 255, 0);
-      rect(this.x, this.y - 50, this.width * (this.health / 10), 10);
+      this.drawHealthBar();
       
       // Projectiles
       for (let projectile of this.projectiles) {
         projectile.draw();
-        projectile.drawHitbox();
       }
     }
+  }
+
+  drawHealthBar() {
+    fill(255);
+    rect(this.x, this.y - 50, this.width, 10);
+    fill(0, 255, 0);
+    let healthWidth = this.width * (this.health / this.maxHealth);
+    rect(this.x, this.y - 50, healthWidth, 10);
   }
 
   getHitbox() {
