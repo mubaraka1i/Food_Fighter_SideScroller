@@ -176,8 +176,10 @@ function spawnBoss() {
 
 function spawnPowerUps() {
   for (let powerUp of powerList) {
-    powerUp.changePowerY(currentLayout.getRefHeight(powerUp.getPowerX, height));
-    levelCreate.drawPowerUp(powerUp.getPowerX(), powerUp.getPowerY(), 25);
+    if (powerUp.getStatus() == true) {
+      powerUp.changePowerY(currentLayout.getRefHeight(powerUp.getPowerX, height));
+      levelCreate.drawPowerUp(powerUp.getPowerX(), powerUp.getPowerY(), 25);
+    }
   }
 }
 
@@ -266,6 +268,7 @@ function draw() {
     player.update(currentLayout);
     playerHitbox.update();
     playerShoots.update();
+    levelCreate.powerUpReached(playerHitbox);
 
     for (let i = enemiesArray.length - 1; i >= 0; i--) {
       enemiesArray[i].update(playerHitboxX, playerHitboxY);

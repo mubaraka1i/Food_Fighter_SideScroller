@@ -1,8 +1,10 @@
 class PowerUpHitbox {
-    constructor(x, y, r) {
+    constructor(x, y, r, status, effect) {
         this.x = x;
         this.y = y;
         this.r = r;
+        this.status = status;
+        this.effect = effect;
     }
 
     getPowerX() {
@@ -15,6 +17,10 @@ class PowerUpHitbox {
 
     getPowerRadius() {
         return this.r;
+    }
+
+    getEffect() {
+        return this.effect;
     }
 
     changePowerX(newX) {
@@ -34,5 +40,9 @@ class PowerUpHitbox {
     
     drawHitBox() {
         circle(this.getPowerX, this.getPowerY, this.getPowerRadius * 2);
+    }
+
+    activate() {
+
     }
 }

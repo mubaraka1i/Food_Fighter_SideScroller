@@ -56,10 +56,23 @@ class LevelCreator {
             } else {
                 x = frequency * (i + 1);
             }
-            let powerUp = new PowerUpHitbox(x, this.height - 50, 25);
+            let powerUp = new PowerUpHitbox(x, this.height - 50, 25, true, this.powerUpEffect());
             powerList.push(powerUp);
         }
         return powerList;
+    }
+
+    powerUpEffect() {
+        let random = Math.random();
+        if (random < 0.25) {
+            return 1; // speed boost
+        } else if (random < 0.5) {
+            return 2; // health boost
+        } else if (random < 0.75) {
+            return 3; // protection boost
+        } else {
+            return 4; // damage boost
+        }
     }
 
     enemy1Spawn(start, end, spawns) {
@@ -100,13 +113,14 @@ class LevelCreator {
         }
     }
 
-    powerUpReached(playerX) {
-        let curr = this.powerList[powerCurr];
-        if (playerX >= curr[0] && this.powerCurr + 1 < this.powerList.length) {
-            this.powerCurr++;
-            return true;
-        } else {
-            return false;
+    powerUpReached(playerHitbox) {
+        let i;
+        for (let powerUp of this.powerList) {
+            if (playerHitbox.playerHitCircle(powerUp.getPowerX(), powerUp.getPowerY(), 25)) {
+                this.powerList.splice(i, 1)
+                return powerUp.getEffect();
+            }
+            i++;
         }
     }
 
