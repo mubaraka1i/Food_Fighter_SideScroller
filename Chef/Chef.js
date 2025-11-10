@@ -16,6 +16,11 @@ class Chef {
     this.sprites = sprites;
     this.jumpPressed = false;
     this.isTakingDamage = false;
+    this.shieldActive = false;
+    this.damageBoostActive = false;
+    this.damageMultiplier = 2;
+    this.shieldTimer = 0;
+    this.shieldDuration = 5000;
     // To prevent retriggering
     keys['w'] = false;
     keys['arrowup'] = false;
@@ -48,6 +53,8 @@ class Chef {
     // Store old position for collision response
     let oldX = this.x;
     let oldY = this.y;
+
+    this.updateShield();
 
     if (this.isMovingLeft) {
       this.facingDirection = 'left';
@@ -176,6 +183,17 @@ class Chef {
         this.height = 150; // Default height
         this.y = height - this.height; // Reset to ground level
       }
+    }
+  }
+
+  activateShield() {
+    this.shieldActive = true;
+    this.shieldTimer = millis() + this.shieldDuration;
+  }
+
+  updateShield() {
+    if (this.shieldActive && millis() > this.shieldTimer) {
+      this.shieldActive = false; // turn off when expired
     }
   }
 

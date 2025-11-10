@@ -144,25 +144,41 @@ class LevelCreator {
                 break;
                 }
             case 3: // protection boost
-                // Implement protection logic
+                if (!player.shieldActive) {
+                    player.shieldActive = true;
+                    player.activateShield();
+                    setTimeout(() => { player.shieldActive = false; }, 5000);
+                    // lasts 5s
+                }
                 break;
             case 4: // damage boost
-                // Implement damage boost logic
+                if (!player.damageBoostActive) {
+                    player.damageBoostActive = true;
+                    player.damageMultiplier = 2; // double damage
+                    setTimeout(() => {
+                        player.damageBoostActive = false;
+                        player.damageMultiplier = 1;
+                    }, 7000); // lasts 7s
+                }
                 break;
         }
     }
 
     drawPowerUp(x, y, d, effect) {
-        stroke('white');
-        if (effect == 1) {
-            fill('gray');
-        } else if (effect == 2) {
-            fill('pink')
-        } else if (effect == 3) {
-            fill('black');
-        } else if (effect == 4) {
-            fill('red');
+        let powerUpToDraw;
+        if (effect == 1) { // speed
+            powerUpToDraw = speedBoost;
+        } else if (effect == 2) { // health
+            powerUpToDraw = healthBoost;
+        } else if (effect == 3) { // protection
+            powerUpToDraw = shieldBoost;
+        } else if (effect == 4) { // damage
+            powerUpToDraw = damageBoost;
         }
-        circle(x, y, d);
+      
+        if (powerUpToDraw) {
+          imageMode(CENTER);
+          image(powerUpToDraw, x, y, d * 2, d * 2); // slightly larger than the old circle
+        }
     }
 }

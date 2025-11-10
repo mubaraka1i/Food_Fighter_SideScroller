@@ -23,6 +23,7 @@ let bossSpawnPosition;
 let currentBackground;
 let currentLayout;
 
+let speedBoost, healthBoost, shieldBoost, damageBoost, shieldDome;
 let level1BackgroundImg, level2BackgroundImg, level3BackgroundImg;
 let chefHat;
 let title, death;
@@ -50,6 +51,12 @@ function preload() {
     fall: loadImage('Assets/chef_fall.png')
   };
 
+  // Load Power-Up Icons
+  speedBoost = loadImage('Assets/power_speed.png');
+  healthBoost = loadImage('Assets/power_health.png');
+  shieldBoost = loadImage('Assets/power_shield.png');
+  damageBoost = loadImage('Assets/power_damage.png');
+  shieldDome = loadImage('Assets/shield_dome.png');
 }
 
 function setup() {
@@ -240,6 +247,12 @@ function draw() {
     playerHitbox.drawPlayerHitbox();
 
     spawnPowerUps();
+  
+    if (player.shieldActive) {
+      // Draw shield glow/image centered over chef
+      imageMode(CENTER);
+      image(shieldDome, player.x + player.width / 2, player.y + player.height / 2, player.width, player.height);
+    }
 
     // Draw all enemies
     for (let enemy of enemiesArray) {
