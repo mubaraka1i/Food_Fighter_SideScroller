@@ -176,10 +176,8 @@ function spawnBoss() {
 
 function spawnPowerUps() {
   for (let powerUp of powerList) {
-    if (powerUp.getStatus() == true) {
-      powerUp.changePowerY(currentLayout.getRefHeight(powerUp.getPowerX, height));
-      levelCreate.drawPowerUp(powerUp.getPowerX(), powerUp.getPowerY(), 25);
-    }
+    powerUp.changePowerY(currentLayout.getRefHeight(powerUp.getPowerX, height));
+    levelCreate.drawPowerUp(powerUp.getPowerX(), powerUp.getPowerY(), 25);
   }
 }
 
