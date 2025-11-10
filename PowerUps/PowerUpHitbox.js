@@ -42,6 +42,10 @@ class PowerUpHitbox {
         circle(this.getPowerX, this.getPowerY, this.getPowerRadius * 2);
     }
 
+    checkCollision(playerHitbox) {
+        return playerHitbox.playerHitCircle(this.x, this.y, this.r);
+    }
+
     activate() {
 
     }

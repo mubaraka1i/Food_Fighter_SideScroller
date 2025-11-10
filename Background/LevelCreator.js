@@ -114,13 +114,33 @@ class LevelCreator {
     }
 
     powerUpReached(playerHitbox) {
-        let i;
-        for (let powerUp of this.powerList) {
-            if (playerHitbox.playerHitCircle(powerUp.getPowerX(), powerUp.getPowerY(), 25)) {
-                this.powerList.splice(i, 1)
-                return powerUp.getEffect();
+        for (let i = this.powerList.length - 1; i >= 0; i--) {
+            let powerUp = this.powerList[i];
+            if (powerUp.checkCollision(playerHitbox)) {
+                let effect = powerUp.getEffect();
+                this.powerList.splice(i, 1);
+                this.applyPowerUpEffect(effect);
+                return effect;
             }
-            i++;
+        }
+        return null;
+    }
+    // For you Sam, this method 
+    applyPowerUpEffect(effect) {
+        switch(effect) {
+            case 1: // speed boost
+                player.speed += 2;
+                setTimeout(() => { player.speed -= 2; }, 10000);
+                break;
+            case 2: // health boost
+                health.healthInc(20);
+                break;
+            case 3: // protection boost
+                // Implement protection logic
+                break;
+            case 4: // damage boost
+                // Implement damage boost logic
+                break;
         }
     }
 

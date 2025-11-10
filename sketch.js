@@ -112,7 +112,7 @@ function loadLevel(levelNumber) {
       currentBackground = new Level1Background(level1BackgroundImg, levelWidth);
       currentLayout = new Level1Layout();
       levelCreate = new LevelCreator(0, levelWidth, 10, 10, 10, bossSpawnPosition, currentLayout, height);
-      powerList = levelCreate.powerUpSpawn(0, bossSpawnPosition, 10, currentLayout);
+      powerList = levelCreate.powerList; // Use the powerList from levelCreate
       break;
     case 2:
       levelWidth = 7000; 
@@ -175,9 +175,18 @@ function spawnBoss() {
 }
 
 function spawnPowerUps() {
+  if (!powerList || powerList.length === 0) return;
+  
   for (let powerUp of powerList) {
-    powerUp.changePowerY(currentLayout.getRefHeight(powerUp.getPowerX, height));
-    levelCreate.drawPowerUp(powerUp.getPowerX(), powerUp.getPowerY(), 25);
+      // Get the actual powerup position from the level layout
+      let powerX = powerUp.getPowerX();
+      let powerY = currentLayout.getRefHeight ? currentLayout.getRefHeight(powerX, height) : height - 50;
+      
+      // Update powerup position
+      powerUp.changePowerY(powerY);
+      
+      // Draw the powerup
+      levelCreate.drawPowerUp(powerX, powerY, 25);
   }
 }
 
@@ -242,6 +251,12 @@ function draw() {
     pop();
 
     health.healthDraw(); // outside of push-pop so health is fixed to screen
+
+    // TEST TO CHECK POWERUP COLLISIONS AFTER DRAWING IGNORE
+    // let powerUpEffect = levelCreate.powerUpReached(playerHitbox);
+    //if (powerUpEffect) {
+    //  console.log("PowerUp collected:", powerUpEffect);
+    //}
 
     let playerHitboxX = playerHitbox.getCenterX();
     let playerHitboxY = playerHitbox.getCenterY();
