@@ -77,6 +77,7 @@ class NachosBoss extends Boss {
       
       for (let projectile of this.projectiles) {
         projectile.draw();
+        projectile.drawHitbox();
       }
     }
   }

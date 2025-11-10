@@ -5,7 +5,6 @@ class OriginalBoss extends Boss {
     this.maxHealth = 10;
     // Uses default values from base Boss class
   }
-
   // Override the draw method to match the original boss appearance
   draw() {
     // Draw boss body (exactly like the original)
@@ -30,11 +29,12 @@ class OriginalBoss extends Boss {
       rect(this.x, this.y - 50, this.width, 10);
       fill(0, 255, 0);
       rect(this.x, this.y - 50, this.width * (this.health / this.maxHealth), 10);
-      
-      // Projectiles 
-      for (let projectile of this.projectiles) {
-        projectile.draw();
-      }
+    }
+    
+    // Always draw hitboxes with projectiles
+    for (let projectile of this.projectiles) {
+      projectile.draw();
+      projectile.drawHitbox();
     }
   }
 }

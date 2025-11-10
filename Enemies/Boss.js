@@ -36,11 +36,12 @@ class Boss {
       for (let i = this.projectiles.length - 1; i >= 0; i--) {
         this.projectiles[i].update();
         
-        // Remove projectiles that go off screen
-        if (this.projectiles[i].x < -100 || this.projectiles[i].x > levelWidth + 100 || 
-            this.projectiles[i].y < -100 || this.projectiles[i].y > height + 100) {
-          this.projectiles.splice(i, 1);
-        }
+        // Remove projectiles that go off screen/into new level
+       let proj = this.projectiles[i];
+if (proj.x < cameraX || proj.x > cameraX + width || 
+    proj.y < 0 || proj.y > height) {
+  this.projectiles.splice(i, 1);
+}
       }
       
       // Handle shooting - to be overridden by child classes
@@ -112,6 +113,7 @@ class Boss {
       // Projectiles
       for (let projectile of this.projectiles) {
         projectile.draw();
+        projectile.drawHitbox();
       }
     }
   }

@@ -27,6 +27,16 @@ class CheeseProjectile {
     }
   }
 
+   drawHitbox() {
+    push();
+    noFill();
+    stroke('red');
+    strokeWeight(2);
+    rectMode(CENTER); 
+    rect(this.x, this.y, this.size+1, this.size+1);
+    pop();
+  }
+
   getHitbox() {
     return {
       x: this.x,

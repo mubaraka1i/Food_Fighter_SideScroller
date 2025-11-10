@@ -15,7 +15,7 @@ class Level3Background {
         if (xPos + this.img.width > cameraX && xPos < cameraX + width) {
           // Draw the image full height and width
           image(this.img, xPos, 0, this.img.width, height);
-        }
+          }
       }
     }
   }
