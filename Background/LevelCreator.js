@@ -129,12 +129,20 @@ class LevelCreator {
     applyPowerUpEffect(effect) {
         switch(effect) {
             case 1: // speed boost
-                player.speed += 2;
-                setTimeout(() => { player.speed -= 2; }, 10000);
+                if (player.speed <= 1) { // prevents stacking
+                    player.speed += 2;
+                    setTimeout(() => { player.speed -= 2; }, 10000);
+                }
                 break;
             case 2: // health boost
-                health.healthInc(20);
+                if (health.getHealth() < 50) { // prevents over fill of HP
+                    if (health.getHealth() + 10 <= 50) {
+                        health.healthInc(10);
+                    } else {
+                        health.healthInc(50 - health.getHealth());
+                    }
                 break;
+                }
             case 3: // protection boost
                 // Implement protection logic
                 break;
@@ -144,9 +152,17 @@ class LevelCreator {
         }
     }
 
-    drawPowerUp(x, y, d) {
+    drawPowerUp(x, y, d, effect) {
         stroke('white');
-        fill('purple')
+        if (effect == 1) {
+            fill('gray');
+        } else if (effect == 2) {
+            fill('pink')
+        } else if (effect == 3) {
+            fill('black');
+        } else if (effect == 4) {
+            fill('red');
+        }
         circle(x, y, d);
     }
 }

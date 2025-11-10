@@ -186,7 +186,7 @@ function spawnPowerUps() {
       powerUp.changePowerY(powerY);
       
       // Draw the powerup
-      levelCreate.drawPowerUp(powerX, powerY, 25);
+      levelCreate.drawPowerUp(powerX, powerY, 25, powerUp.getEffect());
   }
 }
 
