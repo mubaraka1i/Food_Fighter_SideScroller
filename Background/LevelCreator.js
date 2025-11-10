@@ -129,7 +129,7 @@ class LevelCreator {
     applyPowerUpEffect(effect) {
         switch(effect) {
             case 1: // speed boost
-                if (player.speed <= 1) { // prevents stacking
+                if (player.speed <= 5) { // prevents stacking
                     player.speed += 2;
                     setTimeout(() => { player.speed -= 2; }, 10000);
                 }
