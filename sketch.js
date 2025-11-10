@@ -119,14 +119,16 @@ function loadLevel(levelNumber) {
       bossSpawnPosition = 6500; 
       currentBackground = new Level2Background(level2BackgroundImg, levelWidth);
       currentLayout = new Level2Layout();
+      levelCreate = new LevelCreator(0, levelWidth, 15, 15, 15, bossSpawnPosition, currentLayout, height);
+      powerList = levelCreate.powerList;
       break;
     case 3:
       levelWidth = 7000;
       bossSpawnPosition = 6500;
       currentBackground = new Level3Background(level3BackgroundImg, levelWidth);
       currentLayout = new Level3Layout();
-      // currentBackground = new Level3Background(level3BackgroundImg, levelWidth);
-      // currentLayout = new Level3Layout();
+      levelCreate = new LevelCreator(0, levelWidth, 20, 20, 20, bossSpawnPosition, currentLayout, height);
+      powerList = levelCreate.powerList;
       break;
     // Add cases for levels 4 and 5 here
     default:
@@ -251,12 +253,6 @@ function draw() {
     pop();
 
     health.healthDraw(); // outside of push-pop so health is fixed to screen
-
-    // TEST TO CHECK POWERUP COLLISIONS AFTER DRAWING IGNORE
-    // let powerUpEffect = levelCreate.powerUpReached(playerHitbox);
-    //if (powerUpEffect) {
-    //  console.log("PowerUp collected:", powerUpEffect);
-    //}
 
     let playerHitboxX = playerHitbox.getCenterX();
     let playerHitboxY = playerHitbox.getCenterY();
