@@ -118,6 +118,10 @@ function loadLevel(levelNumber) {
       bossSpawnPosition = 2500;
       currentBackground = new Level1Background(level1BackgroundImg, levelWidth);
       currentLayout = new Level1Layout();
+      if (currentLayout && currentLayout.levelMaker) {
+        currentLayout.levelMaker(height, player.currentX(), width);
+        obstaclesInitialized = true;
+      }
       levelCreate = new LevelCreator(0, levelWidth, 10, 10, 10, bossSpawnPosition, currentLayout, height);
       powerList = levelCreate.powerList; // Use the powerList from levelCreate
       break;
@@ -126,6 +130,10 @@ function loadLevel(levelNumber) {
       bossSpawnPosition = 6500; 
       currentBackground = new Level2Background(level2BackgroundImg, levelWidth);
       currentLayout = new Level2Layout();
+      if (currentLayout && currentLayout.levelMaker) {
+        currentLayout.levelMaker(height, player.currentX(), width);
+        obstaclesInitialized = true;
+      }
       levelCreate = new LevelCreator(0, levelWidth, 15, 15, 15, bossSpawnPosition, currentLayout, height);
       powerList = levelCreate.powerList;
       break;
@@ -134,6 +142,10 @@ function loadLevel(levelNumber) {
       bossSpawnPosition = 6500;
       currentBackground = new Level3Background(level3BackgroundImg, levelWidth);
       currentLayout = new Level3Layout();
+      if (currentLayout && currentLayout.levelMaker) {
+        currentLayout.levelMaker(height, player.currentX(), width);
+        obstaclesInitialized = true;
+      }
       levelCreate = new LevelCreator(0, levelWidth, 20, 20, 20, bossSpawnPosition, currentLayout, height);
       powerList = levelCreate.powerList;
       break;
@@ -145,13 +157,6 @@ function loadLevel(levelNumber) {
       deathScrn.visible = false;
       currentLevel = 1; // Reset to level 1
       return;
-  }
-
-  // Spawn the obstacles for the newly loaded level
-  if (currentLayout && currentLayout.levelMaker) {
-    currentLayout.levelMaker(height, player.currentX(), width);
-
-    obstaclesInitialized = true;
   }
 }
 
@@ -187,14 +192,10 @@ function spawnPowerUps() {
   if (!powerList || powerList.length === 0) return;
   
   for (let powerUp of powerList) {
-      // Get the actual powerup position from the level layout
       let powerX = powerUp.getPowerX();
-      let powerY = currentLayout.getRefHeight ? currentLayout.getRefHeight(powerX, height) : height - 50;
+      let powerY = powerUp.getPowerY(); // Use the stored Y position
       
-      // Update powerup position
-      powerUp.changePowerY(powerY);
-      
-      // Draw the powerup
+      // Draw the powerup at its stored position
       levelCreate.drawPowerUp(powerX, powerY, 25, powerUp.getEffect());
   }
 }

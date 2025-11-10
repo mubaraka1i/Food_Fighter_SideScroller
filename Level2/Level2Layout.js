@@ -58,6 +58,21 @@ class Level2Layout {
         return this.obstacles;
     }
 
+    getRefHeight(circleX, height) {
+        let obstacleList = this.obstacles.getObstacles();
+        for (let obstacle of obstacleList) {
+            let topLeft = obstacle.getTopLeft();
+            let obstacleX = topLeft[0];
+            let obstacleWidth = obstacle.getWidth();
+            // Check if circleX is within the obstacle's horizontal range
+            if (circleX >= obstacleX && circleX <= obstacleX + obstacleWidth) {
+                return topLeft[1] - 25; // Place powerup on top of obstacle
+            }
+        }
+        return height - 50; // Default to ground level
+    }
+
+
     drawObstacles(playerX, width) {
         this.obstacles.obstacleDraw(this.cookieColor, this.counterColor, playerX, width);
     }

@@ -11,7 +11,7 @@ class LevelCreator {
 
         this.bossTrigger = bossTrigger;
         this.reducedEnd = this.bossTrigger; // end accounts for the boss fight
-        this.powerList = this.powerUpSpawn();
+        this.powerList = this.powerUpSpawn(layout);
         this.enemy1List = this.enemy1Spawn(this.start, this.reducedEnd, this.enemy1);
         this.enemy2List = this.enemy2Spawn(this.start, this.reducedEnd, this.enemy2);
 
@@ -41,7 +41,7 @@ class LevelCreator {
         return this.enemy2;
     }
 
-    powerUpSpawn() {
+    powerUpSpawn(layout) {
         let powerList = [];
         let possSpawns = this.powerUps * 2;
         let area = this.bossTrigger - this.start;
@@ -56,7 +56,16 @@ class LevelCreator {
             } else {
                 x = frequency * (i + 1);
             }
-            let powerUp = new PowerUpHitbox(x, this.height - 50, 25, true, this.powerUpEffect());
+            
+            // Use layout to get proper height for powerup placement
+            if (layout && layout.getRefHeight) {
+                y = layout.getRefHeight(x, this.height);
+            } else {
+                // Fallback: place on ground
+                y = this.height - 50;
+            }
+            
+            let powerUp = new PowerUpHitbox(x, y, 25, true, this.powerUpEffect());
             powerList.push(powerUp);
         }
         return powerList;
@@ -141,14 +150,11 @@ class LevelCreator {
                     } else {
                         health.healthInc(50 - health.getHealth());
                     }
-                break;
                 }
+                break;
             case 3: // protection boost
                 if (!player.shieldActive) {
-                    player.shieldActive = true;
                     player.activateShield();
-                    setTimeout(() => { player.shieldActive = false; }, 5000);
-                    // lasts 5s
                 }
                 break;
             case 4: // damage boost

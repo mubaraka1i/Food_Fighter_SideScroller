@@ -10,15 +10,21 @@ function checkCollisions() {
     // Check Player-Enemy Collision 
     if (enemy instanceof GroundEnemies) {
       if (playerHB.playerHitRect(enemyHB.x, enemyHB.y, enemyHB.w, enemyHB.h)) {
-        player.takeDamage();
-        health.healthDec(10);
+        // Only take damage if shield is NOT active
+        if (!player.shieldActive) {
+          player.takeDamage();
+          health.healthDec(10);
+        }
         enemiesArray.splice(i, 1);
         continue;
       }
     } else if (enemy instanceof FlyingEnemies) {
       if (playerHB.playerHitCircle(enemyHB.x, enemyHB.y, enemyHB.r)) {
-        player.takeDamage();
-        health.healthDec(10);
+        // Only take damage if shield is NOT active
+        if (!player.shieldActive) {
+          player.takeDamage();
+          health.healthDec(10);
+        }
         enemiesArray.splice(i, 1);
         continue;
       }
@@ -28,8 +34,11 @@ function checkCollisions() {
     else if (enemy instanceof CookieCrumbMinion || enemy instanceof NachoCrumbleMinion) {
       // Player collision with minion
       if (playerHB.playerHitCircle(enemyHB.x, enemyHB.y, enemyHB.r || enemyHB.w/2)) {
-        player.takeDamage();
-        health.healthDec(5); // Less damage than regular enemies
+        // Only take damage if shield is NOT active
+        if (!player.shieldActive) {
+          player.takeDamage();
+          health.healthDec(5); // Less damage than regular enemies
+        }
         enemiesArray.splice(i, 1); // Remove minion on contact
         continue;
       }
@@ -81,8 +90,11 @@ function checkCollisions() {
     const bossHB = boss.getHitbox();
     // Check Player vs Boss
     if (playerHB.playerHitRect(bossHB.x, bossHB.y, bossHB.w, bossHB.h)) {
-      player.takeDamage();
-      health.healthDec(1);
+      // Only take damage if shield is NOT active
+      if (!player.shieldActive) {
+        player.takeDamage();
+        health.healthDec(1);
+      }
     }
 
     // Check Player Bullets vs Boss
@@ -108,8 +120,11 @@ function checkCollisions() {
       const projHB = projectile.getHitbox();
       
       if (playerHB.playerHitCircle(projHB.x, projHB.y, projHB.r)) {
-        player.takeDamage();
-        health.healthDec(1);
+        // Only take damage if shield is NOT active
+        if (!player.shieldActive) {
+          player.takeDamage();
+          health.healthDec(1);
+        }
         bossProjectiles.splice(k, 1);
       }
     }

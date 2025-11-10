@@ -18,9 +18,9 @@ class Chef {
     this.isTakingDamage = false;
     this.shieldActive = false;
     this.damageBoostActive = false;
-    this.damageMultiplier = 2;
+    this.damageMultiplier = 1; // Start with normal damage
     this.shieldTimer = 0;
-    this.shieldDuration = 5000;
+    this.shieldDuration = 5000; // 5 seconds
     // To prevent retriggering
     keys['w'] = false;
     keys['arrowup'] = false;
@@ -50,6 +50,9 @@ class Chef {
   }
 
   update(currentLayout) {
+    // Update shield timer first
+    this.updateShield();
+
     // Store old position for collision response
     let oldX = this.x;
     let oldY = this.y;
@@ -131,6 +134,11 @@ class Chef {
 
   // Cancel jump when taking damage
   takeDamage() {
+
+    if (this.shieldActive) {
+      return; // Exit early, no damage taken
+    }
+
     this.isTakingDamage = true;
     
     // If player is moving jumping, cancel the jump
