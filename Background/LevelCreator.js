@@ -1,24 +1,34 @@
 class LevelCreator {
+    /**
+     * Creates a LevelCreator object that can be used for power up creation and enemy spawning.
+     *
+     * @param {int} start: x coordinate of the leftmost side of the screen
+     * @param {int} end: x coordinate of the rightmost side of the screen
+     * @param {int} powerUps: dictates the amount of power ups that spawn
+     * @param {int} enemy1: dictates how many spawn points are created for enemy1.
+     * @param {int} enemy2: dictates how many spawn points are created for enemy1.
+     * @param {int} bossTrigger: player x coordinate that triggers the boss
+     * @param {LevelLayout object} layout: used to calculate power up collision
+     * @param {int} height: height of canvas, used to calculate power up collision,
+     */
     constructor(start, end, powerUps, enemy1, enemy2, bossTrigger, layout, height) {
         // start and end indicate the x coordinates where the level cannot scroll any further
         this.start = start;
         this.end = end;
-        this.powerUps = powerUps; // amount of power ups
-        this.enemy1 = enemy1; // amount of enemy type spawn points
-        this.enemy2 = enemy2; // amount of enemy type spawn points
+        this.powerUps = powerUps;
+        this.enemy1 = enemy1;
+        this.enemy2 = enemy2;
         this.layout = layout;
         this.height = height;
-
         this.bossTrigger = bossTrigger;
-        this.reducedEnd = this.bossTrigger; // end accounts for the boss fight
-        this.powerList = this.powerUpSpawn(layout);
-        this.enemy1List = this.enemy1Spawn(this.start, this.reducedEnd, this.enemy1);
-        this.enemy2List = this.enemy2Spawn(this.start, this.reducedEnd, this.enemy2);
 
-        // starts at the first threshold for enemies and power ups
+        this.powerList = this.powerUpSpawn();
+        this.enemy1List = this.enemy1Spawn();
+        this.enemy2List = this.enemy2Spawn();
+
+        // used to keep track of spawn points already crossed
         this.enemy1Curr = 0;
         this.enemy2Curr = 0;
-        this.powerCurr = 0;
     }
     
     getStart() {
@@ -41,7 +51,12 @@ class LevelCreator {
         return this.enemy2;
     }
 
-    powerUpSpawn(layout) {
+    /**
+     * Creates a list of spawn points for power ups.
+     *
+     * @returns list of PowerUpHitbox objects
+     */
+    powerUpSpawn() {
         let powerList = [];
         let possSpawns = this.powerUps * 2;
         let area = this.bossTrigger - this.start;
@@ -58,8 +73,8 @@ class LevelCreator {
             }
             
             // Use layout to get proper height for powerup placement
-            if (layout && layout.getRefHeight) {
-                y = layout.getRefHeight(x, this.height);
+            if (this.layout && this.layout.getRefHeight) {
+                y = this.layout.getRefHeight(x, this.height);
             } else {
                 // Fallback: place on ground
                 y = this.height - 50;
@@ -71,6 +86,11 @@ class LevelCreator {
         return powerList;
     }
 
+    /**
+     * Assigns a power up effect to a PowerUpHitbox object.
+     *
+     * @returns 1 for speed boost, 2 for health boost, 3 for protection boost, and 4 for damage boost.
+     */
     powerUpEffect() {
         let random = Math.random();
         if (random < 0.25) {
@@ -84,63 +104,92 @@ class LevelCreator {
         }
     }
 
-    enemy1Spawn(start, end, spawns) {
+    /**
+     * Creates a list of spawn points for ground enemies.
+     * NOT CURRENTLY USED 
+     * @returns list of x-coordinates for spawn points
+     */
+    enemy1Spawn() {
         let enemy1List = [];
-        let area = end - start;
-        let threshold = Math.floor(area / spawns);
-        for (let i = 1; i <= spawns; i++) {
+        let area = this.bossTrigger - this.start; // bossTrigger used as end to account for boss fight
+        let threshold = Math.floor(area / this.enemy1);
+        for (let i = 1; i <= this.enemy1; i++) {
             enemy1List.push(threshold * i)
         }
         return enemy1List;
     }
 
-    enemy2Spawn(start, end, spawns) {
+    /**
+     * Creates a list of spawn points for flying enemies.
+     * NOT CURRENTLY USED 
+     * @returns list of x-coordinates for spawn points
+     */
+    enemy2Spawn() {
         let enemy2List = [];
-        let area = end - start;
-        let threshold = Math.floor(area / spawns);
-        for (let i = 1; i <= spawns; i++) {
-            enemy2List.push([threshold * (i + 0.5), true]); // format: x coordinate, active
+        let area = this.bossTrigger - this.start;
+        let threshold = Math.floor(area / this.enemy2);
+        for (let i = 1; i <= this.enemy2; i++) {
+            enemy2List.push(threshold * (i + 0.5));
         }
         return enemy2List;
     }
 
+    /**
+     * Finds if the player has crossed the current threshold for ground enemies.
+     * NOT CURRENTLY USED
+     * @param {int} playerX 
+     * @returns true if enemies should spawn, false if not
+     */
     enemy1Reached(playerX) {
         if (playerX >= this.enemy1List[this.enemy1Curr] && this.ememy1Curr + 1 < this.enemy1List.length) {
             this.enemy1Curr++;
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
+    /**
+     * Finds if the player has crossed the current threshold for flying enemies.
+     * NOT CURRENTLY USED
+     * @param {int} playerX 
+     * @returns true if enemies should spawn, false if not
+     */
     enemy2Reached(playerX) {
         if (playerX >= this.enemy2List[this.enemy2Curr] && this.ememy2Curr + 1 < this.enemy2List.length) {
             this.enemy2Curr++;
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
+    /**
+     * Finds if the player has touched a power up in powerList and calls applyPowerUpEffect if reached.
+     * @param {PlayerHitbox object} playerHitbox 
+     * @returns the effect if reached, null otherwise
+     */
     powerUpReached(playerHitbox) {
         for (let i = this.powerList.length - 1; i >= 0; i--) {
-            let powerUp = this.powerList[i];
+            let powerUp = this.powerList[i]; // {powerUpHitbox object} powerup;
             if (powerUp.checkCollision(playerHitbox)) {
-                let effect = powerUp.getEffect();
-                this.powerList.splice(i, 1);
+                let effect = powerUp.getEffect(); // {int} effect
+                this.powerList.splice(i, 1); // removes the powerUp from the list
                 this.applyPowerUpEffect(effect);
                 return effect;
             }
         }
         return null;
     }
-    // For you Sam, this method 
+
+    /**
+     * Applies the power up effect when called by powerUpReached.
+     * @param {int} effect: 1-4, dictates the effect that is applied to the player
+     */
     applyPowerUpEffect(effect) {
         switch(effect) {
             case 1: // speed boost
                 if (player.speed <= 5) { // prevents stacking
                     player.speed += 2;
-                    setTimeout(() => { player.speed -= 2; }, 10000);
+                    setTimeout(() => { player.speed -= 2; }, 10000); // speed goes to normal after 10 seconds
                 }
                 break;
             case 2: // health boost
@@ -148,7 +197,7 @@ class LevelCreator {
                     if (health.getHealth() + 10 <= 50) {
                         health.healthInc(10);
                     } else {
-                        health.healthInc(50 - health.getHealth());
+                        health.healthInc(50 - health.getHealth()); // sets health to 50
                     }
                 }
                 break;
@@ -170,6 +219,13 @@ class LevelCreator {
         }
     }
 
+    /**
+     * Draws the power ups to the screen if powerUpToDraw exists.
+     * @param {int} x center x of the powerUp
+     * @param {int} y 
+     * @param {int} d radius of the powerUp
+     * @param {int} effect 1-4, boost effect to apply
+     */
     drawPowerUp(x, y, d, effect) {
         let powerUpToDraw;
         if (effect == 1) { // speed
@@ -184,7 +240,7 @@ class LevelCreator {
       
         if (powerUpToDraw) {
           imageMode(CENTER);
-          image(powerUpToDraw, x, y, d * 2, d * 2); // slightly larger than the old circle
+          image(powerUpToDraw, x, y, d * 2, d * 2); // img, x, y, width, height
         }
     }
 }
