@@ -1,0 +1,41 @@
+// Placeholder for Level 5 Boss
+class CakeBoss extends OriginalBoss { // Inherits from OriginalBoss for now
+    constructor(x, y) {
+        super(x, y); // Calls the constructor of OriginalBoss
+        this.width = 200; // Bigger!
+        this.height = 200;
+        this.y = height - this.height; // Adjust Y for new height
+        this.health = 50; // Final boss health
+    }
+
+    draw() {
+        // --- Placeholder Draw ---
+        push();
+        // Body (cake layers)
+        rectMode(CORNER);
+        fill('#AF601A'); // Brown (cake)
+        rect(this.x, this.y, this.width, this.height);
+        
+        fill('#E6B0AA'); // Pink (icing)
+        rect(this.x, this.y, this.width, 40);
+        rect(this.x, this.y + 80, this.width, 40);
+        rect(this.x, this.y + 160, this.width, 40);
+
+        // Candle
+        fill(255, 0, 0);
+        rect(this.x + this.width/2 - 5, this.y - 30, 10, 30);
+        fill(255, 255, 0);
+        ellipse(this.x + this.width/2, this.y - 30, 10, 15);
+        
+        // Draw projectiles
+        for (let projectile of this.projectiles) {
+            projectile.draw();
+        }
+        
+        // Draw health bar
+        if (!this.slidingIn) {
+            this.drawHealthBar();
+        }
+        pop();
+    }
+}

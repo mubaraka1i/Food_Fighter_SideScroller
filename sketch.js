@@ -12,7 +12,7 @@ let chefSprites = {};
 let obstaclesInitialized = false;
 let powerList;
 let levelCreate;
-const keys = {}
+const keys = {};
 
 let boss;
 let bossActive = false;
@@ -24,7 +24,7 @@ let currentBackground;
 let currentLayout;
 
 let speedBoost, healthBoost, shieldBoost, damageBoost, shieldDome;
-let level1BackgroundImg, level2BackgroundImg, level3BackgroundImg;
+let level1BackgroundImg, level2BackgroundImg, level3BackgroundImg, level4BackgroundImg, level5BackgroundImg;
 let chefHat;
 let title, death;
 
@@ -37,6 +37,8 @@ function preload() {
   level1BackgroundImg = loadImage('Assets/Kitchen1.png');
   level2BackgroundImg = loadImage('Assets/Kitchen2.png');
   level3BackgroundImg = loadImage('Assets/Kitchen3.png');
+  level4BackgroundImg = loadImage('Assets/Kitchen4.png');
+  level5BackgroundImg = loadImage('Assets/Kitchen5.png');
 
   // Load Chef sprites
   chefSprites = {
@@ -48,9 +50,9 @@ function preload() {
     ],
     duck: loadImage('Assets/chef_duck.png'),
     jump: loadImage('Assets/chef_jump.png'),
-    fall: loadImage('Assets/chef_fall.png')
+    fall: loadImage('Assets/chef_fall.png'),
+    shoot: loadImage('Assets/chef_shoot.png')
   };
-
   // Load Power-Up Icons
   speedBoost = loadImage('Assets/power_speed.png');
   healthBoost = loadImage('Assets/power_health.png');
@@ -83,7 +85,7 @@ function setup() {
 
 //LEVEL MANAGER FUNCTION
 function loadLevel(levelNumber) {
-    if (levelNumber > 3) { // Change this number when we implement level 4 and 5
+    if (levelNumber > 5) { // Change this number when we implement level 4 and 5
       playInitiated = false;
       titleScrn.visible = true;
       deathScrn.visible = false;
@@ -149,7 +151,31 @@ function loadLevel(levelNumber) {
       levelCreate = new LevelCreator(0, levelWidth, 20, 20, 20, bossSpawnPosition, currentLayout, height);
       powerList = levelCreate.powerList;
       break;
-    // Add cases for levels 4 and 5 here
+    case 4:
+      levelWidth = 8000; // Soda level
+      bossSpawnPosition = 7500;
+      currentBackground = new Level4Background(level4BackgroundImg, levelWidth);
+      currentLayout = new Level4Layout();
+      if (currentLayout && currentLayout.levelMaker) {
+        currentLayout.levelMaker(height, player.currentX(), width);
+        obstaclesInitialized = true;
+      }
+      levelCreate = new LevelCreator(0, levelWidth, 25, 25, 25, bossSpawnPosition, currentLayout, height);
+      powerList = levelCreate.powerList;
+      break;
+    // --- NEW: Case 5 ---
+    case 5:
+      levelWidth = 8000; // Cake level
+      bossSpawnPosition = 7500;
+      currentBackground = new Level5Background(level5BackgroundImg, levelWidth);
+      currentLayout = new Level5Layout();
+      if (currentLayout && currentLayout.levelMaker) {
+        currentLayout.levelMaker(height, player.currentX(), width);
+        obstaclesInitialized = true;
+      }
+      levelCreate = new LevelCreator(0, levelWidth, 30, 30, 30, bossSpawnPosition, currentLayout, height);
+      powerList = levelCreate.powerList;
+      break;
     default:
       // If we run out of levels, go back to title
       playInitiated = false;
@@ -180,6 +206,12 @@ function spawnBoss() {
       break;
     case 3:
       boss = new NachosBoss(bossX, bossY);
+      break;
+    case 4:
+      boss = new SodaBoss(bossX, bossY);
+      break;
+    case 5:
+      boss = new CakeBoss(bossX, bossY);
       break;
   }
   
