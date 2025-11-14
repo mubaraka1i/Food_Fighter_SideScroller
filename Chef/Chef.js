@@ -275,6 +275,18 @@ class Chef {
     if (!obstacleTracker) return;
 
     const obstacles = obstacleTracker.getObstacles();
+
+
+    const hitboxWidth = this.width * 0.6;
+
+    const hitboxOffset = (this.width - hitboxWidth)/ 2
+    const hitboxX = this.x + hitboxOffset;
+    const hitboxY = this.y +18;
+    const hitboxHeight = this.height - 18;
+
+    const oldHitboxX = oldX + hitboxOffset;
+    const oldHitboxY = oldY + 18;
+
     
     for (let obstacle of obstacles) {
       let obsX = obstacle.topLeft[0];
@@ -283,30 +295,30 @@ class Chef {
       let obsH = obstacle.height;
       
       // Check if player is colliding with this obstacle
-      if (this.x < obsX + obsW &&
-          this.x + this.width > obsX &&
-          this.y < obsY + obsH &&
-          this.y + this.height > obsY) {
+       if (hitboxX < obsX + obsW &&
+        hitboxX + hitboxWidth > obsX &&
+        hitboxY < obsY + obsH &&
+        hitboxY + hitboxHeight > obsY) {
         
         
         // Check if landing on top of obstacle (falling onto it)
-        if (oldY + this.height <= obsY + this.groundTolerance && this.velocityY > 0) {
+        if (oldHitboxY + hitboxHeight <= obsY + this.groundTolerance && this.velocityY > 0) {
           this.y = obsY - this.height;
           this.velocityY = 0;
           this.isOnGround = true;
           this.isTakingDamage = false;
         }
         // Check if hitting bottom of obstacle (jumping into it)
-        else if (oldY >= obsY + obsH && this.velocityY < 0) {
-          this.y = obsY + obsH;
+        else if (oldHitboxY >= obsY + obsH && this.velocityY < 0) {
+          this.y = obsY + obsH - 18;
           this.velocityY = 0;
         }
         // Check horizontal collisions (left/right)
-        else if (oldX + this.width <= obsX) { // Coming from left
-          this.x = obsX - this.width;
+        else if (oldHitboxX + hitboxWidth <= obsX) { // Coming from left
+          this.x = obsX - hitboxWidth - hitboxOffset;
         }
-        else if (oldX >= obsX + obsW) { // Coming from right
-          this.x = obsX + obsW;
+        else if (oldHitboxX >= obsX + obsW) { // Coming from right
+          this.x = obsX + obsW - hitboxOffset;
         }
       }
     }
