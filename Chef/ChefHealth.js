@@ -1,5 +1,9 @@
 class ChefHealth {
-
+  /**
+   * Constructs a ChefHealth object that keeps track of health, draws HP, and changes health.
+   * @param {number} health: amount of health points a player has from 0-50
+   * @param {Image} img: an image object that holds the chef hat in the HP bar
+   */
   constructor(health, img) {
     this.health = health;
     this.healthImg = img;
@@ -9,6 +13,25 @@ class ChefHealth {
     return this.health;
   }
 
+   /**
+   * Increases the player's health.
+   * @param {number} healing: amount to increase health by.
+   */
+  healthInc(healing) {
+    this.health += healing;
+  }
+
+  /**
+   * Decreases the player's health.
+   * @param {number} damage: amount to decrease health by.
+   */
+  healthDec(damage) {
+    this.health -= damage;
+  }
+
+  /**
+   * Draws the chef hats on the screen based on how much health is left. (1 for each 10 HP)
+   */
   healthDraw() {
     fill(0);
     noStroke(); 
@@ -23,13 +46,5 @@ class ChefHealth {
     for (let i = 0; i < numHats; i++) { // display the hats
       image(this.healthImg, 15 + i * (hatSize + padding), 40, hatSize, hatSize);
     }
-  }
-
-  healthInc(healing) {
-    this.health += healing;
-  }
-
-  healthDec(damage) {
-    this.health -= damage;
   }
 }

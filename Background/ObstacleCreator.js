@@ -1,7 +1,12 @@
 class ObstacleCreator {
+    /**
+     * Creates an object of the ObstacleCreator class which sets the coordinates of the obstacle.
+     * @param {[number]} topLeft: top left corner coordinates of the obstacle 
+     * @param {number} width: horizontal distance of the obstacle
+     * @param {number} height: vertical distance of the obstacle
+     */
     constructor(topLeft, width, height) {
-        // each argument is an array of coordinate pairs formatted as: (x, y);
-        this.topLeft = topLeft; //was assigning to itself
+        this.topLeft = topLeft; // formatted as: (x, y);
         this.width = width;
         this.height = height;
     }

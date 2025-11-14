@@ -1,14 +1,18 @@
 class ChefHitbox{
-
+  /**
+   * Creates an object of the ChefHitbox class that can handle collision with the player.
+   * @param {Chef} player: the player object the hitbox corresponds to
+   * @param {boolean} visible: tells whether the hitbox is visible during gameplay
+   */
   constructor(player, visible) {
     this.player = player;
     this.visible = visible;
     
-    this.defaultHeight = player.height; // full standing heigh-t
+    this.defaultHeight = player.height; // full standing height
     this.defaultWidth = player.width;
     
-    this.hitHeight = this.defaultHeight - 18;
-    this.hitWidth = this.defaultWidth * 0.6;
+    this.hitHeight = this.defaultHeight - 18; // height to register collision
+    this.hitWidth = this.defaultWidth * 0.6; // height to register collision
     this.x = this.player.x + (this.defaultWidth - this.hitWidth) / 2;
     this.y = this.player.y;
     this.duckHeight = 74; // crouch height
@@ -23,6 +27,9 @@ class ChefHitbox{
     return this.y + this.hitHeight / 2;
   }
 
+  /**
+   * 
+   */
   update() {
     // Always center hitbox horizontally
     this.hitWidth = this.defaultWidth * 0.6; // adjust ratio as needed

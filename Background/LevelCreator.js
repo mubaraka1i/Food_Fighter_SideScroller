@@ -2,14 +2,14 @@ class LevelCreator {
     /**
      * Creates a LevelCreator object that can be used for power up creation and enemy spawning.
      *
-     * @param {int} start: x coordinate of the leftmost side of the screen
-     * @param {int} end: x coordinate of the rightmost side of the screen
-     * @param {int} powerUps: dictates the amount of power ups that spawn
-     * @param {int} enemy1: dictates how many spawn points are created for enemy1.
-     * @param {int} enemy2: dictates how many spawn points are created for enemy1.
-     * @param {int} bossTrigger: player x coordinate that triggers the boss
-     * @param {LevelLayout object} layout: used to calculate power up collision
-     * @param {int} height: height of canvas, used to calculate power up collision,
+     * @param {number} start: x coordinate of the leftmost side of the screen
+     * @param {number} end: x coordinate of the rightmost side of the screen
+     * @param {number} powerUps: dictates the amount of power ups that spawn
+     * @param {number} enemy1: dictates how many spawn points are created for enemy1.
+     * @param {number} enemy2: dictates how many spawn points are created for enemy1.
+     * @param {number} bossTrigger: player x coordinate that triggers the boss
+     * @param {LevelLayout} layout: used to calculate power up collision
+     * @param {number} height: height of canvas, used to calculate power up collision,
      */
     constructor(start, end, powerUps, enemy1, enemy2, bossTrigger, layout, height) {
         // start and end indicate the x coordinates where the level cannot scroll any further
@@ -137,7 +137,7 @@ class LevelCreator {
     /**
      * Finds if the player has crossed the current threshold for ground enemies.
      * NOT CURRENTLY USED
-     * @param {int} playerX 
+     * @param {number} playerX 
      * @returns true if enemies should spawn, false if not
      */
     enemy1Reached(playerX) {
@@ -151,7 +151,7 @@ class LevelCreator {
     /**
      * Finds if the player has crossed the current threshold for flying enemies.
      * NOT CURRENTLY USED
-     * @param {int} playerX 
+     * @param {number} playerX 
      * @returns true if enemies should spawn, false if not
      */
     enemy2Reached(playerX) {
@@ -164,14 +164,14 @@ class LevelCreator {
 
     /**
      * Finds if the player has touched a power up in powerList and calls applyPowerUpEffect if reached.
-     * @param {PlayerHitbox object} playerHitbox 
+     * @param {PlayerHitbox} playerHitbox 
      * @returns the effect if reached, null otherwise
      */
     powerUpReached(playerHitbox) {
         for (let i = this.powerList.length - 1; i >= 0; i--) {
-            let powerUp = this.powerList[i]; // {powerUpHitbox object} powerup;
+            let powerUp = this.powerList[i]; // {powerUpHitbox} powerup;
             if (powerUp.checkCollision(playerHitbox)) {
-                let effect = powerUp.getEffect(); // {int} effect
+                let effect = powerUp.getEffect(); // {number} effect
                 this.powerList.splice(i, 1); // removes the powerUp from the list
                 this.applyPowerUpEffect(effect);
                 return effect;
@@ -182,7 +182,7 @@ class LevelCreator {
 
     /**
      * Applies the power up effect when called by powerUpReached.
-     * @param {int} effect: 1-4, dictates the effect that is applied to the player
+     * @param {number} effect: 1-4, dictates the effect that is applied to the player
      */
     applyPowerUpEffect(effect) {
         switch(effect) {
@@ -221,10 +221,10 @@ class LevelCreator {
 
     /**
      * Draws the power ups to the screen if powerUpToDraw exists.
-     * @param {int} x center x of the powerUp
-     * @param {int} y 
-     * @param {int} d radius of the powerUp
-     * @param {int} effect 1-4, boost effect to apply
+     * @param {number} x: center x of the powerUp
+     * @param {number} y: center y of the powerUp
+     * @param {number} d: radius of the powerUp
+     * @param {number} effect: 1-4, boost effect to apply
      */
     drawPowerUp(x, y, d, effect) {
         let powerUpToDraw;

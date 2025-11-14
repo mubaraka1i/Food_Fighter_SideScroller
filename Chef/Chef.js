@@ -1,33 +1,44 @@
 class Chef {
+  /**
+   * Constructs the player object for use throughout the entire game.
+   *
+   * @param {number} startX: the starting x coordinate of the player's top left corner
+   * @param {number} startY: unknown
+   * @param {Image} sprites: sprites to use for the player drawing
+   */
   constructor(startX, startY, sprites) {
     this.x = startX;
-    this.y = startY; 
+    this.y = startY;
+    this.sprites = sprites;
+
     this.width = 150;
     this.height = 150;
-    this.speed = 5;
-    this.velocityY = 0;
-    this.jumpStrength = 16;
+    this.speed = 5; // amount to change x by when moving left / right
+    this.velocityY = 0; // amount to change y by when jumping / falling
+    this.jumpStrength = 16; // amount the player can jump in pixels
+    this.groundTolerance = 5; // tolerance for ground detection
+    this.damageMultiplier = 1; // damage done to enemies when projectiles connect
+    this.shieldTimer = 0; // time the current shield has been active
+    this.shieldDuration = 5000; // 5 seconds
+
+    this.facingDirection = 'right';
     this.isOnGround = false;
     this.isMovingLeft = false;
     this.isMovingRight = false;
-    this.facingDirection = 'right';
-    this.groundTolerance = 5; // tolerance for ground detection
     this.isDucking = false;
-    this.sprites = sprites;
     this.jumpPressed = false;
     this.isTakingDamage = false;
     this.shieldActive = false;
     this.damageBoostActive = false;
-    this.damageMultiplier = 1; // Start with normal damage
-    this.shieldTimer = 0;
-    this.shieldDuration = 5000; // 5 seconds
+
     // To prevent retriggering
     keys['w'] = false;
     keys['arrowup'] = false;
   }
 
-  // NEW: Calling this in draw() every frame to avoid key conflicts
-  // DOESNT FIX IT YET ;-;
+  /**
+   * Updates the player's input keys into the hitbox and player model.
+   */
   updateInput() {
     // Horizontal movement using JavaScript keys
     this.isMovingLeft = keys['a'] || keys['arrowleft'];
@@ -49,6 +60,10 @@ class Chef {
     }
   }
 
+  /**
+   * Updates the collision responses for player's position.
+   * @param {LevelLayout} currentLayout: the layout of the current level
+   */
   update(currentLayout) {
     // Update shield timer first
     this.updateShield();
@@ -108,7 +123,10 @@ class Chef {
     }
   }
 
-  draw() { // Display chef sprite animation
+  /**
+   * Displays the chef sprite animation.
+   */
+  draw() {
     let img;
     if (playerHitbox.isDucking) img = this.sprites.duck;
     else if (!this.isOnGround) img = this.velocityY < 0 ? this.sprites.jump : this.sprites.fall;
@@ -123,31 +141,6 @@ class Chef {
     imageMode(CORNER);
     image(img, this.facingDirection === 'left' ? -this.width : 0, 0, this.width, this.height);
     pop();
-  }
-
-  jump() {
-    if (this.isOnGround && !this.isTakingDamage) {
-      this.velocityY = -this.jumpStrength; // Negative Y to jump up
-      this.isOnGround = false;
-    }
-  }
-
-  // Cancel jump when taking damage
-  takeDamage() {
-
-    if (this.shieldActive) {
-      return; // Exit early, no damage taken
-    }
-
-    this.isTakingDamage = true;
-    
-    // If player is moving jumping, cancel the jump
-    if (this.velocityY < 0) {
-      this.velocityY = 0; // Stop upward movement and start falling immediately
-    }
-    
-    // Add a small downward force to ensure falling
-    this.velocityY += 2;
   }
 
   moveLeft(isPressed) {
@@ -166,6 +159,40 @@ class Chef {
     return this.y;
   }
 
+  /**
+   * Changes the velocityY of the chef negatively to jump up.
+   */
+  jump() {
+    if (this.isOnGround && !this.isTakingDamage) {
+      this.velocityY = -this.jumpStrength;
+      this.isOnGround = false;
+    }
+  }
+
+  /**
+   * Ensures that a jump is cancelled if damage is taken.
+   * @returns: early exit if shield is active
+   */
+  takeDamage() {
+
+    if (this.shieldActive) {
+      return; // Exit early, no damage taken
+    }
+
+    this.isTakingDamage = true;
+    
+    // If player is moving jumping, cancel the jump
+    if (this.velocityY < 0) {
+      this.velocityY = 0; // Stop upward movement and start falling immediately
+    }
+    
+    // Add a small downward force to ensure falling
+    this.velocityY += 2;
+  }
+
+  /**
+   * Updates the player's y coordinate when ducking.
+   */
   duck() {
     if (this.isOnGround && !this.isDucking) {
       this.isDucking = true;
@@ -179,6 +206,9 @@ class Chef {
     }
   }
   
+  /**
+   * Moves the player's y coordinate when ducking is done.
+   */
   cancelDuck() {
     if (this.isDucking) {
       this.isDucking = false;
@@ -194,17 +224,27 @@ class Chef {
     }
   }
 
+  /**
+   * Activates the shield and starts the shield timer.
+   */
   activateShield() {
     this.shieldActive = true;
     this.shieldTimer = millis() + this.shieldDuration;
   }
 
+  /**
+   * Updates the shield's timer and deactives it if necessary.
+   */
   updateShield() {
     if (this.shieldActive && millis() > this.shieldTimer) {
       this.shieldActive = false; // turn off when expired
     }
   }
 
+  /**
+   * Gets the shoot info of a bullet.
+   * @returns: {number} centerX, {number} centerY, {String} facingDirection, {number} speed}
+   */
   getShootInfo() {
     let shootY = playerHitbox.getCenterY(); // Get the hitbox's true center Y
     
@@ -223,8 +263,14 @@ class Chef {
     };
   }
 
-  //chef obstacle interaction
-
+  /**
+   * Handles the obstacle player collision.
+   * NEEDS TO BE FIXED
+   * @param {number} oldX: player X when update(currentLayout) was called
+   * @param {number} oldY: playerY when update(currentLayout) was called
+   * @param {[ObstacleCreator]} obstacleTracker: currentLayout.getObstacles()
+   * @returns: exit early if obstacleTracker does not exist or is empty
+   */
   handleObstacleCollision(oldX, oldY, obstacleTracker) {
     if (!obstacleTracker) return;
 
@@ -266,6 +312,11 @@ class Chef {
     }
   }
 
+  /**
+   * 
+   * @param {[ObstacleCreator]} obstacleTracker: currentLayout.getObstacles()
+   * @returns true if any obstacles in obstacleTracker collide with player, else return false
+   */
   isOnObstacle(obstacleTracker) {
     if (!obstacleTracker) return false;
     
