@@ -272,57 +272,55 @@ class Chef {
    * @returns: exit early if obstacleTracker does not exist or is empty
    */
   handleObstacleCollision(oldX, oldY, obstacleTracker) {
-    if (!obstacleTracker) return;
+  if (!obstacleTracker) return;
 
-    const obstacles = obstacleTracker.getObstacles();
-
-
-    const hitboxWidth = this.width * 0.6;
-
-    const hitboxOffset = (this.width - hitboxWidth)/ 2
-    const hitboxX = this.x + hitboxOffset;
-    const hitboxY = this.y +18;
-    const hitboxHeight = this.height - 18;
-
-    const oldHitboxX = oldX + hitboxOffset;
-    const oldHitboxY = oldY + 18;
-
+  const obstacles = obstacleTracker.getObstacles();
+  
+  const hitboxWidth = this.width * 0.6;
+  const hitboxOffset = (this.width - hitboxWidth) / 2;
+  const hitboxX = this.x + hitboxOffset;
+  const hitboxY = this.y + 18;
+  const hitboxHeight = this.height - 18;
+  
+  const oldHitboxX = oldX + hitboxOffset;
+  const oldHitboxY = oldY + 18;
+  
+  for (let obstacle of obstacles) {
+    let obsX = obstacle.topLeft[0];
+    let obsY = obstacle.topLeft[1];
+    let obsW = obstacle.width;
+    let obsH = obstacle.height;
     
-    for (let obstacle of obstacles) {
-      let obsX = obstacle.topLeft[0];
-      let obsY = obstacle.topLeft[1];
-      let obsW = obstacle.width;
-      let obsH = obstacle.height;
-      
-      // Check if player is colliding with this obstacle
-       if (hitboxX < obsX + obsW &&
+    // Check if hitbox is colliding with this obstacle
+    if (hitboxX < obsX + obsW &&
         hitboxX + hitboxWidth > obsX &&
         hitboxY < obsY + obsH &&
         hitboxY + hitboxHeight > obsY) {
-        
-        
-        // Check if landing on top of obstacle (falling onto it)
-        if (oldHitboxY + hitboxHeight <= obsY + this.groundTolerance && this.velocityY > 0) {
-          this.y = obsY - this.height;
-          this.velocityY = 0;
-          this.isOnGround = true;
-          this.isTakingDamage = false;
-        }
-        // Check if hitting bottom of obstacle (jumping into it)
-        else if (oldHitboxY >= obsY + obsH && this.velocityY < 0) {
-          this.y = obsY + obsH - 18;
-          this.velocityY = 0;
-        }
-        // Check horizontal collisions (left/right)
-        else if (oldHitboxX + hitboxWidth <= obsX) { // Coming from left
-          this.x = obsX - hitboxWidth - hitboxOffset;
-        }
-        else if (oldHitboxX >= obsX + obsW) { // Coming from right
-          this.x = obsX + obsW - hitboxOffset;
-        }
+      
+      
+      // Check if landing on top of obstacle (falling onto it)
+      if (oldHitboxY + hitboxHeight <= obsY + this.groundTolerance && this.velocityY > 0) {
+        this.y = obsY - this.height;
+        this.velocityY = 0;
+        this.isOnGround = true;
+        this.isTakingDamage = false;
+      }
+      // Check if hitting bottom of obstacle (jumping into it)
+      else if (oldHitboxY >= obsY + obsH && this.velocityY < 0) {
+        this.y = obsY + obsH - 18;
+        this.velocityY = 0;
+      }
+      // Check horizontal collisions (left/right)
+      else if (oldHitboxX + hitboxWidth <= obsX) { // Coming from left
+        this.x = obsX - hitboxWidth - hitboxOffset;
+      }
+      else if (oldHitboxX >= obsX + obsW) { // Coming from right
+        this.x = obsX + obsW - hitboxOffset;
       }
     }
   }
+}
+
 
   /**
    * 
