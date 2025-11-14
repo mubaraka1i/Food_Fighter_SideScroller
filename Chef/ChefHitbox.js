@@ -12,7 +12,7 @@ class ChefHitbox{
     this.defaultWidth = player.width;
     
     this.hitHeight = this.defaultHeight - 18; // height to register collision
-    this.hitWidth = this.defaultWidth * 0.6; // height to register collision
+    this.hitWidth = this.defaultWidth * 0.6; // width to register collision
     this.x = this.player.x + (this.defaultWidth - this.hitWidth) / 2;
     this.y = this.player.y;
     this.duckHeight = 74; // crouch height
@@ -28,7 +28,7 @@ class ChefHitbox{
   }
 
   /**
-   * 
+   * Updates the hitbox coordinates and width.
    */
   update() {
     // Always center hitbox horizontally
@@ -44,14 +44,24 @@ class ChefHitbox{
     }
   }
   
+  /**
+   * Starts a crouch when called.
+   */
   duck() {
     if (this.player.isOnGround) this.isDucking = true;
   }
   
+  /**
+   * Ends a crouch when called.
+   */
   cancelDuck() {
     this.isDucking = false;
   }
 
+  /**
+   * Draws the player hitbox to the screen using top left coordinates.
+   * @returns: exit early if hitboxes are not visible
+   */
   drawPlayerHitbox() {
     if (!this.visible) return;
     push();
@@ -61,6 +71,14 @@ class ChefHitbox{
     pop();
   }
 
+  /**
+   * Registers if the player is hit by something.
+   * NOT USED CURRENTLY
+   * 
+   * @param {number} x the x coordinate of what is hitting the player
+   * @param {number} y the x coordinate of what is hitting the player
+   * @returns 
+   */
   playerHit(x, y) {
     // 'x' and 'y' are the coordinates of the thing hitting the player
     const hitX = x >= this.x && x <= this.x + this.hitHeight;
@@ -69,8 +87,15 @@ class ChefHitbox{
     return hitX && hitY;
   }
   
-    // --- UPDATED playerHit ---
-  // This now checks for RECTANGLE collision, which are ground enemies
+/**
+ * Checks for rectangle collision with player, such as ground enemies.
+ * 
+ * @param {number} enemyX top left corner x coordinate of an enemy
+ * @param {number} enemyY top left corner y coordinate of an enemy
+ * @param {number} enemyW width of the enemy
+ * @param {number} enemyH height of the enemy
+ * @returns true if hit, false if not
+ */
   playerHitRect(enemyX, enemyY, enemyW, enemyH) {
     // Check for no overlap (Axis-Aligned Bounding Box)
     return !(this.x + this.hitWidth < enemyX ||
@@ -79,7 +104,14 @@ class ChefHitbox{
              this.y > enemyY + enemyH);
   }
 
-  // --- NEW METHOD: Check collision with a CIRCLE, which is flying enemies---
+  /**
+   * Checks for circle collision with player, such as flying enemies.
+   * 
+   * @param {number} circleX center x coordinate for enemy
+   * @param {number} circleY center y coordinate for enemy
+   * @param {number} circleR radius for enemy
+   * @returns 
+   */
   playerHitCircle(circleX, circleY, circleR) {
     // Use p5.collide library function (diameter)
     return collideRectCircle(

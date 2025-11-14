@@ -1,4 +1,9 @@
 class Boss {
+  /**
+   * @param {number} x top left corner x coordinate of boss
+   * @param {number} y top left corner y coordinate of boss
+   * @param {String} type tells which boss it is
+   */
   constructor(x, y, type) {
     this.type = type;
     this.width = 100;
@@ -24,6 +29,42 @@ class Boss {
     this.maxMinions = 3;
   }
 
+  getHitbox() {
+    return {
+      x: this.x,
+      y: this.y,
+      w: this.width,
+      h: this.height
+    };
+  }
+
+  getProjectiles() {
+    return this.projectiles;
+  }
+
+  getHealth() {
+    return this.health;
+  }
+
+  isSlidingIn() {
+    return this.slidingIn;
+  }
+
+  /**
+   * Decreases the boss's health when called.
+   * @param {number} damage amount to decrease the health by
+   */
+  takeDamage(damage) {
+    if (!this.slidingIn) {
+      this.health -= damage;
+    }
+  }
+
+  /**
+   * Updates the minion spawning and projectile shooting.
+   * @param {number} playerHitboxX x value to shoot projectiles at
+   * @param {number} playerHitboxY y value to shoot projectiles at
+   */
   update(playerHitboxX, playerHitboxY) {
     if (this.slidingIn) {
       this.x -= this.slideSpeed;
@@ -37,11 +78,11 @@ class Boss {
         this.projectiles[i].update();
         
         // Remove projectiles that go off screen/into new level
-       let proj = this.projectiles[i];
-if (proj.x < cameraX || proj.x > cameraX + width || 
-    proj.y < 0 || proj.y > height) {
-  this.projectiles.splice(i, 1);
-}
+        let proj = this.projectiles[i];
+        if (proj.x < cameraX || proj.x > cameraX + width || 
+          proj.y < 0 || proj.y > height) {
+          this.projectiles.splice(i, 1);
+        }
       }
       
       // Handle shooting - to be overridden by child classes
@@ -62,9 +103,12 @@ if (proj.x < cameraX || proj.x > cameraX + width ||
     }
   }
 
-  // Methods to be overridden by child classes
+  /**
+   * To be overriden by child class. Default shooting behavior.
+   * @param {number} playerHitboxX x value to shoot at
+   * @param {number} playerHitboxY y value to shoot at
+   */
   shootAtPlayer(playerHitboxX, playerHitboxY) {
-    // Default shooting behavior - can be overridden
     let bossCenterX = this.x + this.width / 2;
     let bossCenterY = this.y + this.height / 2;
     
@@ -85,13 +129,18 @@ if (proj.x < cameraX || proj.x > cameraX + width ||
     ));
   }
 
+  /**
+   * NOT YET IMPLEMENTED.
+   */
   spawnMinions() {
     // Default minion spawning - can be overridden
     // Child classes can add their own minions to enemiesArray
   }
 
+  /**
+   * Default boss drawing method. Can be overriden by child classes.
+   */
   draw() {
-    // Default boss drawing - can be overridden
     fill(255, 0, 0);
     rect(this.x, this.y, this.width, this.height);
     
@@ -118,38 +167,14 @@ if (proj.x < cameraX || proj.x > cameraX + width ||
     }
   }
 
+  /**
+   * Draws the boss's health bar right above it.
+   */
   drawHealthBar() {
     fill(255);
     rect(this.x, this.y - 50, this.width, 10);
     fill(0, 255, 0);
     let healthWidth = this.width * (this.health / this.maxHealth);
     rect(this.x, this.y - 50, healthWidth, 10);
-  }
-
-  getHitbox() {
-    return {
-      x: this.x,
-      y: this.y,
-      w: this.width,
-      h: this.height
-    };
-  }
-
-  getProjectiles() {
-    return this.projectiles;
-  }
-
-  takeDamage(damage) {
-    if (!this.slidingIn) {
-      this.health -= damage;
-    }
-  }
-
-  getHealth() {
-    return this.health;
-  }
-
-  isSlidingIn() {
-    return this.slidingIn;
   }
 }

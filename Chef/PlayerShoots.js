@@ -1,8 +1,18 @@
 class PlayerShoots {
+  /**
+   * Creates an object of PlayerShoots class that stores the list of bullets.
+   */
   constructor() {
     this.bullets = [];
   }
 
+  getBullets() {
+    return this.bullets;
+  }
+
+  /**
+   * Updates the position of the bullets in the bullet list.
+   */
   update() {
     for (let i = this.bullets.length - 1; i >= 0; i--) {
       // Move bullet in world coordinates
@@ -16,6 +26,9 @@ class PlayerShoots {
     }
   }
 
+  /**
+   * Draws the bullets in the bullet list to the screen.
+   */
   draw() {
     for (let bullet of this.bullets) {
       fill(255, 215, 0); // Gold color
@@ -23,6 +36,11 @@ class PlayerShoots {
     }
   }
 
+  /**
+   * Adds a bullet to the bullet list when shot from the player.
+   * 
+   * @param {Chef} player: player object to get shootInfo from
+   */
   shoot(player) {
     const shootInfo = player.getShootInfo();
     
@@ -34,9 +52,4 @@ class PlayerShoots {
       direction: shootInfo.direction
     });
   }
-  
-  getBullets() {
-    return this.bullets;
-  }
-
 }

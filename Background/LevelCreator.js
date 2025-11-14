@@ -104,6 +104,14 @@ class LevelCreator {
         }
     }
 
+    getEnemy1() {
+        return this.enemy1List;
+    }
+
+    getEnemy2() {
+        return this.enemy2List;
+    }
+
     /**
      * Creates a list of spawn points for ground enemies.
      * NOT CURRENTLY USED 

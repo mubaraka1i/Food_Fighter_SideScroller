@@ -53,7 +53,6 @@ class ObstacleTracker {
             if (obsX + obsW > playerX - screenWidth / 2 && obsX < playerX + screenWidth/2) {
                 // Alternate between primary and secondary colors for visual variety
                 let fillColor = i % 2 === 0 ? primaryColor : secondaryColor;
-                
                 push();
                 noStroke();
                 fill(fillColor);
