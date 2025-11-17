@@ -1,5 +1,8 @@
 class Level2Layout {
 
+    /**
+     * 
+     */
     constructor() {
         this.obstacles = new ObstacleTracker();
         this.cookieColor = '#8B4513'; // Brown for cookies
@@ -7,6 +10,12 @@ class Level2Layout {
         this.applianceColor = '#A9A9A9'; // Gray for appliances
     }
 
+    /**
+     * 
+     * @param {Int} height 
+     * @param {Int} playerX 
+     * @param {Int} width 
+     */
     levelMaker(height, playerX, width) {
         // Clear any existing obstacles first
         this.obstacles.clearObstacles();
@@ -54,10 +63,20 @@ class Level2Layout {
 
     }
 
+    /**
+     * 
+     * @returns 
+     */
     getObstacles() {
         return this.obstacles;
     }
 
+    /**
+     * 
+     * @param {Int} circleX 
+     * @param {*} height 
+     * @returns 
+     */
     getRefHeight(circleX, height) {
         let obstacleList = this.obstacles.getObstacles();
         for (let obstacle of obstacleList) {
@@ -72,7 +91,11 @@ class Level2Layout {
         return height - 50; // Default to ground level
     }
 
-
+    /**
+     * 
+     * @param {*} playerX 
+     * @param {*} width 
+     */
     drawObstacles(playerX, width) {
         this.obstacles.obstacleDraw(this.cookieColor, this.counterColor, playerX, width);
     }

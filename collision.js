@@ -31,7 +31,8 @@ function checkCollisions() {
     }
     
     // MINION COLLISION DETECTION
-    else if (enemy instanceof CookieCrumbMinion || enemy instanceof NachoCrumbleMinion) {
+    else if (enemy instanceof CookieCrumbMinion || enemy instanceof NachoCrumbleMinion || 
+             enemy instanceof SodaMinion || enemy instanceof CakeMinion) {
       // Player collision with minion
       if (playerHB.playerHitCircle(enemyHB.x, enemyHB.y, enemyHB.r || enemyHB.w/2)) {
         // Only take damage if shield is NOT active
@@ -59,7 +60,8 @@ function checkCollisions() {
         hit = collideCircleCircle(enemyHB.x, enemyHB.y, enemyHB.r * 2, bullet.x, bullet.y, bullet.size);
       }
       // MINION BULLET COLLISION
-      else if (enemy instanceof CookieCrumbMinion || enemy instanceof NachoCrumbleMinion) {
+      else if (enemy instanceof CookieCrumbMinion || enemy instanceof NachoCrumbleMinion || 
+          enemy instanceof SodaMinion || enemy instanceof CakeMinion) {
         isMinion = true;
         hit = collideCircleCircle(
           enemyHB.x, enemyHB.y, (enemyHB.r || enemyHB.w/2) * 2,

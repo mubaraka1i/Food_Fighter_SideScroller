@@ -12,6 +12,20 @@ class CakeBoss extends Boss { // Inherits from OriginalBoss for now
         this.height = 200;
         this.y = height - this.height; // Adjust Y for new height
         this.health = 50; // Final boss health
+        this.maxHealth = 50; 
+        this.minionSpawnInterval = 150;
+        this.maxMinions = 4;
+    }
+
+    /**
+     * Spawn cake minions
+     */
+    spawnMinions() {
+        if (enemiesArray.length < this.maxMinions && !this.slidingIn) {
+            let spawnX = this.x + random(-150, 150);
+            let spawnY = this.y + this.height;
+            enemiesArray.push(new CakeMinion(spawnX, spawnY));
+        }
     }
 
     /**

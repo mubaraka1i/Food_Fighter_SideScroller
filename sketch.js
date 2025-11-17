@@ -17,6 +17,10 @@ const keys = {};
 let boss;
 let bossActive = false;
 
+// Enemy spawn variables
+let enemySpawnRate; // Frames between enemy spawns
+let enemySpawnTimer = 0;
+
 let currentLevel = 1;
 let levelWidth;
 let bossSpawnPosition;
@@ -113,11 +117,13 @@ function loadLevel(levelNumber) {
   player.x = 50;
   player.y = 0;
   player.velocityY = 0;
+  enemySpawnTimer = 0;
 
   switch(levelNumber) {
     case 1:
       levelWidth = 3000;
       bossSpawnPosition = 2500;
+      enemySpawnRate = 120; // 2 seconds at 60fps
       currentBackground = new Level1Background(level1BackgroundImg, levelWidth);
       currentLayout = new Level1Layout();
       if (currentLayout && currentLayout.levelMaker) {
@@ -129,7 +135,8 @@ function loadLevel(levelNumber) {
       break;
     case 2:
       levelWidth = 7000; 
-      bossSpawnPosition = 6500; 
+      bossSpawnPosition = 6500;
+      enemySpawnRate = 90; // 1.5 seconds at 60fps
       currentBackground = new Level2Background(level2BackgroundImg, levelWidth);
       currentLayout = new Level2Layout();
       if (currentLayout && currentLayout.levelMaker) {
@@ -142,6 +149,7 @@ function loadLevel(levelNumber) {
     case 3:
       levelWidth = 7000;
       bossSpawnPosition = 6500;
+      enemySpawnRate = 60; // 1 seconds at 60fps
       currentBackground = new Level3Background(level3BackgroundImg, levelWidth);
       currentLayout = new Level3Layout();
       if (currentLayout && currentLayout.levelMaker) {
@@ -154,6 +162,7 @@ function loadLevel(levelNumber) {
     case 4:
       levelWidth = 8000; // Soda level
       bossSpawnPosition = 7500;
+      enemySpawnRate = 45; // 0.75 seconds at 60fps
       currentBackground = new Level4Background(level4BackgroundImg, levelWidth);
       currentLayout = new Level4Layout();
       if (currentLayout && currentLayout.levelMaker) {
@@ -167,6 +176,7 @@ function loadLevel(levelNumber) {
     case 5:
       levelWidth = 8000; // Cake level
       bossSpawnPosition = 7500;
+      enemySpawnRate = 30; // 0.5 seconds at 60fps
       currentBackground = new Level5Background(level5BackgroundImg, levelWidth);
       currentLayout = new Level5Layout();
       if (currentLayout && currentLayout.levelMaker) {
@@ -234,14 +244,20 @@ function spawnPowerUps() {
 
 // ENEMY SPAWNING FUNCTION
 function spawnEnemies() {
-  if (frameCount % 120 === 0 && !bossActive) {
-    // Spawn enemies in world space
-    let spawnX = cameraX + width + 50;
+  if (!bossActive) {
+    enemySpawnTimer++;
+    
+    if (enemySpawnTimer >= enemySpawnRate) {
+      // Spawn enemies in world space
+      let spawnX = cameraX + width + 50;
 
-    if (random() < 0.5) {
-      enemiesArray.push(new GroundEnemies(spawnX));
-    } else {
-      enemiesArray.push(new FlyingEnemies(spawnX, random(100, height / 2)));
+      if (random() < 0.5) {
+        enemiesArray.push(new GroundEnemies(spawnX));
+      } else {
+        enemiesArray.push(new FlyingEnemies(spawnX, random(100, height / 2)));
+      }
+      
+      enemySpawnTimer = 0; // Reset timer
     }
   }
 }

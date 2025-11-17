@@ -5,7 +5,7 @@ class GroundEnemies {
     this.height = 90;
     // Set its y-position to be on the ground
     this.y = height - this.height; 
-    this.speed = 1.5;
+    this.speed = 1.5 + (currentLevel * 0.3); // Speed increases with level
   }
 
   // Update its position based on the player's location

@@ -3,7 +3,7 @@ class FlyingEnemies {
     this.x = x;
     this.y = y;
     this.size = 30; // Diameter of the circle
-    this.speed = 1;
+    this.speed = 1 + (currentLevel * 0.2); // Speed increases with level
   }
 
   // Update its position based on the player's location

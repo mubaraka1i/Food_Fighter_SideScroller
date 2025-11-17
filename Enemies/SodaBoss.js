@@ -1,17 +1,19 @@
-// Placeholder for Level 4 Boss
 class SodaBoss extends Boss { // Inherits from OriginalBoss for now
     constructor(x, y) {
         super(x, y); // Calls the constructor of OriginalBoss
         this.health = 35; // More health
+        this.maxHealth = 35;
+        this.minionSpawnInterval = 180;
+        this.maxMinions = 3;
     }
 
-     spawnMinions() {
-    if (enemiesArray.length < this.maxMinions) {
-      let spawnX = this.x + random(-100, 100);
-      let spawnY = this.y + this.height;
-      enemiesArray.push(new SodaMinion(spawnX, spawnY));
+    spawnMinions() {
+        if (enemiesArray.length < this.maxMinions && !this.slidingIn) {
+            let spawnX = this.x + random(-100, 100);
+            let spawnY = this.y + this.height;
+            enemiesArray.push(new SodaMinion(spawnX, spawnY));
+        }
     }
-  }
     draw() {
         // --- Placeholder Draw ---
         push();
