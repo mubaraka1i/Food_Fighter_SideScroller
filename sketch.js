@@ -13,6 +13,7 @@ let obstaclesInitialized = false;
 let powerList;
 let levelCreate;
 const keys = {};
+let showControls = false; // true = tutorial page visible
 
 let boss;
 let bossActive = false;
@@ -30,11 +31,12 @@ let currentLayout;
 let speedBoost, healthBoost, shieldBoost, damageBoost, shieldDome;
 let level1BackgroundImg, level2BackgroundImg, level3BackgroundImg, level4BackgroundImg, level5BackgroundImg;
 let chefHat;
-let title, death;
+let title, death, tutorial;
 
 function preload() {
   title = loadImage('Assets/titlescreen.png');
   death = loadImage('Assets/gameoverscreen.png');
+  tutorial = loadImage('Assets/tutorialscreen.png');
   chefHat = loadImage('Assets/chef_health.png');
 
   // Load background images
@@ -74,6 +76,7 @@ function setup() {
   playerHitbox = new ChefHitbox(player, showHitboxes);
   titleScrn = new TitleScreen(0);
   deathScrn = new TitleScreen(1);
+  tutorialScrn = new TitleScreen(2);
   boss = null;
 
   loadLevel(1);
@@ -348,15 +351,23 @@ function draw() {
 
   } else if (deathScrn.visible) {
     deathScrn.screenDraw(death);
+  }else if (showControls) {
+    tutorialScrn.screenDraw(tutorial);
   } else {
     titleScrn.screenDraw(title);
   }
 }
 
 function keyPressed() {
+  // Toggle tutorial on title screen
+  if (key === '1') {
+    if (titleScrn.visible) {
+      showControls = !showControls; // toggle tutorial visibility
+    }
+  }
   // Single-trigger keys
   if (key === 'Enter') {
-    if (titleScrn.visible) {
+    if (titleScrn.visible && !showControls) { // Only start game if tutorial is not visible
       // Reset the game completely before starting
       completeGameReset();
       titleScrn.screenRemove();
