@@ -4,7 +4,7 @@ class SodaMinion {
     this.y = y;
     this.size = 32;
     this.speed = 2.2;
-    this.health = 3;
+    this.health = 4;
     this.color = '#4DA6FF'; // Bright soda blue
   }
 

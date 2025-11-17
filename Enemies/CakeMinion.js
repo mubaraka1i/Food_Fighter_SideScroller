@@ -4,7 +4,7 @@ class CakeMinion {
     this.y = y;
     this.size = 40; // Fixed: Added size property for drawing
     this.speed = 1.8;
-    this.health = 4;
+    this.health = 5;
     this.color = '#FFCC99'; // Cake color
   }
 
