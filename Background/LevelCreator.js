@@ -22,6 +22,7 @@ class LevelCreator {
         this.height = height;
         this.bossTrigger = bossTrigger;
 
+        // Reset all lists when creating a new LevelCreator
         this.powerList = this.powerUpSpawn();
         this.enemy1List = this.enemy1Spawn();
         this.enemy2List = this.enemy2Spawn();
@@ -29,6 +30,9 @@ class LevelCreator {
         // used to keep track of spawn points already crossed
         this.enemy1Curr = 0;
         this.enemy2Curr = 0;
+
+        // Track collected power-ups for this session
+        this.collectedPowerUps = new Set();
     }
     
     getStart() {
@@ -104,11 +108,11 @@ class LevelCreator {
         }
     }
 
-    getEnemy1() {
+    getEnemy1List() {
         return this.enemy1List;
     }
 
-    getEnemy2() {
+    getEnemy2List() {
         return this.enemy2List;
     }
 
@@ -149,7 +153,7 @@ class LevelCreator {
      * @returns true if enemies should spawn, false if not
      */
     enemy1Reached(playerX) {
-        if (playerX >= this.enemy1List[this.enemy1Curr] && this.ememy1Curr + 1 < this.enemy1List.length) {
+        if (playerX >= this.enemy1List[this.enemy1Curr] && this.enemy1Curr + 1 < this.enemy1List.length) {
             this.enemy1Curr++;
             return true;
         }
@@ -163,7 +167,7 @@ class LevelCreator {
      * @returns true if enemies should spawn, false if not
      */
     enemy2Reached(playerX) {
-        if (playerX >= this.enemy2List[this.enemy2Curr] && this.ememy2Curr + 1 < this.enemy2List.length) {
+        if (playerX >= this.enemy2List[this.enemy2Curr] && this.enemy2Curr + 1 < this.enemy2List.length) {
             this.enemy2Curr++;
             return true;
         }
@@ -180,12 +184,25 @@ class LevelCreator {
             let powerUp = this.powerList[i]; // {powerUpHitbox} powerup;
             if (powerUp.checkCollision(playerHitbox)) {
                 let effect = powerUp.getEffect(); // {number} effect
+
+                // Mark this power-up as collected
+                this.collectedPowerUps.add(this.getPowerUpKey(powerUp));
+
                 this.powerList.splice(i, 1); // removes the powerUp from the list
                 this.applyPowerUpEffect(effect);
                 return effect;
             }
         }
         return null;
+    }
+
+    /**
+     * Generates a unique key for a power-up based on its position
+     * @param {PowerUpHitbox} powerUp 
+     * @returns {string} unique key
+     */
+    getPowerUpKey(powerUp) {
+        return `${Math.round(powerUp.x)}_${Math.round(powerUp.y)}`;
     }
 
     /**
@@ -228,7 +245,47 @@ class LevelCreator {
     }
 
     /**
-     * Draws the power ups to the screen if powerUpToDraw exists.
+     * Draws ALL power ups to the screen.
+     * Only draws power-ups that haven't been collected yet.
+     */
+    drawAllPowerUps() {
+        for (let powerUp of this.powerList) {
+            // Only draw if not collected
+            if (!this.collectedPowerUps.has(this.getPowerUpKey(powerUp))) {
+                let powerX = powerUp.getPowerX();
+                let powerY = powerUp.getPowerY();
+                let effect = powerUp.getEffect();
+                
+                let powerUpToDraw;
+                if (effect == 1) { // speed
+                    powerUpToDraw = speedBoost;
+                } else if (effect == 2) { // health
+                    powerUpToDraw = healthBoost;
+                } else if (effect == 3) { // protection
+                    powerUpToDraw = shieldBoost;
+                } else if (effect == 4) { // damage
+                    powerUpToDraw = damageBoost;
+                }
+              
+                if (powerUpToDraw) {
+                    imageMode(CENTER);
+                    image(powerUpToDraw, powerX, powerY, 50, 50); // img, x, y, width, height
+                }
+            }
+        }
+    }
+
+    /**
+     * Resets the collected power-ups (for level restart)
+     */
+    resetCollectedPowerUps() {
+        this.collectedPowerUps.clear();
+        // Also regenerate the power list to get fresh power-ups
+        this.powerList = this.powerUpSpawn();
+    }
+
+    /**
+     * Draws a single power up (for backward compatibility)
      * @param {number} x: center x of the powerUp
      * @param {number} y: center y of the powerUp
      * @param {number} d: radius of the powerUp
@@ -247,8 +304,8 @@ class LevelCreator {
         }
       
         if (powerUpToDraw) {
-          imageMode(CENTER);
-          image(powerUpToDraw, x, y, d * 2, d * 2); // img, x, y, width, height
+            imageMode(CENTER);
+            image(powerUpToDraw, x, y, d * 2, d * 2); // img, x, y, width, height
         }
     }
 }

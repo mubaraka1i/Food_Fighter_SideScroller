@@ -231,15 +231,10 @@ function spawnBoss() {
 }
 
 function spawnPowerUps() {
-  if (!powerList || powerList.length === 0) return;
+  if (!levelCreate || !levelCreate.powerList || levelCreate.powerList.length === 0) return;
   
-  for (let powerUp of powerList) {
-      let powerX = powerUp.getPowerX();
-      let powerY = powerUp.getPowerY(); // Use the stored Y position
-      
-      // Draw the powerup at its stored position
-      levelCreate.drawPowerUp(powerX, powerY, 25, powerUp.getEffect());
-  }
+  // Use the new drawAllPowerUps method instead of manually drawing
+  levelCreate.drawAllPowerUps();
 }
 
 // ENEMY SPAWNING FUNCTION
@@ -446,6 +441,11 @@ function restartGame() {
   boss = null;
   bossActive = false;
   cameraX = 0;
+
+  // Reset collected power-ups
+  if (levelCreate) {
+    levelCreate.resetCollectedPowerUps();
+  }
   
   if (currentLayout && currentLayout.levelMaker) {
     currentLayout.levelMaker(height, player.currentX(), width);
