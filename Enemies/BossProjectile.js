@@ -1,4 +1,11 @@
 class BossProjectile {
+  /**
+   * Creates a boss projectile object that shoots from a boss.
+   * @param {number} x: boss center x
+   * @param {number} y: boss center y
+   * @param {number} dx: distance between player top left x and boss center x
+   * @param {number} dy: distance between player top left y and boss center y
+   */
   constructor(x, y, dx, dy) {
     this.x = x;
     this.y = y;
@@ -6,9 +13,19 @@ class BossProjectile {
     this.dy = dy;
     this.speed = 20;
     this.size = 15;
-
   }
 
+  getHitbox() {
+    return {
+      x: this.x,
+      y: this.y,
+      r: this.size / 2
+    };
+  }
+
+  /**
+   * Updates the position of the projectile.
+   */
   update() {
     let oldX = this.x;
     let oldY = this.y;
@@ -18,6 +35,9 @@ class BossProjectile {
 
   }
 
+  /**
+   * Draws a boss projectile on the screen.
+   */
   draw() {
     fill(255, 0, 255);
     ellipse(this.x, this.y, this.size);
@@ -25,6 +45,9 @@ class BossProjectile {
 
   }
 
+  /**
+   * Draws the square hitbox of the boss projectile to the screen.
+   */
    drawHitbox() {
     push();
     noFill();
@@ -33,13 +56,5 @@ class BossProjectile {
     rectMode(CENTER); 
     rect(this.x, this.y, this.size+1, this.size+1);
     pop();
-  }
-
-  getHitbox() {
-    return {
-      x: this.x,
-      y: this.y,
-      r: this.size / 2
-    };
   }
 }

@@ -1,5 +1,11 @@
 // Placeholder for Level 5 Boss
 class CakeBoss extends OriginalBoss { // Inherits from OriginalBoss for now
+    /**
+     * Creates the cake boss in level 5 and draws it. (PLACEHOLDER)
+     * 
+     * @param {number} x top left corner x coordinate of the boss
+     * @param {number} y top left corner y coordinate of the boss
+     */
     constructor(x, y) {
         super(x, y); // Calls the constructor of OriginalBoss
         this.width = 200; // Bigger!
@@ -8,6 +14,9 @@ class CakeBoss extends OriginalBoss { // Inherits from OriginalBoss for now
         this.health = 50; // Final boss health
     }
 
+    /**
+     * Draws the cake boss onto the screen. (PLACEHOLDER)
+     */
     draw() {
         // --- Placeholder Draw ---
         push();

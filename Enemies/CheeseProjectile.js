@@ -1,5 +1,8 @@
 class CheeseProjectile {
   constructor(x, y, dx, dy) {
+    /**
+     * Creates a 
+     */
     this.x = x;
     this.y = y;
     this.dx = dx;
