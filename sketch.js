@@ -345,10 +345,10 @@ function spawnEnemies() {
           case 4: spritesArray = sodaBubbleSprites; break;
           case 5: spritesArray = cakeCrumbSprites; break;
         }
-        enemiesArray.push(new GroundEnemies(spawnX, spawnY=height-90, spritesArray));
+        // FIXED: Remove the spawnY parameter assignment syntax
+        enemiesArray.push(new GroundEnemies(spawnX, height-90, spritesArray));
       } else {
         // Flying enemy remains unchanged
-        let flySpritesArray; // optional: could add flying sprites later
         enemiesArray.push(new FlyingEnemies(spawnX, random(100, height / 2)));
       }
       

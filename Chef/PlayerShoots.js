@@ -51,5 +51,7 @@ class PlayerShoots {
       size: 15,
       direction: shootInfo.direction
     });
+
+    player.startShooting();
   }
 }

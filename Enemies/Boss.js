@@ -158,17 +158,21 @@ class Boss {
    * Default boss drawing method. Can be overriden by child classes.
    */
   draw() {
-    if (!this.slidingIn && this.idleFrames.length > 0) {
-      // Idle animation
-      this.idleFrameTimer++;
-      if (this.idleFrameTimer >= this.idleFrameDuration) {
-        this.idleFrameTimer = 0;
-        this.idleFrameIndex = (this.idleFrameIndex + 1) % this.idleFrames.length;
-      }
+    if (this.slidingIn) {
+      // Draw sliding animation (simple rectangle or placeholder)
+      fill(255, 0, 0);
+      rect(this.x, this.y, this.width, this.height);
+    } else if (this.idleFrames.length > 0) {
+      // Idle animation with sprites
       imageMode(CORNER);
       image(this.idleFrames[this.idleFrameIndex], this.x, this.y, this.width, this.height);
+    } else {
+      // Fallback: draw simple rectangle
+      fill(255, 0, 0);
+      rect(this.x, this.y, this.width, this.height);
     }
     
+    // Draw health bar and projectiles (only when not sliding in)
     if (!this.slidingIn) {
       this.drawHealthBar();
       

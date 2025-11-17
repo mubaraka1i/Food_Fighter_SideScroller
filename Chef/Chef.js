@@ -33,7 +33,7 @@ class Chef {
 
     this.isShooting = false;
     this.shootFrameTimer = 0;
-    this.shootFrameDuration = 30; // frames to show shooting animation
+    this.shootFrameDuration = 15; // frames to show shooting animation
 
     // To prevent retriggering
     keys['w'] = false;
@@ -150,17 +150,17 @@ class Chef {
       img = this.velocityY < 0 ? this.sprites.jump : this.sprites.fall;
     }
 
-    // 3. Shooting WHILE walking
-    else if (this.isShooting && (this.isMovingLeft || this.isMovingRight)) {
-      const frameIndex = floor(frameCount / 6) % this.sprites.shoot.length;
-      // walk-shoot frames are 0 and 2 in your array
-      img = this.sprites.shoot[frameIndex === 1 ? 0 : frameIndex];
-    }
-
-    // 4. Shooting WHILE standing
+    // 3. SHOOTING ANIMATION
     else if (this.isShooting) {
-      // your stand-shoot is the middle sprite
-      img = this.sprites.shoot[1];
+      // Use shooting sprites when shooting
+      if (this.isMovingLeft || this.isMovingRight) {
+        // Walking while shooting - cycle through walk-shoot frames
+        const frameIndex = floor(frameCount / 6) % this.sprites.shoot.length;
+        img = this.sprites.shoot[frameIndex];
+      } else {
+        // Standing while shooting - use the middle frame (index 1)
+        img = this.sprites.shoot[1];
+      }
     }
 
     // 5. Normal walking

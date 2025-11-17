@@ -33,22 +33,25 @@ class CakeBoss extends Boss { // Inherits from OriginalBoss for now
      */
     draw() {
         // --- Placeholder Draw ---
+        super.draw();
         push();
         // Body (cake layers)
-        rectMode(CORNER);
-        fill('#AF601A'); // Brown (cake)
-        rect(this.x, this.y, this.width, this.height);
-        
-        fill('#E6B0AA'); // Pink (icing)
-        rect(this.x, this.y, this.width, 40);
-        rect(this.x, this.y + 80, this.width, 40);
-        rect(this.x, this.y + 160, this.width, 40);
+        if (!this.slidingIn) {
+            rectMode(CORNER);
+            fill('#AF601A'); // Brown (cake)
+            rect(this.x, this.y, this.width, this.height);
+            
+            fill('#E6B0AA'); // Pink (icing)
+            rect(this.x, this.y, this.width, 40);
+            rect(this.x, this.y + 80, this.width, 40);
+            rect(this.x, this.y + 160, this.width, 40);
 
-        // Candle
-        fill(255, 0, 0);
-        rect(this.x + this.width/2 - 5, this.y - 30, 10, 30);
-        fill(255, 255, 0);
-        ellipse(this.x + this.width/2, this.y - 30, 10, 15);
+            // Candle
+            fill(255, 0, 0);
+            rect(this.x + this.width/2 - 5, this.y - 30, 10, 30);
+            fill(255, 255, 0);
+            ellipse(this.x + this.width/2, this.y - 30, 10, 15);
+        }
         
         // Draw projectiles
         for (let projectile of this.projectiles) {

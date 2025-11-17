@@ -3,7 +3,8 @@ class NachoCrumbleMinion {
     this.x = x;
     this.y = y;
     this.width = 40; 
-    this.height = 25; 
+    this.height = 25;
+    this.size = 40;
     this.speed = 1.5;
     this.health = 3;
     this.color = '#FFD700'; // Golden yellow
@@ -75,7 +76,7 @@ class NachoCrumbleMinion {
     if (this.facingRight) scale(-1, 1);
 
     imageMode(CENTER);
-    image(this.sprites[frame], 0, 0, this.size, this.size);
+    image(this.sprites[frame], this.size/2, this.size/2, this.size, this.size);
     pop();
   }
 
