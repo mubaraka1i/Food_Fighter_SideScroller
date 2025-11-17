@@ -53,6 +53,7 @@ class CakeBoss extends Boss { // Inherits from OriginalBoss for now
         // Draw projectiles
         for (let projectile of this.projectiles) {
             projectile.draw();
+            projectile.drawHitbox();
         }
         
         // Draw health bar
