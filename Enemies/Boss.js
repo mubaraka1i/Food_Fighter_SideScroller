@@ -92,14 +92,25 @@ class Boss {
       
       // Update existing projectiles
       for (let i = this.projectiles.length - 1; i >= 0; i--) {
-        this.projectiles[i].update();
-        
-        // Remove projectiles that go off screen/into new level
-        let proj = this.projectiles[i];
-        if (proj.x < cameraX || proj.x > cameraX + width || 
-          proj.y < 0 || proj.y > height) {
-          this.projectiles.splice(i, 1);
-        }
+          this.projectiles[i].update();
+          
+          // Remove projectiles that go off screen/into new level OR should be removed
+          let proj = this.projectiles[i];
+          let shouldRemove = false;
+          
+          // Check if projectile has a custom removal condition
+          if (proj.shouldRemove && proj.shouldRemove()) {
+              shouldRemove = true;
+          }
+          // Check if projectile is out of bounds
+          else if (proj.x < cameraX || proj.x > cameraX + width || 
+                  proj.y < 0 || proj.y > height) {
+              shouldRemove = true;
+          }
+          
+          if (shouldRemove) {
+              this.projectiles.splice(i, 1);
+          }
       }
       
       // Handle shooting - to be overridden by child classes

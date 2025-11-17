@@ -7,7 +7,7 @@ class CakeBoss extends Boss { // Inherits from OriginalBoss for now
      * @param {number} y top left corner y coordinate of the boss
      */
     constructor(x, y) {
-        super(x, y); // Calls the constructor of OriginalBoss
+        super(x, y, 'cake', cakeBoss.idle); // Calls the constructor of OriginalBoss
         this.width = 200; // Bigger!
         this.height = 200;
         this.y = height - this.height; // Adjust Y for new height
@@ -16,6 +16,27 @@ class CakeBoss extends Boss { // Inherits from OriginalBoss for now
         this.minionSpawnInterval = 150;
         this.maxMinions = 4;
     }
+
+    shootAtPlayer(playerX, playerY) {
+        let bossCenterX = this.x + this.width / 2;
+        let bossCenterY = this.y + this.height / 2;
+        
+        // Shoot birthday candles in a circular pattern
+        for (let i = 0; i < 4; i++) {
+            let angle = (TWO_PI / 4) * i + frameCount * 0.02; // Rotating pattern
+            
+            let dx = cos(angle) * 0.1;
+            let dy = sin(angle) * 0.1;
+            
+            this.projectiles.push(new BirthdayCandleProjectile(
+                bossCenterX,
+                bossCenterY,
+                dx,
+                dy
+            ));
+        }
+    }
+
 
     /**
      * Spawn cake minions
@@ -34,9 +55,11 @@ class CakeBoss extends Boss { // Inherits from OriginalBoss for now
     draw() {
         // --- Placeholder Draw ---
         super.draw();
-        push();
+        //push();
         // Body (cake layers)
+        /*
         if (!this.slidingIn) {
+            
             rectMode(CORNER);
             fill('#AF601A'); // Brown (cake)
             rect(this.x, this.y, this.width, this.height);
@@ -51,7 +74,9 @@ class CakeBoss extends Boss { // Inherits from OriginalBoss for now
             rect(this.x + this.width/2 - 5, this.y - 30, 10, 30);
             fill(255, 255, 0);
             ellipse(this.x + this.width/2, this.y - 30, 10, 15);
+            
         }
+            */
         
         // Draw projectiles
         for (let projectile of this.projectiles) {
