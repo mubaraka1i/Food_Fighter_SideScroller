@@ -1,6 +1,6 @@
 class NachosBoss extends Boss {
   constructor(x, y) {
-    super(x, y, 'nachos');
+    super(x, y, 'nachos', nachoBoss.idle);
     this.health = 15;
     this.maxHealth = 15;
     this.width = 140;

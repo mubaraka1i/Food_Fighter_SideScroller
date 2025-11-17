@@ -4,10 +4,16 @@ class Boss {
    * @param {number} y top left corner y coordinate of boss
    * @param {String} type tells which boss it is
    */
-  constructor(x, y, type) {
+  constructor(x, y, type, idleFrames = []) {
     this.type = type;
     this.width = 100;
     this.height = 150;
+
+    // Idle animation frames
+    this.idleFrames = idleFrames;   // array of 3 images
+    this.idleFrameIndex = 0;
+    this.idleFrameTimer = 0;
+    this.idleFrameDuration = 12; // change to 6, 8, 15 for faster/slower
     
     // SLIDING ANIMATION :
     this.targetX = x;          
@@ -73,6 +79,17 @@ class Boss {
         this.slidingIn = false;
       }
     } else {
+      // Update Idle animation
+      this.idleFrameTimer++;
+      if (this.idleFrameTimer >= this.idleFrameDuration) {
+        this.idleFrameTimer = 0;
+        this.idleFrameIndex++;
+        if (this.idleFrameIndex >= this.idleFrames.length) {
+          this.idleFrameIndex = 0;
+        }
+      }
+      
+      
       // Update existing projectiles
       for (let i = this.projectiles.length - 1; i >= 0; i--) {
         this.projectiles[i].update();
@@ -141,20 +158,16 @@ class Boss {
    * Default boss drawing method. Can be overriden by child classes.
    */
   draw() {
-    fill(255, 0, 0);
-    rect(this.x, this.y, this.width, this.height);
-    
-    // Default boss details
-    fill(255);
-    rect(this.x + 20, this.y - 30, this.width - 40, 30); // Chef hat
-    
-    fill(255);
-    ellipse(this.x + 30, this.y + 50, 20, 20); // Eyes
-    ellipse(this.x + 70, this.y + 50, 20, 20);
-    
-    fill(0);
-    ellipse(this.x + 30, this.y + 50, 10, 10); // Pupils
-    ellipse(this.x + 70, this.y + 50, 10, 10);
+    if (!this.slidingIn && this.idleFrames.length > 0) {
+      // Idle animation
+      this.idleFrameTimer++;
+      if (this.idleFrameTimer >= this.idleFrameDuration) {
+        this.idleFrameTimer = 0;
+        this.idleFrameIndex = (this.idleFrameIndex + 1) % this.idleFrames.length;
+      }
+      imageMode(CORNER);
+      image(this.idleFrames[this.idleFrameIndex], this.x, this.y, this.width, this.height);
+    }
     
     if (!this.slidingIn) {
       this.drawHealthBar();

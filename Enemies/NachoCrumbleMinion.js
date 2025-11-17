@@ -11,6 +11,11 @@ class NachoCrumbleMinion {
     this.isJumping = false;
     this.jumpPower = 0;
     this.gravity = 0.5;
+
+    this.sprites = nachoCrumbSprites; // array of images
+    this.frameIndex = 0;
+    this.frameSpeed = 0.15; // how fast the animation cycles
+    this.facingRight = false; // default facing left
   }
 
   update(playerX, playerY) {
@@ -47,20 +52,31 @@ class NachoCrumbleMinion {
       // Stay on ground when not jumping
       this.y = height - this.height;
     }
+
+    let dx = playerX - this.x;
+    let dy = playerY - this.y;
+    
+    // Update facing direction: left if dx < 0, right if dx >= 0
+    this.facingRight = dx >= 0;
+    
+    // Update animation
+    this.frameIndex += this.frameSpeed;
+    if (this.frameIndex >= this.sprites.length) {
+      this.frameIndex = 0;
+    }
   }
 
   draw() {
-    fill(this.color);
-    // Draw triangle nacho shape
-    triangle(
-      this.x, this.y + this.height,
-      this.x + this.width, this.y + this.height,
-      this.x + this.width / 2, this.y
-    );
-    
-    // Draw cheese spots
-    fill('#FFA500');
-    ellipse(this.x + this.width/2, this.y + this.height/2, 10, 10);
+    let frame = floor(this.frameIndex);
+    push();
+    translate(this.x, this.y);
+
+    // Flip horizontally if facing right (default left)
+    if (this.facingRight) scale(-1, 1);
+
+    imageMode(CENTER);
+    image(this.sprites[frame], 0, 0, this.size, this.size);
+    pop();
   }
 
   getHitbox() {

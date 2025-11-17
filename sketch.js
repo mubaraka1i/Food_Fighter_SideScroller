@@ -8,6 +8,16 @@ let playInitiated = false;
 let gameScale;
 let background1;
 let cameraX = 0;
+let cupcakeBoss = {};
+let cookieBoss = {};
+let nachoBoss = {};
+let sodaBoss = {};
+let cakeBoss = {};
+let cupcakeCandleSprites = {};
+let cookieCrumbSprites = {};
+let nachoCrumbSprites = {};
+let sodaBubbleSprites = {};
+let cakeCrumbSprites = {};
 let chefSprites = {};
 let obstaclesInitialized = false;
 let powerList;
@@ -48,7 +58,7 @@ function preload() {
 
   // Load Chef sprites
   chefSprites = {
-    stand: loadImage('Assets/chef_stand.png'),
+    stand: loadImage('Assets/chef_walk2.png'),
     walk: [
       loadImage('Assets/chef_walk1.png'),
       loadImage('Assets/chef_walk2.png'),
@@ -57,8 +67,85 @@ function preload() {
     duck: loadImage('Assets/chef_duck.png'),
     jump: loadImage('Assets/chef_jump.png'),
     fall: loadImage('Assets/chef_fall.png'),
-    shoot: loadImage('Assets/chef_shoot.png')
+    shoot: [
+      loadImage('Assets/chef_shoot_walk1.png'),
+      loadImage('Assets/chef_shoot_stand.png'),
+      loadImage('Assets/chef_shoot_walk2.png')
+    ]
   };
+  
+  // Load Boss sprites
+  cupcakeBoss = { // Level 1 Boss
+    idle: [
+      loadImage('Assets/cupcake_boss1.png'),
+      loadImage('Assets/cupcake_boss2.png'),
+      loadImage('Assets/cupcake_boss3.png')
+    ]
+  };
+  cookieBoss = { // Level 2 Boss
+    idle: [
+      loadImage('Assets/cookie_boss1.png'),
+      loadImage('Assets/cookie_boss2.png'),
+      loadImage('Assets/cookie_boss3.png')
+    ]
+  };
+  nachoBoss = { // Level 3 Boss
+    idle: [
+      loadImage('Assets/nacho_boss1.png'),
+      loadImage('Assets/nacho_boss2.png'),
+      loadImage('Assets/nacho_boss3.png')
+    ]
+  };
+  sodaBoss = { // Level 4 Boss
+    idle: [
+      loadImage('Assets/soda_boss1.png'),
+      loadImage('Assets/soda_boss2.png'),
+      loadImage('Assets/soda_boss3.png')
+    ]
+  };
+  cakeBoss = { // Level 5 Boss
+    idle: [
+      loadImage('Assets/cake_boss1.png'),
+      loadImage('Assets/cake_boss2.png'),
+      loadImage('Assets/cake_boss3.png')
+    ]
+  };
+  
+  // Load Level Minions
+  
+  cupcakeCandleSprites = [ // Level 1 Minions
+    loadImage('Assets/cupcake_minion1.png'),
+    loadImage('Assets/cupcake_minion2.png'),
+    loadImage('Assets/cupcake_minion3.png')
+  ];
+  
+  cookieCrumbSprites = [ // Level 2 Minions
+    loadImage('Assets/cookie_minion1.png'),
+    loadImage('Assets/cookie_minion2.png'),
+    loadImage('Assets/cookie_minion3.png'),
+    loadImage('Assets/cookie_minion4.png')
+  ];
+  
+  nachoCrumbSprites = [ // Level 3 Minions
+    loadImage('Assets/nacho_minion1.png'),
+    loadImage('Assets/nacho_minion2.png'),
+    loadImage('Assets/nacho_minion3.png')
+  ];
+  
+  sodaBubbleSprites = [ // Level 4 Minions
+    loadImage('Assets/soda_minion1.png'),
+    loadImage('Assets/soda_minion2.png'),
+    loadImage('Assets/soda_minion3.png'),
+    loadImage('Assets/soda_minion4.png')
+  ];
+  
+  cakeCrumbSprites = [ // Level 5 Minions
+    loadImage('Assets/cake_minion1.png'),
+    loadImage('Assets/cake_minion2.png'),
+    loadImage('Assets/cake_minion3.png'),
+    loadImage('Assets/cake_minion4.png')
+  ];
+
   // Load Power-Up Icons
   speedBoost = loadImage('Assets/power_speed.png');
   healthBoost = loadImage('Assets/power_health.png');
@@ -246,16 +333,26 @@ function spawnEnemies() {
     enemySpawnTimer++;
     
     if (enemySpawnTimer >= enemySpawnRate) {
-      // Spawn enemies in world space
       let spawnX = cameraX + width + 50;
-
+      
       if (random() < 0.5) {
-        enemiesArray.push(new GroundEnemies(spawnX));
+        // Ground enemy (minion) for current level
+        let spritesArray;
+        switch (currentLevel) {
+          case 1: spritesArray = cupcakeCandleSprites; break;
+          case 2: spritesArray = cookieCrumbSprites; break;
+          case 3: spritesArray = nachoCrumbSprites; break;
+          case 4: spritesArray = sodaBubbleSprites; break;
+          case 5: spritesArray = cakeCrumbSprites; break;
+        }
+        enemiesArray.push(new GroundEnemies(spawnX, spawnY=height-90, spritesArray));
       } else {
+        // Flying enemy remains unchanged
+        let flySpritesArray; // optional: could add flying sprites later
         enemiesArray.push(new FlyingEnemies(spawnX, random(100, height / 2)));
       }
       
-      enemySpawnTimer = 0; // Reset timer
+      enemySpawnTimer = 0;
     }
   }
 }

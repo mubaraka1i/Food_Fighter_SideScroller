@@ -1,6 +1,6 @@
 class SodaBoss extends Boss { // Inherits from OriginalBoss for now
     constructor(x, y) {
-        super(x, y); // Calls the constructor of OriginalBoss
+        super(x, y, sodaBoss.idle); // Calls the constructor of OriginalBoss
         this.health = 35; // More health
         this.maxHealth = 35;
         this.minionSpawnInterval = 180;

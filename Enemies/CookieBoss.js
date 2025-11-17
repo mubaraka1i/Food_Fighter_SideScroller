@@ -1,6 +1,6 @@
 class CookieBoss extends Boss {
   constructor(x, y) {
-    super(x, y, 'cookie');
+    super(x, y, 'cookie', cookieBoss.idle);
     this.health = 12;
     this.maxHealth = 12;
     this.width = 120;

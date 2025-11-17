@@ -31,6 +31,10 @@ class Chef {
     this.shieldActive = false;
     this.damageBoostActive = false;
 
+    this.isShooting = false;
+    this.shootFrameTimer = 0;
+    this.shootFrameDuration = 30; // frames to show shooting animation
+
     // To prevent retriggering
     keys['w'] = false;
     keys['arrowup'] = false;
@@ -121,6 +125,14 @@ class Chef {
     } else {
       this.isOnGround = false;
     }
+
+    // Handle shooting animation
+    if (this.isShooting) {
+      this.shootFrameTimer--;
+      if (this.shootFrameTimer <= 0) {
+        this.isShooting = false;
+      }
+    }
   }
 
   /**
@@ -128,12 +140,39 @@ class Chef {
    */
   draw() {
     let img;
-    if (playerHitbox.isDucking) img = this.sprites.duck;
-    else if (!this.isOnGround) img = this.velocityY < 0 ? this.sprites.jump : this.sprites.fall;
+    // 1. DUCK > JUMP > FALL take priority over shooting
+    if (playerHitbox.isDucking) {
+      img = this.sprites.duck;
+    }
+
+    // 2. Jump/Fall
+    else if (!this.isOnGround) {
+      img = this.velocityY < 0 ? this.sprites.jump : this.sprites.fall;
+    }
+
+    // 3. Shooting WHILE walking
+    else if (this.isShooting && (this.isMovingLeft || this.isMovingRight)) {
+      const frameIndex = floor(frameCount / 6) % this.sprites.shoot.length;
+      // walk-shoot frames are 0 and 2 in your array
+      img = this.sprites.shoot[frameIndex === 1 ? 0 : frameIndex];
+    }
+
+    // 4. Shooting WHILE standing
+    else if (this.isShooting) {
+      // your stand-shoot is the middle sprite
+      img = this.sprites.shoot[1];
+    }
+
+    // 5. Normal walking
     else if (this.isMovingLeft || this.isMovingRight) {
       const frameIndex = floor(frameCount / 6) % this.sprites.walk.length;
       img = this.sprites.walk[frameIndex];
-    } else img = this.sprites.stand;
+    }
+
+    // 6. Normal idle
+    else {
+      img = this.sprites.stand;
+    }
 
     push();
     translate(this.x, this.y);
@@ -239,6 +278,14 @@ class Chef {
     if (this.shieldActive && millis() > this.shieldTimer) {
       this.shieldActive = false; // turn off when expired
     }
+  }
+
+  /**
+  * Begins the shooting animation.
+  */
+  startShooting() {
+    this.isShooting = true;
+    this.shootFrameTimer = this.shootFrameDuration;
   }
 
   /**
