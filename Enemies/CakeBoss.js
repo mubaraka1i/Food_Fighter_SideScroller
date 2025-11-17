@@ -1,5 +1,5 @@
 // Placeholder for Level 5 Boss
-class CakeBoss extends OriginalBoss { // Inherits from OriginalBoss for now
+class CakeBoss extends Boss { // Inherits from OriginalBoss for now
     /**
      * Creates the cake boss in level 5 and draws it. (PLACEHOLDER)
      * 
