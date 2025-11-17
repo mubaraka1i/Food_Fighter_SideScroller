@@ -1,10 +1,17 @@
 // Placeholder for Level 4 Boss
-class SodaBoss extends OriginalBoss { // Inherits from OriginalBoss for now
+class SodaBoss extends Boss { // Inherits from OriginalBoss for now
     constructor(x, y) {
         super(x, y); // Calls the constructor of OriginalBoss
         this.health = 35; // More health
     }
 
+     spawnMinions() {
+    if (enemiesArray.length < this.maxMinions) {
+      let spawnX = this.x + random(-100, 100);
+      let spawnY = this.y + this.height;
+      enemiesArray.push(new SodaMinion(spawnX, spawnY));
+    }
+  }
     draw() {
         // --- Placeholder Draw ---
         push();
@@ -25,6 +32,7 @@ class SodaBoss extends OriginalBoss { // Inherits from OriginalBoss for now
         // Draw projectiles
         for (let projectile of this.projectiles) {
             projectile.draw();
+            projectile.drawHitbox();
         }
         
         // Draw health bar

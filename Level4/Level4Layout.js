@@ -1,37 +1,67 @@
 class Level4Layout {
     constructor() {
         this.obstacles = new ObstacleTracker();
-        this.primaryColor = '#AED6F1'; // Light Blue (washing machine)
-        this.secondaryColor = '#5D6D7E'; // Dark Grey (counter)
+        this.primaryColor = '#AED6F1';
+        this.secondaryColor = '#5D6D7E';
     }
 
     levelMaker(height, playerX, width) {
         this.obstacles.clearObstacles();
-        
+
         const groundLevel = height;
-        const platformHeight = 40;
-        const machineHeight = 120; // Washing machines are taller
 
-        // Series of counters and washing machines
-        this.obstacles.addObstacle(new ObstacleCreator([800, groundLevel - machineHeight], 150, machineHeight));
-        this.obstacles.addObstacle(new ObstacleCreator([950, groundLevel - platformHeight], 200, platformHeight));
-        this.obstacles.addObstacle(new ObstacleCreator([1150, groundLevel - machineHeight], 150, machineHeight));
-        
-        // Gap
-        
-        this.obstacles.addObstacle(new ObstacleCreator([1500, groundLevel - platformHeight], 300, platformHeight));
-        this.obstacles.addObstacle(new ObstacleCreator([1800, groundLevel - machineHeight], 150, machineHeight));
+        const platformWidth = 50;
+        const platformHeight = 20;
 
-        // Floating "shelf" platforms
-        this.obstacles.addObstacle(new ObstacleCreator([2200, groundLevel - 250], 200, 30));
-        this.obstacles.addObstacle(new ObstacleCreator([2500, groundLevel - 350], 200, 30));
-        this.obstacles.addObstacle(new ObstacleCreator([2800, groundLevel - 250], 200, 30));
+        let baseY = groundLevel - 90;  
+        let x = 400;
 
-        // More counters
-        this.obstacles.addObstacle(new ObstacleCreator([3200, groundLevel - platformHeight], 500, platformHeight));
+        let stepToggle = 0;
+
         
-        // Final long platform before boss
-        this.obstacles.addObstacle(new ObstacleCreator([7000, groundLevel - platformHeight], 500, platformHeight));
+        const gapPattern = [2, 4, 3, 5];
+        let patternIndex = 0;
+        let obstaclesPlacedInRun = 0;
+
+        while (x < 6950) {
+
+            
+            if (obstaclesPlacedInRun >= gapPattern[patternIndex]) {
+                
+                x += 150; 
+                
+                
+                obstaclesPlacedInRun = 0;
+                patternIndex = (patternIndex + 1) % gapPattern.length;
+
+                continue; 
+            }
+
+            
+            let y = baseY;
+
+            if (stepToggle === 0) {
+                y = baseY - 10;
+            } else if (stepToggle === 1) {
+                y = baseY;
+            } else if (stepToggle === 2) {
+                y = baseY + 15;
+            } else {
+                y = baseY;
+                stepToggle = -1;
+            }
+
+            stepToggle++;
+
+            
+            this.obstacles.addObstacle(
+                new ObstacleCreator([x, y], platformWidth, platformHeight)
+            );
+
+            obstaclesPlacedInRun++;
+
+            x += 150;
+        }
     }
 
     getObstacles() {

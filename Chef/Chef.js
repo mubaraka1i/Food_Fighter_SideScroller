@@ -271,7 +271,7 @@ class Chef {
    * @param {[ObstacleCreator]} obstacleTracker: currentLayout.getObstacles()
    * @returns: exit early if obstacleTracker does not exist or is empty
    */
-  handleObstacleCollision(oldX, oldY, obstacleTracker) {
+  handleObstacleCollision(oldX, oldY, obstacleTracker, ) {
   if (!obstacleTracker) return;
 
   const obstacles = obstacleTracker.getObstacles();
@@ -313,9 +313,13 @@ class Chef {
       // Check horizontal collisions (left/right)
       else if (oldHitboxX + hitboxWidth <= obsX) { // Coming from left
         this.x = obsX - hitboxWidth - hitboxOffset;
+        this.velocityX = 0;
+
       }
       else if (oldHitboxX >= obsX + obsW) { // Coming from right
         this.x = obsX + obsW - hitboxOffset;
+        this.velocityX = 0;
+
       }
     }
   }
