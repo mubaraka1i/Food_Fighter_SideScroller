@@ -121,7 +121,7 @@ function checkCollisions() {
       const projectile = bossProjectiles[k];
       const projHB = projectile.getHitbox();
       
-      if (playerHB.playerHitCircle(projHB.x, projHB.y, projHB.r)) {
+      if (projHB && playerHB.playerHitCircle(projHB.x, projHB.y, projHB.r)) {
         // Only take damage if shield is NOT active
         if (!player.shieldActive) {
           player.takeDamage();
