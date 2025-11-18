@@ -2,14 +2,14 @@ class LevelCreator {
     /**
      * Creates a LevelCreator object that can be used for power up creation and enemy spawning.
      *
-     * @param {number} start: x coordinate of the leftmost side of the screen
-     * @param {number} end: x coordinate of the rightmost side of the screen
-     * @param {number} powerUps: dictates the amount of power ups that spawn
-     * @param {number} enemy1: dictates how many spawn points are created for enemy1.
-     * @param {number} enemy2: dictates how many spawn points are created for enemy1.
-     * @param {number} bossTrigger: player x coordinate that triggers the boss
-     * @param {LevelLayout} layout: used to calculate power up collision
-     * @param {number} height: height of canvas, used to calculate power up collision,
+     * @param {number} start x coordinate of the leftmost side of the screen
+     * @param {number} end x coordinate of the rightmost side of the screen
+     * @param {number} powerUps dictates the amount of power ups that spawn
+     * @param {number} enemy1 dictates how many spawn points are created for enemy1.
+     * @param {number} enemy2 dictates how many spawn points are created for enemy1.
+     * @param {number} bossTrigger player x coordinate that triggers the boss
+     * @param {Object} layout LevelLayout object, used to calculate power up collision
+     * @param {number} height height of canvas, used to calculate power up collision,
      */
     constructor(start, end, powerUps, enemy1, enemy2, bossTrigger, layout, height) {
         // start and end indicate the x coordinates where the level cannot scroll any further
@@ -35,30 +35,59 @@ class LevelCreator {
         this.collectedPowerUps = new Set();
     }
     
+    /** 
+     * @returns {number} x coordinate of the leftmost side of the screen
+     */
     getStart() {
         return this.start;
     }
 
+    /** 
+     * @returns {number} x coordinate of the rightmost side of the screen
+     */
     getEnd() {
         return this.end;
     }
 
+    /**
+     * @returns {number} amount of power ups spawn in the level
+     */
     getPowerUps() {
         return this.powerUps;
     }
 
+    /**
+     * @returns {number} amount of spawn points for ground enemies
+     */
     getEnemy1() {
         return this.enemy1;
     }
 
+    /**
+     * @returns {number} amount of spawn points for flying enemies
+     */
     getEnemy2() {
         return this.enemy2;
     }
 
     /**
+     * @returns {Array} list of ground enemy spawn points x {number} values
+     */
+    getEnemy1List() {
+        return this.enemy1List;
+    }
+
+    /**
+     * @returns {Array} list of flying enemy spawn points x {number} values
+     */
+    getEnemy2List() {
+        return this.enemy2List;
+    }
+
+    /**
      * Creates a list of spawn points for power ups.
      *
-     * @returns list of PowerUpHitbox objects
+     * @returns {Array} list of PowerUpHitbox objects
      */
     powerUpSpawn() {
         let powerList = [];
@@ -93,7 +122,7 @@ class LevelCreator {
     /**
      * Assigns a power up effect to a PowerUpHitbox object.
      *
-     * @returns 1 for speed boost, 2 for health boost, 3 for protection boost, and 4 for damage boost.
+     * @returns {number} 1 for speed boost, 2 for health boost, 3 for protection boost, and 4 for damage boost.
      */
     powerUpEffect() {
         let random = Math.random();
@@ -108,18 +137,11 @@ class LevelCreator {
         }
     }
 
-    getEnemy1List() {
-        return this.enemy1List;
-    }
-
-    getEnemy2List() {
-        return this.enemy2List;
-    }
-
     /**
      * Creates a list of spawn points for ground enemies.
      * NOT CURRENTLY USED 
-     * @returns list of x-coordinates for spawn points
+     * 
+     * @returns {Array} list of x-coordinates for spawn points
      */
     enemy1Spawn() {
         let enemy1List = [];
@@ -134,7 +156,8 @@ class LevelCreator {
     /**
      * Creates a list of spawn points for flying enemies.
      * NOT CURRENTLY USED 
-     * @returns list of x-coordinates for spawn points
+     * 
+     * @returns {Array} list of x-coordinates for spawn points
      */
     enemy2Spawn() {
         let enemy2List = [];
@@ -149,8 +172,9 @@ class LevelCreator {
     /**
      * Finds if the player has crossed the current threshold for ground enemies.
      * NOT CURRENTLY USED
+     * 
      * @param {number} playerX 
-     * @returns true if enemies should spawn, false if not
+     * @returns {boolean} true if enemies should spawn, false if not
      */
     enemy1Reached(playerX) {
         if (playerX >= this.enemy1List[this.enemy1Curr] && this.enemy1Curr + 1 < this.enemy1List.length) {
@@ -163,8 +187,9 @@ class LevelCreator {
     /**
      * Finds if the player has crossed the current threshold for flying enemies.
      * NOT CURRENTLY USED
+     * 
      * @param {number} playerX 
-     * @returns true if enemies should spawn, false if not
+     * @returns {boolean} true if enemies should spawn, false if not
      */
     enemy2Reached(playerX) {
         if (playerX >= this.enemy2List[this.enemy2Curr] && this.enemy2Curr + 1 < this.enemy2List.length) {
@@ -176,8 +201,9 @@ class LevelCreator {
 
     /**
      * Finds if the player has touched a power up in powerList and calls applyPowerUpEffect if reached.
+     * 
      * @param {PlayerHitbox} playerHitbox 
-     * @returns the effect if reached, null otherwise
+     * @returns {number} the effect if reached, null otherwise
      */
     powerUpReached(playerHitbox) {
         for (let i = this.powerList.length - 1; i >= 0; i--) {
@@ -198,8 +224,9 @@ class LevelCreator {
 
     /**
      * Generates a unique key for a power-up based on its position
+     * 
      * @param {PowerUpHitbox} powerUp 
-     * @returns {string} unique key
+     * @returns {String} unique key
      */
     getPowerUpKey(powerUp) {
         return `${Math.round(powerUp.x)}_${Math.round(powerUp.y)}`;
@@ -207,7 +234,8 @@ class LevelCreator {
 
     /**
      * Applies the power up effect when called by powerUpReached.
-     * @param {number} effect: 1-4, dictates the effect that is applied to the player
+     * 
+     * @param {number} effect 1-4, dictates the effect that is applied to the player
      */
     applyPowerUpEffect(effect) {
         switch(effect) {
@@ -286,10 +314,11 @@ class LevelCreator {
 
     /**
      * Draws a single power up (for backward compatibility)
-     * @param {number} x: center x of the powerUp
-     * @param {number} y: center y of the powerUp
-     * @param {number} d: radius of the powerUp
-     * @param {number} effect: 1-4, boost effect to apply
+     * 
+     * @param {number} x center x of the powerUp
+     * @param {number} y center y of the powerUp
+     * @param {number} d radius of the powerUp
+     * @param {number} effect 1-4, boost effect to apply
      */
     drawPowerUp(x, y, d, effect) {
         let powerUpToDraw;

@@ -1,4 +1,10 @@
 class CookieCrumbMinion {
+  /**
+   * Creates minions for the cookie boss in level two.
+   * 
+   * @param {number} x center x coordinate of the minion
+   * @param {number} y center y coordinate of the minion
+   */
   constructor(x, y) {
     this.x = x;
     this.y = y;
@@ -13,6 +19,31 @@ class CookieCrumbMinion {
     this.facingRight = false; // default facing left
   }
 
+  /**
+   * @returns set of numbers {x, y, r}
+   */
+  getHitbox() {
+    return {
+      x: this.x,
+      y: this.y,
+      r: this.size / 2
+    };
+  }
+
+  /**
+   * Reduces the minion's health by a given amount.
+   * @param {number} damage amount to reduce the health by
+   */
+  takeDamage(damage) {
+    this.health -= damage;
+  }
+
+  /**
+   * Updates the minion's position to move towards the player.
+   * 
+   * @param {number} playerX top left corner x coordinate of the player
+   * @param {number} playerY top left corner y coordinate of the player
+   */
   update(playerX, playerY) {
     // Move toward player
     let dx = playerX - this.x;
@@ -31,6 +62,9 @@ class CookieCrumbMinion {
     }
   }
 
+  /**
+   * Draws a cookie minion to the screen.
+   */
   draw() {
     let frame = floor(this.frameIndex);
     push();
@@ -42,17 +76,5 @@ class CookieCrumbMinion {
     imageMode(CENTER);
     image(this.sprites[frame], 0, 0, this.size, this.size);
     pop();
-  }
-
-  getHitbox() {
-    return {
-      x: this.x,
-      y: this.y,
-      r: this.size / 2
-    };
-  }
-
-  takeDamage(damage) {
-    this.health -= damage;
   }
 }

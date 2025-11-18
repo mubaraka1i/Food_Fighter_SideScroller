@@ -1,4 +1,10 @@
 class CakeMinion {
+  /**
+   * Creates minions for the cake boss in the fifth level.
+   * 
+   * @param {number} x center x coordinate of the minion
+   * @param {number} y center y coordinate of the minion
+   */
   constructor(x, y) {
     this.x = x;
     this.y = y;
@@ -13,6 +19,31 @@ class CakeMinion {
     this.facingRight = false; // default facing left
   }
 
+  /**
+   * @returns set of numbers {x, y, r}
+   */
+   getHitbox() {
+    return {
+      x: this.x,
+      y: this.y,
+      r: this.size * 0.45 // Approximate circular hitbox
+    };
+  }
+
+  /**
+   * Decreases the enemy's damage by given amount.
+   * 
+   * @param {number} dmg amount of damage to decrease health by
+   */
+  takeDamage(dmg) {
+    this.health -= dmg;
+  }
+
+  /**
+   * Updates the trajectory and direction of the minion.
+   * @param {number} playerX player's top left x position
+   * @param {number} playerY player's top left y position
+   */
   update(playerX, playerY) {
     let dx = playerX - this.x;
     let dy = playerY - this.y;
@@ -30,6 +61,9 @@ class CakeMinion {
     }
   }
 
+  /**
+  * Draws the minion to the screen.
+  */ 
   draw() {
     let frame = floor(this.frameIndex);
     push();
@@ -41,17 +75,5 @@ class CakeMinion {
     imageMode(CENTER);
     image(this.sprites[frame], 0, 0, this.size, this.size);
     pop();
-  }
-
-  getHitbox() {
-    return {
-      x: this.x,
-      y: this.y,
-      r: this.size * 0.45 // Approximate circular hitbox
-    };
-  }
-
-  takeDamage(dmg) {
-    this.health -= dmg;
   }
 }

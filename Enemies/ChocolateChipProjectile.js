@@ -1,4 +1,11 @@
 class ChocolateChipProjectile {
+  /**
+   * Creates a projectile of the cookie boss of level 2.
+   * @param {number} x center y coordinate of the projectile
+   * @param {number} y center y coordinate of the projectile
+   * @param {number} dx playerX - bossCenterY
+   * @param {number} dy playerY - bossCenterY
+   */
   constructor(x, y, dx, dy) {
     this.x = x;
     this.y = y;
@@ -9,16 +16,37 @@ class ChocolateChipProjectile {
     this.color = '#5D4037';
   }
 
+  /**
+   * @returns set of numbers {x, y, r}
+   */
+  getHitbox() {
+    return {
+      x: this.x,
+      y: this.y,
+      r: this.size / 2
+    };
+  }
+
+  /**
+   * Updates the center x and y coordinates with the given trajectory.
+   */
   update() {
     this.x += this.dx * this.speed;
     this.y += this.dy * this.speed;
   }
 
+  /**
+   * Draws a projectile to the screen as an ellipse.
+   */
   draw() {
     fill(this.color);
     ellipse(this.x, this.y, this.size);
   }
-   drawHitbox() {
+
+  /**
+  * Draws the rectangular hitbox of the projectile.
+  */
+  drawHitbox() {
     push();
     noFill();
     stroke('red');
@@ -26,13 +54,5 @@ class ChocolateChipProjectile {
     rectMode(CENTER); 
     rect(this.x, this.y, this.size+1, this.size+1);
     pop();
-  }
-
-  getHitbox() {
-    return {
-      x: this.x,
-      y: this.y,
-      r: this.size / 2
-    };
   }
 }

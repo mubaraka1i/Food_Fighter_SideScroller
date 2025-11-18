@@ -6,6 +6,9 @@ class PlayerShoots {
     this.bullets = [];
   }
 
+  /**
+   * @returns {list} set of bullets sets {x, y, speed, size, direction}
+   */
   getBullets() {
     return this.bullets;
   }

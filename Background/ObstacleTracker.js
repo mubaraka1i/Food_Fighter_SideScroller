@@ -6,17 +6,24 @@ class ObstacleTracker {
         this.obstacles = [];
     }
 
+    /**
+     * @returns {Array} list of ObstacleCreator objects
+     */
     getObstacles() {
         return this.obstacles;
     }
 
+    /**
+     * Resets the list of ObstacleCreator objects.
+     */
     clearObstacles() {
         this.obstacles = [];
     }
 
     /**
      * Adds an obstacle to the end of the obstacles array.
-     * @param {ObstacleCreator} obstacle: obstacle to add to the array
+     * 
+     * @param {ObstacleCreator} obstacle obstacle to add to the array
      */
     addObstacle(obstacle) {
         this.obstacles.push(obstacle)
@@ -24,8 +31,9 @@ class ObstacleTracker {
 
     /**
      * Finds the index of an obstacle in the obstacles array.
-     * @param {number} index: location of the obstacle in obstacles array
-     * @returns index or -1 if not found
+     * 
+     * @param {number} index location of the obstacle in obstacles array
+     * @returns {number} index or -1 if not found
      */
     accessObstacle(index) {
         if (index > this.obstacles.length - 1) {
@@ -36,6 +44,7 @@ class ObstacleTracker {
 
     /**
      * Draws the obstacle using two alternating colors.
+     * 
      * @param {String} primaryColor: color to start filling the obstacles with
      * @param {String} secondaryColor: alternate color to fill obstacles with
      * @param {number} playerX: x coordinate of the player's top left corner

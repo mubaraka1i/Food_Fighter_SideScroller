@@ -46,29 +46,6 @@ class CookieBoss extends Boss {
   draw() {
     // Draw cookie body
     super.draw();
-    if (!this.slidingIn) {
-      fill(this.cookieColor);
-      ellipse(this.x + this.width/2, this.y + this.height/2, this.width, this.height);
-      
-      // Draw chocolate chips
-      fill(this.chipColor);
-      ellipse(this.x + 30, this.y + 30, 15, 15);
-      ellipse(this.x + 90, this.y + 40, 15, 15);
-      ellipse(this.x + 50, this.y + 80, 15, 15);
-      ellipse(this.x + 80, this.y + 90, 15, 15);
-      
-      // Draw eyes
-      fill(0);
-      ellipse(this.x + 40, this.y + 50, 10, 15);
-      ellipse(this.x + 80, this.y + 50, 10, 15);
-      
-      // Draw angry eyebrows
-      stroke(0);
-      strokeWeight(3);
-      line(this.x + 35, this.y + 35, this.x + 45, this.y + 40);
-      line(this.x + 75, this.y + 35, this.x + 85, this.y + 40);
-      noStroke();
-    }
     
     if (!this.slidingIn) {
       this.drawHealthBar();

@@ -1,8 +1,9 @@
 class ChefHitbox{
   /**
    * Creates an object of the ChefHitbox class that can handle collision with the player.
-   * @param {Chef} player: the player object the hitbox corresponds to
-   * @param {boolean} visible: tells whether the hitbox is visible during gameplay
+   * 
+   * @param {Chef} player the player object the hitbox corresponds to
+   * @param {boolean} visible tells whether the hitbox is visible during gameplay
    */
   constructor(player, visible) {
     this.player = player;
@@ -19,10 +20,16 @@ class ChefHitbox{
     this.isDucking = false;
   }
 
+/**
+ * @returns {number} the center x coordinate of the player's hitbox
+ */
   getCenterX() {
     return this.x + this.hitWidth / 2;
   }
   
+  /**
+   * @returns {number} the center y coordinate of the player's hitbox
+   */
   getCenterY() {
     return this.y + this.hitHeight / 2;
   }
@@ -60,7 +67,8 @@ class ChefHitbox{
 
   /**
    * Draws the player hitbox to the screen using top left coordinates.
-   * @returns: exit early if hitboxes are not visible
+   * 
+   * @returns {undefined} exit early if hitboxes are not visible
    */
   drawPlayerHitbox() {
     if (!this.visible) return;
@@ -77,7 +85,7 @@ class ChefHitbox{
    * 
    * @param {number} x the x coordinate of what is hitting the player
    * @param {number} y the x coordinate of what is hitting the player
-   * @returns 
+   * @returns {boolean} true if hit, false if not
    */
   playerHit(x, y) {
     // 'x' and 'y' are the coordinates of the thing hitting the player
@@ -94,7 +102,7 @@ class ChefHitbox{
  * @param {number} enemyY top left corner y coordinate of an enemy
  * @param {number} enemyW width of the enemy
  * @param {number} enemyH height of the enemy
- * @returns true if hit, false if not
+ * @returns {boolean} true if hit, false if not
  */
   playerHitRect(enemyX, enemyY, enemyW, enemyH) {
     // Check for no overlap (Axis-Aligned Bounding Box)
@@ -110,7 +118,7 @@ class ChefHitbox{
    * @param {number} circleX center x coordinate for enemy
    * @param {number} circleY center y coordinate for enemy
    * @param {number} circleR radius for enemy
-   * @returns 
+   * @returns {boolean} true if hit, false if not
    */
   playerHitCircle(circleX, circleY, circleR) {
     // Use p5.collide library function (diameter)

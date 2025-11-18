@@ -2,9 +2,9 @@ class Chef {
   /**
    * Constructs the player object for use throughout the entire game.
    *
-   * @param {number} startX: the starting x coordinate of the player's top left corner
-   * @param {number} startY: unknown
-   * @param {Image} sprites: sprites to use for the player drawing
+   * @param {number} startX the starting x coordinate of the player's top left corner
+   * @param {number} startY unknown
+   * @param {Object} sprites Image object, sprites to use for the player drawing
    */
   constructor(startX, startY, sprites) {
     this.x = startX;
@@ -66,7 +66,8 @@ class Chef {
 
   /**
    * Updates the collision responses for player's position.
-   * @param {LevelLayout} currentLayout: the layout of the current level
+   * 
+   * @param {Object} currentLayout: LevelLayout object, the layout of the current level
    */
   update(currentLayout) {
     // Update shield timer first
@@ -210,7 +211,8 @@ class Chef {
 
   /**
    * Ensures that a jump is cancelled if damage is taken.
-   * @returns: early exit if shield is active
+   * 
+   * @returns {undefined} early exit if shield is active
    */
   takeDamage() {
 
@@ -290,7 +292,8 @@ class Chef {
 
   /**
    * Gets the shoot info of a bullet.
-   * @returns: {number} centerX, {number} centerY, {String} facingDirection, {number} speed}
+   * 
+   * @returns {Set} {number} centerX, {number} centerY, {String} facingDirection, {number} speed}
    */
   getShootInfo() {
     let shootY = playerHitbox.getCenterY(); // Get the hitbox's true center Y
@@ -313,10 +316,11 @@ class Chef {
   /**
    * Handles the obstacle player collision.
    * NEEDS TO BE FIXED
-   * @param {number} oldX: player X when update(currentLayout) was called
-   * @param {number} oldY: playerY when update(currentLayout) was called
-   * @param {[ObstacleCreator]} obstacleTracker: currentLayout.getObstacles()
-   * @returns: exit early if obstacleTracker does not exist or is empty
+   * 
+   * @param {number} oldX player X when update(currentLayout) was called
+   * @param {number} oldY playerY when update(currentLayout) was called
+   * @param {Array} obstacleTracker list of ObstacleCreator objects, currentLayout.getObstacles()
+   * @returns {undefined} exit early if obstacleTracker does not exist or is empty
    */
   handleObstacleCollision(oldX, oldY, obstacleTracker, ) {
   if (!obstacleTracker) return;
@@ -374,9 +378,10 @@ class Chef {
 
 
   /**
+   * Checks if any obstacles in the level collide with the player.
    * 
-   * @param {[ObstacleCreator]} obstacleTracker: currentLayout.getObstacles()
-   * @returns true if any obstacles in obstacleTracker collide with player, else return false
+   * @param {Array} obstacleTracker list of ObstacleCreator objects, currentLayout.getObstacles()
+   * @returns {boolean} true if any obstacles in obstacleTracker collide with player, else return false
    */
   isOnObstacle(obstacleTracker) {
     if (!obstacleTracker) return false;

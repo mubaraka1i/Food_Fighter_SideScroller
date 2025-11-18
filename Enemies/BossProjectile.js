@@ -15,6 +15,10 @@ class BossProjectile {
     this.size = 15;
   }
 
+  /**
+   * 
+   * @returns set of numbers {x, y, r}
+   */
   getHitbox() {
     return {
       x: this.x,
