@@ -1,5 +1,3 @@
-import { Image } from "../../../../../../.vscode/extensions/samplavigne.p5-vscode-1.2.16/p5types/index";
-
 class ChefHealth {
   /**
    * Constructs a ChefHealth object that keeps track of health, draws HP, and changes health.
