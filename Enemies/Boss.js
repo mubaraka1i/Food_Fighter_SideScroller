@@ -188,10 +188,15 @@ class Boss {
    */
   draw() {
     if (this.slidingIn) {
-      // Draw sliding animation (simple rectangle or placeholder)
-      noFill();
-      noStroke();
-      rect(this.x, this.y, this.width, this.height);
+      // Draw sliding animation with the first idle frame
+      if (this.idleFrames.length > 0) {
+        imageMode(CORNER);
+        image(this.idleFrames[0], this.x, this.y, this.width, this.height);
+      } else {
+        // Fallback: draw simple rectangle
+        fill(255, 0, 0);
+        rect(this.x, this.y, this.width, this.height);
+      }
     } else if (this.idleFrames.length > 0) {
       // Idle animation with sprites
       imageMode(CORNER);
