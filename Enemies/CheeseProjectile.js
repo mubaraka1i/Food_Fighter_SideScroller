@@ -1,6 +1,7 @@
 class CheeseProjectile {
   /**
    * Creates a projectile of the cheese boss of level 3.
+   * 
    * @param {number} x center y coordinate of the projectile
    * @param {number} y center y coordinate of the projectile
    * @param {number} dx playerX - bossCenterY
@@ -17,7 +18,7 @@ class CheeseProjectile {
   }
 
   /**
-   * @returns set of numbers {x, y, r}
+   * @returns {Set} projectile hitbox coordinate numbers {x, y, r}
    */
   getHitbox() {
     return {

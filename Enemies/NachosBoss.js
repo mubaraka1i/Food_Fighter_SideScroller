@@ -1,4 +1,10 @@
 class NachosBoss extends Boss {
+  /**
+   * Creates an object of the NachosBoss class for level three.
+   * 
+   * @param {number} x top left corner x coordinate of boss
+   * @param {number} y top left corner y coordinate of boss 
+   */
   constructor(x, y) {
     super(x, y, 'nachos', nachoBoss.idle);
     this.health = 15;
@@ -13,6 +19,12 @@ class NachosBoss extends Boss {
     this.cheeseColor = '#FFA500';
   }
 
+  /**
+   * Shoots a projectile towards the player's position.
+   * 
+   * @param {number} playerX x coordinate to shoot towards
+   * @param {number} playerY y coordiante to shoot towards
+   */
   shootAtPlayer(playerX, playerY) {
     let bossCenterX = this.x + this.width / 2;
     let bossCenterY = this.y + this.height / 2;
@@ -34,6 +46,9 @@ class NachosBoss extends Boss {
     ));
   }
 
+  /**
+   * Spawns a minion if possible for the boss.
+   */
   spawnMinions() {
     if (enemiesArray.length < this.maxMinions) {
       let spawnX = this.x + random(-100, 100);
@@ -42,6 +57,9 @@ class NachosBoss extends Boss {
     }
   }
 
+  /**
+   * Draws the boss to the screen.
+   */
   draw() {
     // Draw nacho pile base
     super.draw();

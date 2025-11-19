@@ -20,7 +20,7 @@ class CakeMinion {
   }
 
   /**
-   * @returns set of numbers {x, y, r}
+   * @returns {Set} minion hitbox coordinate numbers {x, y, r}
    */
    getHitbox() {
     return {
@@ -41,6 +41,7 @@ class CakeMinion {
 
   /**
    * Updates the trajectory and direction of the minion.
+   * 
    * @param {number} playerX player's top left x position
    * @param {number} playerY player's top left y position
    */

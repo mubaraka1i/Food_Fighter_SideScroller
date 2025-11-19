@@ -1,6 +1,7 @@
 class ChocolateChipProjectile {
   /**
    * Creates a projectile of the cookie boss of level 2.
+   * 
    * @param {number} x center y coordinate of the projectile
    * @param {number} y center y coordinate of the projectile
    * @param {number} dx playerX - bossCenterY
@@ -17,7 +18,7 @@ class ChocolateChipProjectile {
   }
 
   /**
-   * @returns set of numbers {x, y, r}
+   * @returns {Set} projectile hitbox coordinate numbers {x, y, r}
    */
   getHitbox() {
     return {

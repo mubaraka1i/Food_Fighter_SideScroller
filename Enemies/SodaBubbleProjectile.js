@@ -1,4 +1,12 @@
 class SodaBubbleProjectile {
+    /**
+     * Creates a projectile of the soda boss of level 5.
+     * 
+     * @param {number} x center y coordinate of the projectile
+     * @param {number} y center y coordinate of the projectile
+     * @param {number} dx playerX - bossCenterY
+     * @param {number} dy playerY - bossCenterY
+     */
     constructor(x, y, dx, dy) {
         this.x = x;
         this.y = y;
@@ -12,6 +20,22 @@ class SodaBubbleProjectile {
         this.active = true;
     }
 
+    /**
+     * @returns {Set} projectile hitbox coordinate numbers {x, y, r}
+     */
+    getHitbox() {
+        if (!this.active) return null;
+        return {
+            x: this.x,
+            y: this.y,
+            r: this.size / 2,
+            active: this.active 
+        };
+    }
+
+    /**
+    * Updates the center x and y coordinates with the given trajectory.
+    */
     update() {
         if (!this.popping) {
             this.x += this.dx * this.speed;
@@ -30,6 +54,9 @@ class SodaBubbleProjectile {
         }
     }
 
+    /**
+    * Draws a projectile to the screen as an ellipse.
+    */
     draw() {
         if (!this.popping) {
             push();
@@ -49,6 +76,9 @@ class SodaBubbleProjectile {
         }
     }
 
+    /**
+     * Draws the hitbox for the projectile to the screen.
+     */
     drawHitbox() {
         if (this.active) {
             push();
@@ -61,16 +91,9 @@ class SodaBubbleProjectile {
         }
     }
 
-    getHitbox() {
-        if (!this.active) return null;
-        return {
-            x: this.x,
-            y: this.y,
-            r: this.size / 2,
-            active: this.active 
-        };
-    }
-
+    /**
+     * @returns {boolean} true if projectile should be removed, false if not
+     */
     shouldRemove() {
         return this.popTimer > 10 || 
                this.x < cameraX || this.x > cameraX + width || 

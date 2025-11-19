@@ -1,4 +1,11 @@
 class GroundEnemies {
+  /**
+   * Creates an object of the ground enemies class (Enemy 1).
+   * 
+   * @param {number} x top left corner x coordinate of the enemy
+   * @param {number} y top left corner y coordinate of the enemy
+   * @param {Array} spritesArray array of image objects
+   */
   constructor(x, y, spritesArray) {
     this.x = x;
     this.width = 100;
@@ -14,7 +21,23 @@ class GroundEnemies {
     this.facingRight = false;          // Default facing left
   }
 
-  // Update its position based on the player's location
+  /**
+   * @returns {Set} enemy hitbox coordinates numbers {x, y, w, h}
+   */
+  getHitbox() {
+    return {
+      x: this.x,
+      y: this.y,
+      w: this.width,
+      h: this.height
+    };
+  }
+
+  /**
+   * Updates the ground enemies' position to move to the player.
+   * 
+   * @param {number} playerX x coordinate to move toward
+   */
   update(playerX) {
     // Move towards the player
     if (this.x < playerX) {
@@ -32,7 +55,9 @@ class GroundEnemies {
     }
   }
 
-  // Draw itself
+  /**
+   * Draws the enemy to the screen.
+   */
   draw() {
     let frame = floor(this.frameIndex);
     push();
@@ -45,15 +70,5 @@ class GroundEnemies {
     // Draw sprite with the size of the original rectangle
     image(this.sprites[frame], 0, 0, this.width, this.height);
     pop();
-  }
-
-  // Helper for collision detection
-  getHitbox() {
-    return {
-      x: this.x,
-      y: this.y,
-      w: this.width,
-      h: this.height
-    };
   }
 }

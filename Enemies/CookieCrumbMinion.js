@@ -20,7 +20,7 @@ class CookieCrumbMinion {
   }
 
   /**
-   * @returns set of numbers {x, y, r}
+   * @returns {Set} minion hitbox coordinates numbers {x, y, r}
    */
   getHitbox() {
     return {
@@ -32,6 +32,7 @@ class CookieCrumbMinion {
 
   /**
    * Reduces the minion's health by a given amount.
+   * 
    * @param {number} damage amount to reduce the health by
    */
   takeDamage(damage) {

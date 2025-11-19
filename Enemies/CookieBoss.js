@@ -1,4 +1,10 @@
 class CookieBoss extends Boss {
+   /**
+   * Creates an object of the Boss class.
+   * 
+   * @param {number} x top left corner x coordinate of boss
+   * @param {number} y top left corner y coordinate of boss
+   */
   constructor(x, y) {
     super(x, y, 'cookie', cookieBoss.idle);
     this.health = 12;
@@ -14,6 +20,12 @@ class CookieBoss extends Boss {
     this.chipColor = '#5D4037';
   }
 
+  /**
+   * Shoots a projectile towards the player's coordinates.
+   * 
+   * @param {number} playerX x value to shoot at
+   * @param {number} playerY y value to shoot at
+   */
   shootAtPlayer(playerX, playerY) {
     let bossCenterX = this.x + this.width / 2;
     let bossCenterY = this.y + this.height / 2;
@@ -35,6 +47,9 @@ class CookieBoss extends Boss {
     }
   }
 
+  /**
+   * Spawns minions that come out of the boss.
+   */
   spawnMinions() {
     if (enemiesArray.length < this.maxMinions) {
       let spawnX = this.x + random(-50, 50);
@@ -43,6 +58,9 @@ class CookieBoss extends Boss {
     }
   }
 
+  /**
+   * Draws the boss to the screen.
+   */
   draw() {
     // Draw cookie body
     super.draw();

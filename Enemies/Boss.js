@@ -1,8 +1,11 @@
 class Boss {
   /**
+   * Creates an object of the Boss class.
+   * 
    * @param {number} x top left corner x coordinate of boss
    * @param {number} y top left corner y coordinate of boss
    * @param {String} type tells which boss it is
+   * @param {Array} idleFrames list of images to animate boss
    */
   constructor(x, y, type, idleFrames = []) {
     this.type = type;
@@ -35,6 +38,9 @@ class Boss {
     this.maxMinions = 3;
   }
 
+  /**
+   * @returns {Set} hitbox of the boss {x, y, w, h}
+   */
   getHitbox() {
     return {
       x: this.x,
@@ -44,20 +50,30 @@ class Boss {
     };
   }
 
+  /**
+   * @returns {Array} list of bossProjectile objects
+   */
   getProjectiles() {
     return this.projectiles;
   }
 
+  /**
+   * @returns {number} amount of health points left for a boss
+   */
   getHealth() {
     return this.health;
   }
 
+  /**
+   * @returns {boolean} true if sliding in, false if not
+   */
   isSlidingIn() {
     return this.slidingIn;
   }
 
   /**
    * Decreases the boss's health when called.
+   * 
    * @param {number} damage amount to decrease the health by
    */
   takeDamage(damage) {
@@ -68,6 +84,7 @@ class Boss {
 
   /**
    * Updates the minion spawning and projectile shooting.
+   * 
    * @param {number} playerHitboxX x value to shoot projectiles at
    * @param {number} playerHitboxY y value to shoot projectiles at
    */
@@ -90,7 +107,7 @@ class Boss {
       }
       
       
-      // Update existing projectiles
+     // Update existing projectiles
       for (let i = this.projectiles.length - 1; i >= 0; i--) {
           this.projectiles[i].update();
           
@@ -111,28 +128,13 @@ class Boss {
           if (shouldRemove) {
               this.projectiles.splice(i, 1);
           }
-      }
-      
-      // Handle shooting - to be overridden by child classes
-      if (this.shootCooldown > 0) {
-        this.shootCooldown--;
-      } else {
-        this.shootAtPlayer(playerHitboxX, playerHitboxY);
-        this.shootCooldown = this.shootInterval;
-      }
-      
-      // Handle minion spawning - to be overridden by child classes
-      if (this.minionSpawnCooldown > 0) {
-        this.minionSpawnCooldown--;
-      } else {
-        this.spawnMinions();
-        this.minionSpawnCooldown = this.minionSpawnInterval;
+        }
       }
     }
-  }
 
   /**
    * To be overriden by child class. Default shooting behavior.
+   * 
    * @param {number} playerHitboxX x value to shoot at
    * @param {number} playerHitboxY y value to shoot at
    */

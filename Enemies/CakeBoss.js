@@ -17,6 +17,12 @@ class CakeBoss extends Boss { // Inherits from OriginalBoss for now
         this.maxMinions = 4;
     }
 
+    /**
+    * Shoots a projectile at the player's coordiantes.
+    * 
+    * @param {number} playerX x value to shoot at
+    * @param {number} playerY y value to shoot at
+    */
     shootAtPlayer(playerX, playerY) {
         let bossCenterX = this.x + this.width / 2;
         let bossCenterY = this.y + this.height / 2;
@@ -50,7 +56,7 @@ class CakeBoss extends Boss { // Inherits from OriginalBoss for now
     }
 
     /**
-     * Draws the cake boss onto the screen. (PLACEHOLDER)
+     * Draws the cake boss onto the screen.
      */
     draw() {
         // --- Placeholder Draw ---

@@ -1,12 +1,24 @@
-class SodaBoss extends Boss { // Inherits from OriginalBoss for now
+class SodaBoss extends Boss {
+    /**
+     * Creates an object of the SodaBoss class for level four.
+     * 
+     * @param {number} x top left corner x coordinate for the boss
+     * @param {number} y top left corner y coordinate for the boss
+     */
     constructor(x, y) {
-        super(x, y, 'soda', sodaBoss.idle); // Calls the constructor of OriginalBoss
+        super(x, y, 'soda', sodaBoss.idle);
         this.health = 35; // More health
         this.maxHealth = 35;
         this.minionSpawnInterval = 180;
         this.maxMinions = 3;
     }
 
+    /**
+   * Shoots a projectile towards the player's position.
+   * 
+   * @param {number} playerX x coordinate to shoot towards
+   * @param {number} playerY y coordiante to shoot towards
+   */
     shootAtPlayer(playerX, playerY) {
         let bossCenterX = this.x + this.width / 2;
         let bossCenterY = this.y + this.height / 2;
@@ -28,6 +40,9 @@ class SodaBoss extends Boss { // Inherits from OriginalBoss for now
         }
     }
 
+    /**
+   * Spawns a minion if possible for the boss.
+   */
     spawnMinions() {
         if (enemiesArray.length < this.maxMinions && !this.slidingIn) {
             let spawnX = this.x + random(-100, 100);
@@ -35,6 +50,10 @@ class SodaBoss extends Boss { // Inherits from OriginalBoss for now
             enemiesArray.push(new SodaMinion(spawnX, spawnY));
         }
     }
+
+    /**
+   * Draws the boss to the screen.
+   */
     draw() {
         // --- Placeholder Draw ---
         super.draw();
@@ -69,7 +88,6 @@ class SodaBoss extends Boss { // Inherits from OriginalBoss for now
         }
         pop();
     }
-
     // You can override shootAtPlayer to use a different projectile
     // For now, it will use the OriginalBoss's shooting logic
 }

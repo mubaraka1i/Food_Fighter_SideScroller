@@ -1,4 +1,10 @@
 class NachoCrumbleMinion {
+  /**
+   * Creates an object of the minion class for the cheese boss in level three.
+   * 
+   * @param {number} x center x coordinate of the minion
+   * @param {number} y center y coordinate of the minion
+   */
   constructor(x, y) {
     this.x = x;
     this.y = y;
@@ -19,6 +25,33 @@ class NachoCrumbleMinion {
     this.facingRight = false; // default facing left
   }
 
+  /**
+   * @returns {Set} minion hitbox coordinates numbers {x, y, w, h}
+   */
+  getHitbox() {
+    return {
+      x: this.x,
+      y: this.y,
+      w: this.width,
+      h: this.height
+    };
+  }
+
+  /**
+   * Reduces the minion's health points by a set amount.
+   * 
+   * @param {number} damage amount to reduce health by
+   */
+  takeDamage(damage) {
+    this.health -= damage;
+  }
+
+  /**
+   * Moves the minion towards the player's location.
+   * 
+   * @param {number} playerX x coordinate to move towards
+   * @param {number} playerY y coordinate to move towards
+   */
   update(playerX, playerY) {
     // Move toward player horizontally
     if (this.x < playerX) {
@@ -67,6 +100,9 @@ class NachoCrumbleMinion {
     }
   }
 
+  /**
+   * Draws the minion to the screen.
+   */
   draw() {
     let frame = floor(this.frameIndex);
     push();
@@ -78,18 +114,5 @@ class NachoCrumbleMinion {
     imageMode(CENTER);
     image(this.sprites[frame], this.size/2, this.size/2, this.size, this.size);
     pop();
-  }
-
-  getHitbox() {
-    return {
-      x: this.x,
-      y: this.y,
-      w: this.width,
-      h: this.height
-    };
-  }
-
-  takeDamage(damage) {
-    this.health -= damage;
   }
 }

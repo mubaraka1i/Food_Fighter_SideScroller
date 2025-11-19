@@ -1,4 +1,12 @@
 class BirthdayCandleProjectile {
+    /**
+     * Creates a projectile object for the level five cake boss.
+     * 
+     * @param {number} x boss center x
+     * @param {number} y boss center y
+     * @param {number} dx distance between player top left x and boss center x
+     * @param {number} dy distance between player top left y and boss center y
+     */
     constructor(x, y, dx, dy) {
         this.x = x;
         this.y = y;
@@ -10,12 +18,29 @@ class BirthdayCandleProjectile {
         this.flameTimer = 0;
     }
 
+    /**
+     * @returns {Set} hitbox coordinates for the projectile {x, y, r}
+     */
+    getHitbox() {
+        return {
+            x: this.x,
+            y: this.y,
+            r: this.size / 2
+        };
+    }
+
+    /**
+     * Updates the position of the projectile.
+     */
     update() {
         this.x += this.dx * this.speed;
         this.y += this.dy * this.speed;
         this.flameTimer++;
     }
 
+    /**
+     * Draws the boss projectile to the screen.
+     */
     draw() {
         push();
         
@@ -34,6 +59,9 @@ class BirthdayCandleProjectile {
         pop();
     }
 
+    /**
+     * Draws the boss projectile hitbox to the screen.
+     */
     drawHitbox() {
         push();
         noFill();
@@ -42,13 +70,5 @@ class BirthdayCandleProjectile {
         rectMode(CENTER);
         rect(this.x, this.y, this.size + 1, this.size + 1);
         pop();
-    }
-
-    getHitbox() {
-        return {
-            x: this.x,
-            y: this.y,
-            r: this.size / 2
-        };
     }
 }

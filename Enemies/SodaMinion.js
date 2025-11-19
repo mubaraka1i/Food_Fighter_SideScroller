@@ -1,4 +1,10 @@
 class SodaMinion {
+  /**
+   * Creates an object of the minion class for the soda boss in level four.
+   * 
+   * @param {number} x center x coordinate of the minion
+   * @param {number} y center y coordinate of the minion
+   */
   constructor(x, y) {
     this.x = x;
     this.y = y;
@@ -13,6 +19,31 @@ class SodaMinion {
     this.facingRight = false; // default facing left
   }
 
+  /**
+   * @returns {Set} minion hitbox coordinates numbers {x, y, r}
+   */
+  getHitbox() {
+    return {
+      x: this.x,
+      y: this.y,
+      r: this.size / 2
+    };
+  }
+
+  /**
+   * Reduces the minion's health points by a set amount.
+   * 
+   * @param {number} dmg amount to reduce the minion's health by
+   */
+  takeDamage(dmg) {
+    this.health -= dmg;
+  }
+
+  /**
+   * Updates the minion's position to move towards the player.
+   * @param {number} playerX x coordinate to move towards
+   * @param {number} playerY y coordinate to move towards
+   */
   update(playerX, playerY) {
     let dx = playerX - this.x;
     let dy = playerY - this.y;
@@ -30,6 +61,9 @@ class SodaMinion {
     }
   }
 
+  /**
+   * Draws the minion to the screen.
+   */
   draw() {
     let frame = floor(this.frameIndex);
     push();
@@ -41,17 +75,5 @@ class SodaMinion {
     imageMode(CENTER);
     image(this.sprites[frame], 0, 0, this.size, this.size);
     pop();
-  }
-
-  getHitbox() {
-    return {
-      x: this.x,
-      y: this.y,
-      r: this.size / 2
-    };
-  }
-
-  takeDamage(dmg) {
-    this.health -= dmg;
   }
 }
