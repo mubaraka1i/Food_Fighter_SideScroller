@@ -9,7 +9,7 @@ class Boss {
    */
   constructor(x, y, type, idleFrames = []) {
     this.type = type;
-    this.width = 100;
+    this.width = 150;
     this.height = 150;
 
     // Idle animation frames
@@ -189,7 +189,8 @@ class Boss {
   draw() {
     if (this.slidingIn) {
       // Draw sliding animation (simple rectangle or placeholder)
-      fill(255, 0, 0);
+      noFill();
+      noStroke();
       rect(this.x, this.y, this.width, this.height);
     } else if (this.idleFrames.length > 0) {
       // Idle animation with sprites
