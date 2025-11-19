@@ -297,7 +297,7 @@ class LevelCreator {
               
                 if (powerUpToDraw) {
                     imageMode(CENTER);
-                    image(powerUpToDraw, powerX, powerY, 50, 50); // img, x, y, width, height
+                    image(powerUpToDraw, powerX, powerY, 70, 70); // img, x, y, width, height
                 }
             }
         }
