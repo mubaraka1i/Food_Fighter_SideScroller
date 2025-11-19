@@ -1,10 +1,47 @@
 class Level4Layout {
+    /**
+     * Creates an obstacles array that can be used to add and draw obstacles.
+     */
     constructor() {
         this.obstacles = new ObstacleTracker();
         this.primaryColor = '#AED6F1';
         this.secondaryColor = '#5D6D7E';
     }
 
+    /**
+     * @returns {ObstacleTracker} collection of obstacles in a level
+     */
+    getObstacles() {
+        return this.obstacles;
+    }
+
+    /**
+     * Gets the y value of an object if it collides with an obstacle in the ObstacleTracker.
+     * 
+     * @param {number} circleX x value of the circle an obstacle collides with
+     * @param {number} height canvas height
+     * @returns {number} new y value of an object
+     */
+    getRefHeight(circleX, height) {
+        let obstacleList = this.obstacles.getObstacles();
+        for (let obstacle of obstacleList) {
+            let topLeft = obstacle.getTopLeft();
+            let obstacleX = topLeft[0];
+            let obstacleWidth = obstacle.getWidth();
+            if (circleX >= obstacleX && circleX <= obstacleX + obstacleWidth) {
+                return topLeft[1] - 25; 
+            }
+        }
+        return height - 50;
+    }
+
+    /**
+     * Adds all of the necessary obstacles to the obstacles array.
+     * 
+     * @param {number} height height of the canvas
+     * @param {number} playerX x value of the player's top left corner
+     * @param {number} width width of the canvas
+     */
     levelMaker(height, playerX, width) {
         this.obstacles.clearObstacles();
 
@@ -64,23 +101,12 @@ class Level4Layout {
         }
     }
 
-    getObstacles() {
-        return this.obstacles;
-    }
-
-    getRefHeight(circleX, height) {
-        let obstacleList = this.obstacles.getObstacles();
-        for (let obstacle of obstacleList) {
-            let topLeft = obstacle.getTopLeft();
-            let obstacleX = topLeft[0];
-            let obstacleWidth = obstacle.getWidth();
-            if (circleX >= obstacleX && circleX <= obstacleX + obstacleWidth) {
-                return topLeft[1] - 25; 
-            }
-        }
-        return height - 50;
-    }
-
+    /**
+     * Draws the obstacles to the screen.
+     * 
+     * @param {number} playerX x coordinate of the player's top left corner
+     * @param {number} width canvas width
+     */
     drawObstacles(playerX, width) {
         this.obstacles.obstacleDraw(this.primaryColor, this.secondaryColor, playerX, width);
     }

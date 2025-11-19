@@ -1,4 +1,10 @@
 class Level3Background {
+  /**
+   * Creates the level 3 background to be drawn and moved.
+   * 
+   * @param {Object} img image object drawn to the background
+   * @param {number} levelWidth width in pixels of the level layout
+   */
   constructor(img, levelWidth) {
     this.levelWidth = levelWidth;
     this.img = img;

@@ -1,3 +1,7 @@
+/**
+ * Checks the collisions of player-enemy, player-minion, bullet-enemy, bullet-minion, projectile-player, and bullet-boss.
+ * @returns {undefined} exit if boss health is 0 and go to next level
+ */
 function checkCollisions() {
   const bullets = playerShoots.getBullets();
   const playerHB = playerHitbox;

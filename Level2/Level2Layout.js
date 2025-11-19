@@ -1,7 +1,6 @@
 class Level2Layout {
-
     /**
-     * 
+     * Creates an obstacles array that can be used to add and draw obstacles.
      */
     constructor() {
         this.obstacles = new ObstacleTracker();
@@ -11,10 +10,39 @@ class Level2Layout {
     }
 
     /**
+     * @returns {ObstacleTracker} collection of obstacles in a level
+     */
+    getObstacles() {
+        return this.obstacles;
+    }
+
+    /**
+     * Gets the y value of an object if it collides with an obstacle in the ObstacleTracker.
      * 
-     * @param {Int} height 
-     * @param {Int} playerX 
-     * @param {Int} width 
+     * @param {number} circleX x value of the circle an obstacle collides with
+     * @param {number} height canvas height
+     * @returns {number} new y value of an object
+     */
+    getRefHeight(circleX, height) {
+        let obstacleList = this.obstacles.getObstacles();
+        for (let obstacle of obstacleList) {
+            let topLeft = obstacle.getTopLeft();
+            let obstacleX = topLeft[0];
+            let obstacleWidth = obstacle.getWidth();
+            // Check if circleX is within the obstacle's horizontal range
+            if (circleX >= obstacleX && circleX <= obstacleX + obstacleWidth) {
+                return topLeft[1] - 25; // Place powerup on top of obstacle
+            }
+        }
+        return height - 50; // Default to ground level
+    }
+
+    /**
+     * Adds all of the necessary obstacles to the obstacles array.
+     * 
+     * @param {number} height height of the canvas
+     * @param {number} playerX x value of the player's top left corner
+     * @param {number} width width of the canvas
      */
     levelMaker(height, playerX, width) {
         // Clear any existing obstacles first
@@ -64,37 +92,10 @@ class Level2Layout {
     }
 
     /**
+     * Draws the obstacles to the screen.
      * 
-     * @returns 
-     */
-    getObstacles() {
-        return this.obstacles;
-    }
-
-    /**
-     * 
-     * @param {Int} circleX 
-     * @param {*} height 
-     * @returns 
-     */
-    getRefHeight(circleX, height) {
-        let obstacleList = this.obstacles.getObstacles();
-        for (let obstacle of obstacleList) {
-            let topLeft = obstacle.getTopLeft();
-            let obstacleX = topLeft[0];
-            let obstacleWidth = obstacle.getWidth();
-            // Check if circleX is within the obstacle's horizontal range
-            if (circleX >= obstacleX && circleX <= obstacleX + obstacleWidth) {
-                return topLeft[1] - 25; // Place powerup on top of obstacle
-            }
-        }
-        return height - 50; // Default to ground level
-    }
-
-    /**
-     * 
-     * @param {*} playerX 
-     * @param {*} width 
+     * @param {number} playerX x coordinate of the player's top left corner
+     * @param {number} width canvas width
      */
     drawObstacles(playerX, width) {
         this.obstacles.obstacleDraw(this.cookieColor, this.counterColor, playerX, width);

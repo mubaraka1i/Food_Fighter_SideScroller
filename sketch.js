@@ -43,6 +43,9 @@ let level1BackgroundImg, level2BackgroundImg, level3BackgroundImg, level4Backgro
 let chefHat;
 let title, death, tutorial;
 
+/**
+ * Preloads all images that are used.
+ */
 function preload() {
   title = loadImage('Assets/titlescreen.png');
   death = loadImage('Assets/gameoverscreen.png');
@@ -154,6 +157,9 @@ function preload() {
   shieldDome = loadImage('Assets/shield_dome.png');
 }
 
+/**
+ * Creates the canvas, sets up global variables and calls loadLevel(1).
+ */
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
@@ -177,7 +183,12 @@ function setup() {
   });
 }
 
-//LEVEL MANAGER FUNCTION
+/**
+ * Loads a given level by setting level-specific variables to zero and setting variables for next level.
+ * 
+ * @param {number} levelNumber level to load (1-5)
+ * @returns {undefined} exit if run out of levels
+ */
 function loadLevel(levelNumber) {
     if (levelNumber > 5) { // Change this number when we implement level 4 and 5
       playInitiated = false;
@@ -286,12 +297,16 @@ function loadLevel(levelNumber) {
   }
 }
 
-// Function to be called from collisions to know what level its on
+/**
+ * Function to be called from collisions to know what level its on.
+ */
 function goToNextLevel() {
   loadLevel(currentLevel + 1);
 }
 
-// BOSS SPAWNING FUNCTION
+/**
+ * Spawns the boss when called using the currentLevel number.
+ */
 function spawnBoss() {
   let bossX = levelWidth - 200; // 200px from the end of the level
   let bossY = height - 150; // On the ground
@@ -320,6 +335,11 @@ function spawnBoss() {
   enemiesArray = []
 }
 
+/**
+ * Spawns any power ups if levelCreate and powerList exist and powerlist length is not 0.
+ * 
+ * @returns {undefined} exit early if qualifications are not met
+ */
 function spawnPowerUps() {
   if (!levelCreate || !levelCreate.powerList || levelCreate.powerList.length === 0) return;
   
@@ -327,7 +347,9 @@ function spawnPowerUps() {
   levelCreate.drawAllPowerUps();
 }
 
-// ENEMY SPAWNING FUNCTION
+/**
+ * Adds an enemy to the enemies array depending on the currentLevel number if enemySpawnTimer is at least enemySpawnRate.
+ */
 function spawnEnemies() {
   if (!bossActive) {
     enemySpawnTimer++;
@@ -357,15 +379,20 @@ function spawnEnemies() {
   }
 }
 
-// Handle shooting and menu controls
+/**
+ * Handles shooting controls to prevent continuous shooting.
+ */
 function handleControls() {
-  // Shooting
   if (keys[' ']) {
     playerShoots.shoot(player);
-    keys[' '] = false; // Prevent continuous shooting
+    keys[' '] = false;
   }
 }
 
+/**
+ * Constantly called to update drawings, positions, status of objects, and collisions.
+ * @returns {undefined} exit if health is 0
+ */
 function draw() {
   if (playInitiated) {
     cameraX = player.currentX() - width / 2;
@@ -455,6 +482,11 @@ function draw() {
   }
 }
 
+/**
+ * Called if a keyboard button is pressed by the player.
+ * 
+ * @returns {boolean} false to prevent default browser behavior
+ */
 function keyPressed() {
   // Toggle tutorial on title screen
   if (key === '1') {
@@ -473,10 +505,12 @@ function keyPressed() {
       restartGame();
     }
   }
-  return false; // prevent default browser behavior
+  return false;
 }
 
-// Completely reset the game for a fresh start
+/**
+ * Completely reset the game to level 1.
+ */
 function completeGameReset() {
   // Reset to level 1
   currentLevel = 1;
@@ -521,7 +555,9 @@ function completeGameReset() {
   loadLevel(1);
 }
 
-// Restarts the game
+/**
+ * Restarts the current level.
+ */
 function restartGame() {
   if (health) {
     health.health = 50;

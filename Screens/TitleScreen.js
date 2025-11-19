@@ -1,5 +1,10 @@
 class TitleScreen {
-  constructor(type) { // type 0 or 1 - gameStart or gameOver
+  /**
+   * Creates a title screen to be drawn to the screen if game not started.
+   * 
+   * @param {number} type 0, 1, or 2 - gameStart, gameOver, or tutorial
+   */
+  constructor(type) {
     this.type = type;
     if (this.type == 1) {
       this.visible = false;
@@ -9,8 +14,13 @@ class TitleScreen {
     this.curFrame = 0;
   }
   
+  /**
+   * Draws the title image to the screen.
+   * @param {Image} screen image object that gets drawn on the screen
+   * @returns {undefined} early exit if not visisble
+   */
   screenDraw(screen) {
-    if (!this.visible) return; // do nothing if hidden
+    if (!this.visible) return;
     
     if (this.type == 2) {
       // Just display normally (one frame) for tutorial
@@ -25,6 +35,9 @@ class TitleScreen {
     }
   }
   
+  /**
+   * Sets the screen's visibility to false.
+   */
   screenRemove() {
     this.visible = false;
   }

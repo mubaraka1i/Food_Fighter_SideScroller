@@ -1,18 +1,53 @@
 class Level5Layout {
-
-   
+    /**
+     * Creates an obstacles array that can be used to add and draw obstacles.
+     */
     constructor() {
         this.obstacles = new ObstacleTracker();
         this.primaryColor = '#F9E79F';
         this.secondaryColor = '#D4AC0D';
     }
 
+    /**
+     * @returns {ObstacleTracker} collection of obstacles in a level
+     */
+    getObstacles() {
+        return this.obstacles;
+    }
+
+    /**
+     * Gets the y value of an object if it collides with an obstacle in the ObstacleTracker.
+     * 
+     * @param {number} circleX x value of the circle an obstacle collides with
+     * @param {number} height canvas height
+     * @returns {number} new y value of an object
+     */
+    getRefHeight(circleX, height) {
+        const list = this.obstacles.getObstacles();
+
+        for (let obstacle of list) {
+            const [x, y] = obstacle.topLeft;
+            const w = obstacle.width;
+
+            if (circleX >= x && circleX <= x + w) {
+                return y - 25;
+            }
+        }
+        return height - 50;
+    }
+
+    /**
+     * Adds all of the necessary obstacles to the obstacles array.
+     * 
+     * @param {number} height height of the canvas
+     * @param {number} playerX x value of the player's top left corner
+     * @param {number} width width of the canvas
+     */
     levelMaker(height, playerX, width) {
         this.obstacles.clearObstacles();
 
         const groundLevel = height;
         const platformHeight = 20;
-
        
         const makeMovingObstacle = (x, y, w, extraRange = 0) => {
             const minRange = 60;   
@@ -28,9 +63,6 @@ class Level5Layout {
 
             this.obstacles.addObstacle(obstacle);
         };
-
-       
-
         makeMovingObstacle( 600,  groundLevel - 90,  55,  10);
         makeMovingObstacle( 900,  groundLevel - 80,  70,  20);
         makeMovingObstacle(1200,  groundLevel - 100, 45,  15);
@@ -51,6 +83,9 @@ class Level5Layout {
         makeMovingObstacle(6400,  groundLevel - 92,  75, 30);
     }
 
+    /**
+     * Updates the position of any moving obstacles.
+     */
     updateMovement() {
         const list = this.obstacles.getObstacles();
 
@@ -70,24 +105,12 @@ class Level5Layout {
         }
     }
 
-    getObstacles() {
-        return this.obstacles;
-    }
-
-    getRefHeight(circleX, height) {
-        const list = this.obstacles.getObstacles();
-
-        for (let obstacle of list) {
-            const [x, y] = obstacle.topLeft;
-            const w = obstacle.width;
-
-            if (circleX >= x && circleX <= x + w) {
-                return y - 25;
-            }
-        }
-        return height - 50;
-    }
-
+    /**
+     * Draws the obstacles to the screen.
+     * 
+     * @param {number} playerX x coordinate of the player's top left corner
+     * @param {number} width canvas width
+     */
     drawObstacles(playerX, width) {
         this.updateMovement();
         this.obstacles.obstacleDraw(
