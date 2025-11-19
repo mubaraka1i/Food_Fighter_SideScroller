@@ -90,47 +90,63 @@ class Boss {
    */
   update(playerHitboxX, playerHitboxY) {
     if (this.slidingIn) {
-      this.x -= this.slideSpeed;
-      if (this.x <= this.targetX) {
-        this.x = this.targetX;
-        this.slidingIn = false;
-      }
+        this.x -= this.slideSpeed;
+        if (this.x <= this.targetX) {
+            this.x = this.targetX;
+            this.slidingIn = false;
+        }
     } else {
-      // Update Idle animation
-      this.idleFrameTimer++;
-      if (this.idleFrameTimer >= this.idleFrameDuration) {
-        this.idleFrameTimer = 0;
-        this.idleFrameIndex++;
-        if (this.idleFrameIndex >= this.idleFrames.length) {
-          this.idleFrameIndex = 0;
+        // Update Idle animation
+        this.idleFrameTimer++;
+        if (this.idleFrameTimer >= this.idleFrameDuration) {
+            this.idleFrameTimer = 0;
+            this.idleFrameIndex++;
+            if (this.idleFrameIndex >= this.idleFrames.length) {
+                this.idleFrameIndex = 0;
+            }
         }
-      }
-      
-      
-     // Update existing projectiles
-      for (let i = this.projectiles.length - 1; i >= 0; i--) {
-          this.projectiles[i].update();
-          
-          // Remove projectiles that go off screen/into new level OR should be removed
-          let proj = this.projectiles[i];
-          let shouldRemove = false;
-          
-          // Check if projectile has a custom removal condition
-          if (proj.shouldRemove && proj.shouldRemove()) {
-              shouldRemove = true;
-          }
-          // Check if projectile is out of bounds
-          else if (proj.x < cameraX || proj.x > cameraX + width || 
-                  proj.y < 0 || proj.y > height) {
-              shouldRemove = true;
-          }
-          
-          if (shouldRemove) {
-              this.projectiles.splice(i, 1);
-          }
+        
+        
+        // Update existing projectiles
+        for (let i = this.projectiles.length - 1; i >= 0; i--) {
+            this.projectiles[i].update();
+            
+            // Remove projectiles that go off screen/into new level OR should be removed
+            let proj = this.projectiles[i];
+            let shouldRemove = false;
+            
+            // Check if projectile has a custom removal condition
+            if (proj.shouldRemove && proj.shouldRemove()) {
+                shouldRemove = true;
+            }
+            // Check if projectile is out of bounds
+            else if (proj.x < cameraX || proj.x > cameraX + width || 
+                proj.y < 0 || proj.y > height) {
+                shouldRemove = true;
+            }
+            
+            if (shouldRemove) {
+                this.projectiles.splice(i, 1);
+            }
         }
-      }
+        
+        // Handle shooting - to be overridden by child classes
+        if (this.shootCooldown > 0) {
+            this.shootCooldown--;
+        } else {
+            this.shootAtPlayer(playerHitboxX, playerHitboxY);
+            this.shootCooldown = this.shootInterval;
+        }
+        
+        // Handle minion spawning - to be overridden by child classes
+        if (this.minionSpawnCooldown > 0) {
+            this.minionSpawnCooldown--;
+        } else {
+            this.spawnMinions();
+            this.minionSpawnCooldown = this.minionSpawnInterval;
+        }
     }
+  }
 
   /**
    * To be overriden by child class. Default shooting behavior.
