@@ -24,6 +24,9 @@ let powerList;
 let levelCreate;
 const keys = {};
 let showControls = false; // true = tutorial page visible
+let canShoot;
+let ammo;
+let reloadingTime;
 
 let boss;
 let bossActive = false;
@@ -171,6 +174,8 @@ function setup() {
   deathScrn = new TitleScreen(1);
   tutorialScrn = new TitleScreen(2);
   boss = null;
+  canShoot = true;
+  reloadingTime = 2000;
 
   loadLevel(1);
 
@@ -197,6 +202,7 @@ function loadLevel(levelNumber) {
       
       // Reset to level 1 for the next playthrough
       currentLevel = 1;
+      ammo = 10 / currentLevel;
       
       // Clear all game state
       enemiesArray = [];
@@ -222,6 +228,7 @@ function loadLevel(levelNumber) {
 
   switch(levelNumber) {
     case 1:
+      ammo = 10 / currentLevel;
       levelWidth = 3000;
       bossSpawnPosition = 2500;
       enemySpawnRate = 120; // 2 seconds at 60fps
@@ -235,6 +242,7 @@ function loadLevel(levelNumber) {
       powerList = levelCreate.powerList; // Use the powerList from levelCreate
       break;
     case 2:
+      ammo = 10 / currentLevel;
       levelWidth = 7000; 
       bossSpawnPosition = 6500;
       enemySpawnRate = 90; // 1.5 seconds at 60fps
@@ -248,6 +256,7 @@ function loadLevel(levelNumber) {
       powerList = levelCreate.powerList;
       break;
     case 3:
+      ammo = 10 / currentLevel;
       levelWidth = 7000;
       bossSpawnPosition = 6500;
       enemySpawnRate = 60; // 1 seconds at 60fps
@@ -261,6 +270,7 @@ function loadLevel(levelNumber) {
       powerList = levelCreate.powerList;
       break;
     case 4:
+      ammo = 10 / currentLevel;
       levelWidth = 8000; // Soda level
       bossSpawnPosition = 7500;
       enemySpawnRate = 45; // 0.75 seconds at 60fps
@@ -275,6 +285,7 @@ function loadLevel(levelNumber) {
       break;
     // --- NEW: Case 5 ---
     case 5:
+      ammo = 10 / currentLevel;
       levelWidth = 8000; // Cake level
       bossSpawnPosition = 7500;
       enemySpawnRate = 30; // 0.5 seconds at 60fps
@@ -383,8 +394,9 @@ function spawnEnemies() {
  * Handles shooting controls to prevent continuous shooting.
  */
 function handleControls() {
-  if (keys[' ']) {
-    playerShoots.shoot(player);
+  if (keys[' '] && canShoot) {
+    playerShoots.shoot(player, ammo);
+    ammo--;
     keys[' '] = false;
   }
 }
@@ -404,6 +416,15 @@ function draw() {
     push();
     translate(-cameraX, 0);
     if(currentBackground) currentBackground.draw(cameraX);
+
+    if (ammo >= 1 && canShoot) {
+      handleControls();
+      text("Ammo: " + ammo, 50, height - 50);
+    } else {
+      canShoot = false;
+      text("Reloading...", 50, height - 50);
+      ammoReload();
+    }
 
     player.updateInput(); // constantly update simultaneous input
 
@@ -456,11 +477,9 @@ function draw() {
       spawnEnemies();
     }
 
-    handleControls();
-
+    playerShoots.update();
     player.update(currentLayout);
     playerHitbox.update();
-    playerShoots.update();
     levelCreate.powerUpReached(playerHitbox);
 
     for (let i = enemiesArray.length - 1; i >= 0; i--) {
@@ -480,6 +499,13 @@ function draw() {
   } else {
     titleScrn.screenDraw(title);
   }
+}
+
+function ammoReload() {
+  setTimeout(() => {
+                        ammo = 10 / currentLevel;
+                    }, 1000);
+  canShoot = true;
 }
 
 /**

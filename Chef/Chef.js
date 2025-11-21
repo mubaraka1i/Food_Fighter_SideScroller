@@ -285,9 +285,11 @@ class Chef {
   /**
   * Begins the shooting animation.
   */
-  startShooting() {
-    this.isShooting = true;
-    this.shootFrameTimer = this.shootFrameDuration;
+  startShooting(ammo) {
+    if (ammo >= 1) {
+      this.isShooting = true;
+      this.shootFrameTimer = this.shootFrameDuration;
+    }
   }
 
   /**

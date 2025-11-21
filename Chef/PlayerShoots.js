@@ -7,14 +7,14 @@ class PlayerShoots {
   }
 
   /**
-   * @returns {list} set of bullets sets {x, y, speed, size, direction}
+   * @returns {Array} list of bullets sets {x, y, speed, size, direction}
    */
   getBullets() {
     return this.bullets;
   }
 
   /**
-   * Updates the position of the bullets in the bullet list.
+   * Updates the position and reload of the bullets in the bullet list.
    */
   update() {
     for (let i = this.bullets.length - 1; i >= 0; i--) {
@@ -42,11 +42,11 @@ class PlayerShoots {
   /**
    * Adds a bullet to the bullet list when shot from the player.
    * 
-   * @param {Chef} player: player object to get shootInfo from
+   * @param {Chef} player player object to get shootInfo from
    */
-  shoot(player) {
+  shoot(player, ammo) {
     const shootInfo = player.getShootInfo();
-    
+
     this.bullets.push({
       x: shootInfo.x,
       y: shootInfo.y,
@@ -55,6 +55,6 @@ class PlayerShoots {
       direction: shootInfo.direction
     });
 
-    player.startShooting();
+    player.startShooting(ammo);
   }
 }
