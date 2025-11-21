@@ -9,8 +9,8 @@ class CookieBoss extends Boss {
     super(x, y, 'cookie', cookieBoss.idle);
     this.health = 12;
     this.maxHealth = 12;
-    this.width = 120;
-    this.height = 120;
+    this.width = 170;
+    this.height = 170;
     this.shootInterval = 120;
     this.minionSpawnInterval = 180;
     this.maxMinions = 3;

@@ -9,8 +9,8 @@ class Boss {
    */
   constructor(x, y, type, idleFrames = []) {
     this.type = type;
-    this.width = 150;
-    this.height = 150;
+    this.width = 170;
+    this.height = 170;
 
     // Idle animation frames
     this.idleFrames = idleFrames;   // array of 3 images

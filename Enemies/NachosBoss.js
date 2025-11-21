@@ -9,8 +9,8 @@ class NachosBoss extends Boss {
     super(x, y, 'nachos', nachoBoss.idle);
     this.health = 15;
     this.maxHealth = 15;
-    this.width = 140;
-    this.height = 100;
+    this.width = 190;
+    this.height = 170;
     this.shootInterval = 100;
     this.minionSpawnInterval = 200;
     this.maxMinions = 4;

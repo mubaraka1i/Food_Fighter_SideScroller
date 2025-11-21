@@ -309,7 +309,7 @@ function goToNextLevel() {
  */
 function spawnBoss() {
   let bossX = levelWidth - 200; // 200px from the end of the level
-  let bossY = height - 150; // On the ground
+  let bossY = height - 175; // On the ground
   
   // Create the appropriate boss for the current level
   switch(currentLevel) {
