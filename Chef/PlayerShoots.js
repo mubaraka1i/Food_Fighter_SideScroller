@@ -7,7 +7,7 @@ class PlayerShoots {
   }
 
   /**
-   * @returns {Array} list of bullets sets {x, y, speed, size, direction}
+   * @returns {Array} list of bullets sets {x, y, speedX, speedY, size, direction}
    */
   getBullets() {
     return this.bullets;
@@ -18,11 +18,13 @@ class PlayerShoots {
    */
   update() {
     for (let i = this.bullets.length - 1; i >= 0; i--) {
-      // Move bullet in world coordinates
-      this.bullets[i].x += this.bullets[i].speed;
+      // Move bullet using both X and Y speeds
+      this.bullets[i].x += this.bullets[i].speedX;
+      this.bullets[i].y += this.bullets[i].speedY;
       
       // Remove bullets that go off the level 
-      if (this.bullets[i].x > levelWidth || this.bullets[i].x < 0) {
+      if (this.bullets[i].x > levelWidth || this.bullets[i].x < 0 || 
+          this.bullets[i].y > height || this.bullets[i].y < 0) {
         this.bullets.splice(i, 1);
         continue;
       }
@@ -50,11 +52,19 @@ class PlayerShoots {
     this.bullets.push({
       x: shootInfo.x,
       y: shootInfo.y,
-      speed: shootInfo.speed,
+      speedX: shootInfo.speedX,
+      speedY: shootInfo.speedY,
       size: 15,
       direction: shootInfo.direction
     });
 
     player.startShooting(ammo);
+  }
+
+  /**
+   * Clears all bullets from the screen
+   */
+  clearBullets() {
+    this.bullets = [];
   }
 }

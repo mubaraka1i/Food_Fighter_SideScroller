@@ -299,12 +299,12 @@ class Chef {
   }
 
   /**
-   * Gets the shoot info of a bullet.
+   * Gets the shoot info of a bullet with mouse aiming or direction-based fallback.
    * 
-   * @returns {Set} {number} centerX, {number} centerY, {String} facingDirection, {number} speed}
+   * @returns {Object} {x, y, speedX, speedY, direction}
    */
   getShootInfo() {
-    let shootY = playerHitbox.getCenterY(); // Get the hitbox's true center Y
+    let shootY = playerHitbox.getCenterY();
     
     // Determine X based on facing direction and hitbox
     let shootX;
@@ -313,11 +313,47 @@ class Chef {
     } else {
       shootX = playerHitbox.x; // Left edge of hitbox
     }
+
+    // Calculate mouse position relative to the player (accounting for camera)
+    const mouseWorldX = mouseX + cameraX;
+    const mouseWorldY = mouseY;
+
+    // Calculate direction vector from player to mouse
+    let dirX = mouseWorldX - shootX;
+    let dirY = mouseWorldY - shootY;
+
+    // Check if mouse is on the opposite side of where player is facing
+    const isMouseOppositeDirection = 
+      (this.facingDirection === 'right' && mouseWorldX < shootX) ||
+      (this.facingDirection === 'left' && mouseWorldX > shootX);
+
+    // If mouse is on opposite side or very close to player, shoot straight
+    if (isMouseOppositeDirection || (abs(dirX) < 50 && abs(dirY) < 50)) {
+      // Shoot straight in the direction the player is facing
+      dirX = this.facingDirection === 'right' ? 1 : -1;
+      dirY = 0;
+    }
+
+    // Normalize the direction vector and set speed
+    const length = Math.sqrt(dirX * dirX + dirY * dirY);
+    const speed = 10;
+    
+    let speedX, speedY;
+    if (length > 0) {
+      speedX = (dirX / length) * speed;
+      speedY = (dirY / length) * speed;
+    } else {
+      // Fallback: shoot straight right
+      speedX = speed;
+      speedY = 0;
+    }
+
     return {
       x: shootX,
       y: shootY,
-      direction: this.facingDirection,
-      speed: this.facingDirection === 'right' ? 10 : -10
+      speedX: speedX,
+      speedY: speedY,
+      direction: this.facingDirection
     };
   }
 
