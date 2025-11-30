@@ -5,12 +5,19 @@ class ChefHitbox{
    * @param {Chef} player the player object the hitbox corresponds to
    * @param {boolean} visible tells whether the hitbox is visible during gameplay
    */
-  constructor(player) {
+  constructor(player, visible) {
     this.player = player;
-    this.hitWidth = this.player.width * 0.6; // 90
-    this.hitHeight = this.player.height - 18; // 132 (Standing initial)
-    this.x = this.player.x + (this.player.width - this.hitWidth) / 2;
+    this.visible = visible;
+    
+    this.defaultHeight = player.height; // 150
+    this.defaultWidth = player.width;   // 150
+    this.duckHeight = 74; // crouch height
+    
+    this.hitWidth = this.defaultWidth * 0.6; // 90
+    this.hitHeight = this.defaultHeight - 18; // 132 (Standing initial)
+    this.x = this.player.x + (this.defaultWidth - this.hitWidth) / 2;
     this.y = this.player.y + 18;
+    this.isDucking = false;
   }
 
   /**
@@ -32,21 +39,16 @@ class ChefHitbox{
    */
   update() {
     // Sync Horizontal Position (centered on Chef)
-    this.hitWidth = this.player.width * 0.6;
-    this.x = this.player.x + (this.player.width - this.hitWidth) / 2;
+    this.hitWidth = this.defaultWidth * 0.6;
+    this.x = this.player.x + (this.defaultWidth - this.hitWidth) / 2;
 
-    // Sync Vertical Position and Height (KEY FIX)
+    // Sync Vertical Position and Height
     if (this.player.isDucking) {
-      // Ducking State: Match the Chef's new (lower, smaller) bounds
-      this.hitHeight = this.player.height; // Set to 74px
-      this.y = this.player.y;             // Start at the Chef's new, lower Y position
-      
-      // OPTIONAL: Add a small top padding if you want the powerup collision to be slightly shorter than the duck sprite.
-      // this.hitHeight = 70; 
-      // this.y = this.player.y + 4;
+      this.hitHeight = this.duckHeight;
+      this.y = this.player.y + (this.defaultHeight - this.duckHeight) * 0.5; // 50% up from bottom
     } else {
       // Standing State
-      this.hitHeight = this.player.originalHeight - 18 || 132;
+      this.hitHeight = this.defaultHeight - 18;
       this.y = this.player.y + 18;
     }
   }
@@ -88,24 +90,21 @@ class ChefHitbox{
    * @returns {boolean} true if hit, false if not
    */
   playerHit(x, y) {
-    // 'x' and 'y' are the coordinates of the thing hitting the player
-    const hitX = x >= this.x && x <= this.x + this.hitHeight;
+    const hitX = x >= this.x && x <= this.x + this.hitWidth;
     const hitY = y >= this.y && y <= this.y + this.hitHeight;
-
     return hitX && hitY;
   }
   
-/**
- * Checks for rectangle collision with player, such as ground enemies.
- * 
- * @param {number} enemyX top left corner x coordinate of an enemy
- * @param {number} enemyY top left corner y coordinate of an enemy
- * @param {number} enemyW width of the enemy
- * @param {number} enemyH height of the enemy
- * @returns {boolean} true if hit, false if not
- */
+  /**
+   * Checks for rectangle collision with player, such as ground enemies.
+   * 
+   * @param {number} enemyX top left corner x coordinate of an enemy
+   * @param {number} enemyY top left corner y coordinate of an enemy
+   * @param {number} enemyW width of the enemy
+   * @param {number} enemyH height of the enemy
+   * @returns {boolean} true if hit, false if not
+   */
   playerHitRect(enemyX, enemyY, enemyW, enemyH) {
-    // Check for no overlap (Axis-Aligned Bounding Box)
     return !(this.x + this.hitWidth < enemyX ||
              this.x > enemyX + enemyW ||
              this.y + this.hitHeight < enemyY ||
@@ -132,4 +131,3 @@ class ChefHitbox{
     return (distanceX * distanceX) + (distanceY * distanceY) < (circleR * circleR);
   }
 }
-

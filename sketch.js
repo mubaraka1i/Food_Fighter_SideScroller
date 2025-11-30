@@ -554,12 +554,10 @@ function completeGameReset() {
   
   // Reset player
   if (player) {
+    player.reset();
     player.x = 50;
     player.y = 0;
     player.velocityY = 0;
-    player.isTakingDamage = false;
-    player.isOnGround = false;
-    player.isDucking = false;
   }
   
   // Reset player shoots
@@ -595,12 +593,10 @@ function restartGame() {
   }
   
   if (player) {
+    player.reset();
     player.x = 50;
     player.y = 0;
     player.velocityY = 0;
-    player.isTakingDamage = false;
-    player.isOnGround = false;
-    player.isDucking = false;
   }
   
   if (playerShoots) {

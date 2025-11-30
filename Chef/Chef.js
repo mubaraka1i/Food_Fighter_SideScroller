@@ -426,4 +426,20 @@ class Chef {
     }
     return false;
   }
+
+  /**
+   * Resets the chef to default standing state
+   */
+  reset() {
+    this.isDucking = false;
+    this.height = 150; // Reset to default height
+    this.originalHeight = null; // Clear the stored original height
+    this.isTakingDamage = false;
+    this.isOnGround = false;
+    this.velocityY = 0;
+    this.isShooting = false;
+    this.shieldActive = false;
+    this.damageBoostActive = false;
+    this.damageMultiplier = 1;
+  }
 }
