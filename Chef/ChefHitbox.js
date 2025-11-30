@@ -5,24 +5,17 @@ class ChefHitbox{
    * @param {Chef} player the player object the hitbox corresponds to
    * @param {boolean} visible tells whether the hitbox is visible during gameplay
    */
-  constructor(player, visible) {
+  constructor(player) {
     this.player = player;
-    this.visible = visible;
-    
-    this.defaultHeight = player.height; // full standing height
-    this.defaultWidth = player.width;
-    
-    this.hitHeight = this.defaultHeight - 18; // height to register collision
-    this.hitWidth = this.defaultWidth * 0.6; // width to register collision
-    this.x = this.player.x + (this.defaultWidth - this.hitWidth) / 2;
-    this.y = this.player.y;
-    this.duckHeight = 74; // crouch height
-    this.isDucking = false;
+    this.hitWidth = this.player.width * 0.6; // 90
+    this.hitHeight = this.player.height - 18; // 132 (Standing initial)
+    this.x = this.player.x + (this.player.width - this.hitWidth) / 2;
+    this.y = this.player.y + 18;
   }
 
-/**
- * @returns {number} the center x coordinate of the player's hitbox
- */
+  /**
+  * @returns {number} the center x coordinate of the player's hitbox
+  */
   getCenterX() {
     return this.x + this.hitWidth / 2;
   }
@@ -38,16 +31,23 @@ class ChefHitbox{
    * Updates the hitbox coordinates and width.
    */
   update() {
-    // Always center hitbox horizontally
-    this.hitWidth = this.defaultWidth * 0.6; // adjust ratio as needed
-    this.x = this.player.x + (this.defaultWidth - this.hitWidth) / 2;
+    // Sync Horizontal Position (centered on Chef)
+    this.hitWidth = this.player.width * 0.6;
+    this.x = this.player.x + (this.player.width - this.hitWidth) / 2;
 
-    if (this.isDucking) {
-      this.hitHeight = this.duckHeight; // height when ducking
-      this.y = this.player.y + (this.defaultHeight - this.duckHeight);
+    // Sync Vertical Position and Height (KEY FIX)
+    if (this.player.isDucking) {
+      // Ducking State: Match the Chef's new (lower, smaller) bounds
+      this.hitHeight = this.player.height; // Set to 74px
+      this.y = this.player.y;             // Start at the Chef's new, lower Y position
+      
+      // OPTIONAL: Add a small top padding if you want the powerup collision to be slightly shorter than the duck sprite.
+      // this.hitHeight = 70; 
+      // this.y = this.player.y + 4;
     } else {
-      this.hitHeight = this.defaultHeight - 18; // height when standing
-      this.y = this.player.y + 18; // keeping hitbox aligned
+      // Standing State
+      this.hitHeight = this.player.originalHeight - 18 || 132;
+      this.y = this.player.y + 18;
     }
   }
   
@@ -113,24 +113,23 @@ class ChefHitbox{
   }
 
   /**
-   * Checks for circle collision with player, such as flying enemies.
-   * 
-   * @param {number} circleX center x coordinate for enemy
-   * @param {number} circleY center y coordinate for enemy
-   * @param {number} circleR radius for enemy
-   * @returns {boolean} true if hit, false if not
+   * Checks if a circular power-up collides with this rectangular hitbox.
+   * @param {number} circleX PowerUp center X
+   * @param {number} circleY PowerUp center Y
+   * @param {number} circleR PowerUp radius
+   * @returns {boolean} true if overlapping
    */
   playerHitCircle(circleX, circleY, circleR) {
-    // Use p5.collide library function (diameter)
-    return collideRectCircle(
-      this.x,
-      this.y,
-      this.hitWidth,
-      this.hitHeight,
-      circleX,
-      circleY,
-      circleR * 2 
-    );
+    // Find the closest point on the hitbox to the center of the circle
+    const closestX = constrain(circleX, this.x, this.x + this.hitWidth);
+    const closestY = constrain(circleY, this.y, this.y + this.hitHeight);
+
+    // Calculate the distance between the closest point and the circle's center
+    const distanceX = circleX - closestX;
+    const distanceY = circleY - closestY;
+
+    // If the distance is less than the circle's radius, they are colliding
+    return (distanceX * distanceX) + (distanceY * distanceY) < (circleR * circleR);
   }
 }
 

@@ -226,6 +226,11 @@ function loadLevel(levelNumber) {
   player.velocityY = 0;
   enemySpawnTimer = 0;
 
+  // CLEAR ALL BULLETS WHEN STARTING NEW LEVEL
+  if (playerShoots) {
+    playerShoots.bullets = [];
+  }
+
   switch(levelNumber) {
     case 1:
       ammo = 10 / currentLevel;

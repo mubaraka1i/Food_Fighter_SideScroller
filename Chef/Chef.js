@@ -50,8 +50,10 @@ class Chef {
 
     // Ducking
     if (keys['s'] || keys['arrowdown']) {
-      playerHitbox.duck();
+      this.duck(); // <--- ADD THIS: Tell the Chef to duck
+      playerHitbox.duck(); // Keep this for the visual green box
     } else {
+      this.cancelDuck(); // <--- ADD THIS: Tell the Chef to stand up
       playerHitbox.cancelDuck();
     }
 
@@ -66,19 +68,15 @@ class Chef {
 
   /**
    * Updates the collision responses for player's position.
-   * 
-   * @param {Object} currentLayout: LevelLayout object, the layout of the current level
+   * * @param {Object} currentLayout: LevelLayout object, the layout of the current level
    */
   update(currentLayout) {
     // Update shield timer first
     this.updateShield();
 
-    // Store old position for collision response
-    let oldX = this.x;
-    let oldY = this.y;
+    let obstacleTracker = (currentLayout && currentLayout.getObstacles()) ? currentLayout.getObstacles() : null;
 
-    this.updateShield();
-
+    // --- STEP 1: HANDLE X AXIS MOVEMENT ---
     if (this.isMovingLeft) {
       this.facingDirection = 'left';
       this.x -= this.speed;
@@ -88,43 +86,51 @@ class Chef {
       this.x += this.speed;
     }
 
+    // Check X Collision immediately after moving X
+    if (obstaclesInitialized && obstacleTracker) {
+      this.handleObstacleCollision(obstacleTracker);
+    }
+
+    // --- STEP 2: HANDLE Y AXIS MOVEMENT ---
     
-    // Prevent chef from going past the right boundary of the level
-    if (this.x + this.width > levelWidth) {
-      this.x = levelWidth - this.width;
-    }
-
-    // Also prevent going past left boundary
-    if (this.x < 0) {
-      this.x = 0;
-    }
-
     // Apply gravity only if not on ground
-    this.velocityY += 1; // Simple gravity - just move downward
+    if (!this.isOnGround) {
+      this.velocityY += 1; // Simple gravity
+    }
     
-
     // Update vertical position
     this.y += this.velocityY;
 
-    let obstacleTracker = (currentLayout && currentLayout.getObstacles()) ? currentLayout.getObstacles() : null;
-
+    // Check Y Collision immediately after moving Y
     if (obstaclesInitialized && obstacleTracker) {
-      this.handleObstacleCollision(oldX, oldY, obstacleTracker);
+      this.handleObstacleCollision(obstacleTracker);
     }
 
+    // --- STEP 3: GROUND DETECTION ---
+    
+    // Update ground detection after collision handling
     let groundLevel = height - this.height;
+    // We pass obstacleTracker here to check if we are standing on one
     let onObs = obstaclesInitialized && obstacleTracker ? this.isOnObstacle(obstacleTracker) : false;
 
     if (this.y >= groundLevel - this.groundTolerance && !onObs) {
       this.y = groundLevel;
       this.velocityY = 0;
       this.isOnGround = true;
-      this.isTakingDamage = false; // Reset damage flag when landing
+      this.isTakingDamage = false;
     } else if (onObs) {
-      this.isOnGround = true; // Make sure we're marked as on ground when on obstacle
-      this.isTakingDamage = false; // Reset damage flag when landing on obstacle
+      this.isOnGround = true;
+      this.isTakingDamage = false;
     } else {
       this.isOnGround = false;
+    }
+
+    // Prevent chef from going past level boundaries
+    if (this.x + this.width > levelWidth) {
+      this.x = levelWidth - this.width;
+    }
+    if (this.x < 0) {
+      this.x = 0;
     }
 
     // Handle shooting animation
@@ -317,67 +323,75 @@ class Chef {
 
   /**
    * Handles the obstacle player collision.
-   * NEEDS TO BE FIXED
-   * 
-   * @param {number} oldX player X when update(currentLayout) was called
-   * @param {number} oldY playerY when update(currentLayout) was called
-   * @param {Array} obstacleTracker list of ObstacleCreator objects, currentLayout.getObstacles()
-   * @returns {undefined} exit early if obstacleTracker does not exist or is empty
+   * Uses a "forgiving" hitbox calculation for ducking to allow passing under tight gaps.
+   * @param {Array} obstacleTracker list of ObstacleCreator objects
    */
-  handleObstacleCollision(oldX, oldY, obstacleTracker, ) {
-  if (!obstacleTracker) return;
+  handleObstacleCollision(obstacleTracker) {
+    if (!obstacleTracker) return;
 
-  const obstacles = obstacleTracker.getObstacles();
-  
-  const hitboxWidth = this.width * 0.6;
-  const hitboxOffset = (this.width - hitboxWidth) / 2;
-  const hitboxX = this.x + hitboxOffset;
-  const hitboxY = this.y + 18;
-  const hitboxHeight = this.height - 18;
-  
-  const oldHitboxX = oldX + hitboxOffset;
-  const oldHitboxY = oldY + 18;
-  
-  for (let obstacle of obstacles) {
-    let obsX = obstacle.topLeft[0];
-    let obsY = obstacle.topLeft[1];
-    let obsW = obstacle.width;
-    let obsH = obstacle.height;
+    const obstacles = obstacleTracker.getObstacles();
+
+    const hitWidth = this.width * 0.6;
+    let hitHeight, hitY;
+
+    if (this.isDucking) {
+      hitHeight = 35; 
+      
+      // Align the small hitbox to the FEET of the player
+      // Formula: (Top of Sprite + Sprite Height) - Hitbox Height
+      hitY = (this.y + this.height) - hitHeight;
+    } else {
+      // Standard standing hitbox
+      hitHeight = this.height - 18;
+      hitY = this.y + 18;
+    }
     
-    // Check if hitbox is colliding with this obstacle
-    if (hitboxX < obsX + obsW &&
-        hitboxX + hitboxWidth > obsX &&
-        hitboxY < obsY + obsH &&
-        hitboxY + hitboxHeight > obsY) {
-      
-      
-      // Check if landing on top of obstacle (falling onto it)
-      if (oldHitboxY + hitboxHeight <= obsY + this.groundTolerance && this.velocityY > 0) {
-        this.y = obsY - this.height;
-        this.velocityY = 0;
-        this.isOnGround = true;
-        this.isTakingDamage = false;
-      }
-      // Check if hitting bottom of obstacle (jumping into it)
-      else if (oldHitboxY >= obsY + obsH && this.velocityY < 0) {
-        this.y = obsY + obsH - 18;
-        this.velocityY = 0;
-      }
-      // Check horizontal collisions (left/right)
-      else if (oldHitboxX + hitboxWidth <= obsX) { // Coming from left
-        this.x = obsX - hitboxWidth - hitboxOffset;
-        this.velocityX = 0;
+    const hitX = this.x + (this.width - hitWidth) / 2;
 
-      }
-      else if (oldHitboxX >= obsX + obsW) { // Coming from right
-        this.x = obsX + obsW - hitboxOffset;
-        this.velocityX = 0;
+    for (let obstacle of obstacles) {
+      let obsX = obstacle.topLeft[0];
+      let obsY = obstacle.topLeft[1];
+      let obsW = obstacle.width;
+      let obsH = obstacle.height;
 
+      // Check if current hitbox is colliding with this obstacle
+      if (hitX < obsX + obsW &&
+          hitX + hitWidth > obsX &&
+          hitY < obsY + obsH &&
+          hitY + hitHeight > obsY) {
+
+        // Calculate overlap in all directions
+        const overlapLeft = (hitX + hitWidth) - obsX;
+        const overlapRight = (obsX + obsW) - hitX;
+        const overlapTop = (hitY + hitHeight) - obsY;
+        const overlapBottom = (obsY + obsH) - hitY;
+
+        // Find the smallest overlap to determine push direction
+        const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+
+        if (minOverlap === overlapTop && this.velocityY >= 0) {
+          // Landing on top: Place player so their FEET are on top of the obstacle
+          this.y = obsY - this.height;
+          this.velocityY = 0;
+          this.isOnGround = true;
+          this.isTakingDamage = false;
+        } 
+        else if (minOverlap === overlapBottom && this.velocityY < 0) {
+          // Hitting head on bottom of obstacle
+          // Push player down based on where the hitbox hit
+          const offset = hitY - this.y; // distance from sprite top to hitbox top
+          this.y = obsY + obsH - offset;
+          this.velocityY = 0;
+        } 
+        else if (minOverlap === overlapLeft) {
+          this.x = obsX - hitWidth - (this.width - hitWidth) / 2;
+        } 
+        else if (minOverlap === overlapRight) {
+          this.x = obsX + obsW - (this.width - hitWidth) / 2;
+        }
       }
     }
   }
-}
-
 
   /**
    * Checks if any obstacles in the level collide with the player.
@@ -395,18 +409,18 @@ class Chef {
       let obsW = obstacle.width;
       let obsH = obstacle.height;
       
-      // Check if player is standing on this obstacle
-      let playerBottom = this.y + this.height;
-      let obstacleTop = obsY;
+      // Use hitbox for collision detection
+      const hitboxBottom = playerHitbox.y + playerHitbox.hitHeight;
+      const obstacleTop = obsY;
       
-      // Check if player's bottom is very close to obstacle's top
+      // Check if player's hitbox bottom is very close to obstacle's top
       // and player is moving downward or stationary
       // and player is horizontally aligned with the obstacle
-      if (playerBottom >= obstacleTop - this.groundTolerance && 
-          playerBottom <= obstacleTop + this.groundTolerance &&
+      if (hitboxBottom >= obstacleTop - this.groundTolerance && 
+          hitboxBottom <= obstacleTop + this.groundTolerance &&
           this.velocityY >= 0 &&
-          this.x + this.width > obsX &&
-          this.x < obsX + obsW) {
+          playerHitbox.x + playerHitbox.hitWidth > obsX &&
+          playerHitbox.x < obsX + obsW) {
         return true;
       }
     }
