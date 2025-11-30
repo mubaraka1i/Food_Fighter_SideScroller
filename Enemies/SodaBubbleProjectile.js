@@ -43,6 +43,9 @@ class SodaBubbleProjectile {
         // Always move using original direction
         this.x += this.dx * this.speed;
         this.y += this.dy * this.speed;
+        if (this.y <= 0 || this.y >= height) {
+      this.dy *= -1;
+    }
 
         // When bubble crosses half of the screen width it goes up
         if (this.x < width / 2) {
@@ -106,7 +109,6 @@ class SodaBubbleProjectile {
      */
     shouldRemove() {
         return this.popTimer > 10 || 
-               this.x < cameraX || this.x > cameraX + width || 
-               this.y < 0 || this.y > height;
+               this.x < cameraX || this.x > cameraX + width 
     }
 }

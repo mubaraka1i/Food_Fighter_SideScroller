@@ -36,7 +36,9 @@ class BossProjectile {
 
     this.x += this.dx * this.speed;
     this.y += this.dy * this.speed;
-
+    if (this.y <= 0 || this.y >= height) {
+      this.dy *= -1;
+    }
   }
 
   /**
@@ -50,13 +52,13 @@ class BossProjectile {
   /**
    * Draws the square hitbox of the boss projectile to the screen.
    */
-   drawHitbox() {
+  drawHitbox() {
     push();
     noFill();
     stroke('red');
     strokeWeight(2);
-    rectMode(CENTER); 
-    rect(this.x, this.y, this.size+1, this.size+1);
+    rectMode(CENTER);
+    rect(this.x, this.y, this.size + 1, this.size + 1);
     pop();
   }
 }

@@ -34,6 +34,9 @@ class ChocolateChipProjectile {
   update() {
     this.x += this.dx * this.speed;
     this.y += this.dy * this.speed;
+    if (this.y <= 0 || this.y >= height) {
+      this.dy *= -1;
+    }
   }
 
   /**

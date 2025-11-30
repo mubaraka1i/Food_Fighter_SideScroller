@@ -120,8 +120,7 @@ class Boss {
                 shouldRemove = true;
             }
             // Check if projectile is out of bounds
-            else if (proj.x < cameraX || proj.x > cameraX + width || 
-                proj.y < 0 || proj.y > height) {
+            else if (proj.x < cameraX || proj.x > cameraX + width) {
                 shouldRemove = true;
             }
             
