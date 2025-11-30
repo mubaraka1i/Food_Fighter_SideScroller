@@ -22,18 +22,27 @@ class SodaBoss extends Boss {
     shootAtPlayer(playerX, playerY) {
         let bossCenterX = this.x + this.width / 2;
         let bossCenterY = this.y + this.height / 2;
-        
+
         // Shoot bubbles in a spread pattern
         for (let i = 0; i < 2; i++) {
-            let angle = atan2(playerY - bossCenterY, playerX - bossCenterX);
+            // Randomized the Bosses projectile Y axis
+            let randomHeightY = random(-120, 120);
+
+            let constrainY = constrain(
+                bossCenterY + randomHeightY,
+                100,
+                height - 120
+            );
+            let angle = atan2(playerY - constrainY, playerX - bossCenterX);
             angle += random(-0.4, 0.4); // Wider spread
-            
+
             let dx = cos(angle) * 0.08; // Slower bubbles
             let dy = sin(angle) * 0.08;
-            
+
+
             this.projectiles.push(new SodaBubbleProjectile(
                 bossCenterX,
-                bossCenterY,
+                constrainY,
                 dx,
                 dy
             ));
@@ -75,13 +84,13 @@ class SodaBoss extends Boss {
             text("SODA", this.x + this.width / 2, this.y + this.height / 2);
         }
             */
-        
+
         // Draw projectiles
         for (let projectile of this.projectiles) {
             projectile.draw();
             projectile.drawHitbox();
         }
-        
+
         // Draw health bar
         if (!this.slidingIn) {
             this.drawHealthBar();

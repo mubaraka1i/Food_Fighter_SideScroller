@@ -34,6 +34,8 @@ class CakeBoss extends Boss { // Inherits from OriginalBoss for now
             let dx = cos(angle) * 0.1;
             let dy = sin(angle) * 0.1;
             
+
+            
             this.projectiles.push(new BirthdayCandleProjectile(
                 bossCenterX,
                 bossCenterY,

@@ -18,6 +18,7 @@ class SodaBubbleProjectile {
         this.popping = false;
         this.popTimer = 0;
         this.active = true;
+        
     }
 
     /**
@@ -37,22 +38,31 @@ class SodaBubbleProjectile {
     * Updates the center x and y coordinates with the given trajectory.
     */
     update() {
-        if (!this.popping) {
-            this.x += this.dx * this.speed;
-            this.y += this.dy * this.speed;
-            
-            // Bubbles float upward slightly
-            this.dy -= 0.005;
-            
-            // Check if bubble should pop (random chance)
-            if (random() < 0.005) {
-                this.popping = true;
-                this.active = false;
+    if (!this.popping) {
+
+        // Always move using original direction
+        this.x += this.dx * this.speed;
+        this.y += this.dy * this.speed;
+
+        // When bubble crosses half of the screen width it goes up
+        if (this.x < width / 2) {
+            this.dy -= 0.01;
+
+            // Prevent it from becoming straight-up
+            if (this.dy < -0.2) {
+                this.dy = -0.2;
             }
-        } else {
-            this.popTimer++;
         }
+
+        if (random() < 0.005) {
+            this.popping = true;
+            this.active = false;
+        }
+    } else {
+        this.popTimer++;
     }
+}
+
 
     /**
     * Draws a projectile to the screen as an ellipse.

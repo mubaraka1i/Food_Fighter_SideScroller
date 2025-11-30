@@ -157,9 +157,15 @@ class Boss {
   shootAtPlayer(playerHitboxX, playerHitboxY) {
     let bossCenterX = this.x + this.width / 2;
     let bossCenterY = this.y + this.height / 2;
+
+
+    // Randomized the Bosses projectile Y axis
+      let randomHeightY = random(-100,140)
+
+    let constrainY = constrain(bossCenterY + randomHeightY, 150, height - 100)
     
     let dx = playerHitboxX - bossCenterX;
-    let dy = playerHitboxY - bossCenterY;
+    let dy = playerHitboxY - constrainY;
     
     let distance = Math.sqrt(dx * dx + dy * dy);
     if (distance > 0) {
@@ -167,9 +173,13 @@ class Boss {
       dy = dy / distance * 0.1;
     }
     
+    
+
+  
+
     this.projectiles.push(new BossProjectile(
       bossCenterX,
-      bossCenterY,
+      constrainY,
       dx,
       dy
     ));

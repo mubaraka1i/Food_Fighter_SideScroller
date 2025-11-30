@@ -14,7 +14,7 @@ class NachosBoss extends Boss {
     this.shootInterval = 100;
     this.minionSpawnInterval = 200;
     this.maxMinions = 4;
-    
+
     this.nachoColor = '#FFD700';
     this.cheeseColor = '#FFA500';
   }
@@ -28,19 +28,27 @@ class NachosBoss extends Boss {
   shootAtPlayer(playerX, playerY) {
     let bossCenterX = this.x + this.width / 2;
     let bossCenterY = this.y + this.height / 2;
-    
+    // Randomized the Bosses projectile Y axis
+    let randomHeightY = random(-100, 140);
+
+    let constrainY = constrain(
+      bossCenterY + randomHeightY,
+      150,
+      height - 100
+    );
+
     let dx = playerX - bossCenterX;
-    let dy = playerY - bossCenterY;
-    
+    let dy = playerY - constrainY;
+
     let distance = Math.sqrt(dx * dx + dy * dy);
     if (distance > 0) {
       dx = dx / distance * 0.1;
       dy = dy / distance * 0.1;
     }
-    
+
     this.projectiles.push(new CheeseProjectile(
       bossCenterX,
-      bossCenterY,
+      constrainY,
       dx,
       dy
     ));
@@ -63,11 +71,11 @@ class NachosBoss extends Boss {
   draw() {
     // Draw nacho pile base
     super.draw();
-    
-    
+
+
     if (!this.slidingIn) {
       this.drawHealthBar();
-      
+
       for (let projectile of this.projectiles) {
         projectile.draw();
         projectile.drawHitbox();
