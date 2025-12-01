@@ -6,12 +6,19 @@ class TitleScreen {
    */
   constructor(type) {
     this.type = type;
-    if (this.type == 1) {
+    if (this.type == 1 || this.type == 3) {
       this.visible = false;
     } else {
       this.visible = true;
     }
     this.curFrame = 0;
+
+    // layout for stats
+    this.startX = 175;
+    this.startY = 100;
+    this.lineHeight = 60;
+    this.digitWidth = 30;
+    this.digitSpacing = 5;
   }
   
   /**
@@ -22,7 +29,7 @@ class TitleScreen {
   screenDraw(screen) {
     if (!this.visible) return;
     
-    if (this.type == 2) {
+    if (this.type == 2 || this.type == 3) {
       // Just display normally (one frame) for tutorial
       image(screen, 0, 0, width, height);
     } else {
@@ -40,5 +47,37 @@ class TitleScreen {
    */
   screenRemove() {
     this.visible = false;
+  }
+
+  drawNumber(spritesheet, digit, x, y, size) {
+    const frameWidth = spritesheet.width / 10;
+    image(
+      spritesheet,
+      x, y,           // position on canvas
+      size, size,     // display size
+      digit * frameWidth, 0,  // source x, y
+      frameWidth, spritesheet.height  // source width & height
+    );
+  }
+
+  formatLabel(key) {
+    switch(key) {
+      case "shotsFired": return "Shots Fired:";
+      case "shotsMissed": return "Shots Missed:";
+      case "shotsHit": return "Shots Hit:";
+      case "enemiesKilled": return "Enemies Killed:";
+      case "powerUpsUsed": return "Power Ups Used:";
+      case "damageDone": return "Damage Done:";
+      case "damageTaken": return "Damage Taken:";
+      case "healthHealed": return "Health Healed:";
+      default: return key;
+    }
+  }
+
+  drawMultiDigit(spritesheet, value, x, y, size) {
+    const str = value.toString();
+    for (let i = 0; i < str.length; i++) {
+      this.drawNumber(spritesheet, int(str[i]), x + i * (size + this.digitSpacing), y, size);
+    }
   }
 }

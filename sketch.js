@@ -44,8 +44,20 @@ let currentLayout;
 let speedBoost, healthBoost, shieldBoost, damageBoost, shieldDome;
 let level1BackgroundImg, level2BackgroundImg, level3BackgroundImg, level4BackgroundImg, level5BackgroundImg;
 let chefHat;
-let title, death, tutorial;
-let hp, hpDec, hpInc, num_G, num_R;
+let title, death, tutorial, stats, statInfo;
+let hp, hpDec, hpInc, num_G, num_R, numY;
+
+// For tracking stats
+let gameStats = {
+    shotsFired: 0,
+    shotsMissed: 0,
+    shotsHit: 0,
+    enemiesKilled: 0,
+    powerUpsUsed: 0,
+    damageDone: 0,
+    damageTaken: 0,
+    healthHealed: 0
+};
 
 /**
  * Preloads all images that are used.
@@ -55,6 +67,7 @@ function preload() {
   death = loadImage('Assets/gameoverscreen.png');
   tutorial = loadImage('Assets/tutorialscreen.png');
   chefHat = loadImage('Assets/chef_health.png');
+  stats = loadImage('Assets/statScreen.png');
 
   // Load HP:, hpInc, hpDec, and letters
   hp = loadImage('Assets/hp_G.png'); // "HP:"
@@ -62,6 +75,7 @@ function preload() {
   hpInc = loadImage('Assets/hpIncNoti.png'); // minus sign
   num_G = loadImage('Assets/num_G.png'); // green numbers
   num_R = loadImage('Assets/num_R.png'); // red numbers
+  numY = loadImage('Assets/num_Y.png'); // yellow numbers
 
   // Load background images
   level1BackgroundImg = loadImage('Assets/Kitchen1.png');
@@ -187,6 +201,7 @@ function setup() {
   titleScrn = new TitleScreen(0);
   deathScrn = new TitleScreen(1);
   tutorialScrn = new TitleScreen(2);
+  statScrn = new TitleScreen(3);
   boss = null;
   canShoot = true;
   reloadingTime = 2000;
@@ -211,19 +226,15 @@ function setup() {
 function loadLevel(levelNumber) {
     if (levelNumber > 5) { // Change this number when we implement level 4 and 5
       playInitiated = false;
-      titleScrn.visible = true;
+      statScrn.visible = true;
+      titleScrn.visible = false;
       deathScrn.visible = false;
-      
-      // Reset to level 1 for the next playthrough
-      currentLevel = 1;
-      ammo = 10 / currentLevel;
       
       // Clear all game state
       enemiesArray = [];
       boss = null;
       bossActive = false;
       cameraX = 0;
-      
       return;
 
   }
@@ -417,8 +428,29 @@ function handleControls() {
   if (keys[' '] && canShoot) {
     playerShoots.shoot(player, ammo);
     ammo--;
+    gameStats.shotsFired++;
     keys[' '] = false;
   }
+}
+
+function drawStats(statsObj) {
+    let startX = 300;
+    let startY = 275;
+    let lineHeight = 60;
+    let digitWidth = 30;
+    let i = 0;
+
+    for (let key in statsObj) {
+        let label = statScrn.formatLabel(key);
+        fill(255);
+        textSize(32);
+        text(label, startX, startY + i * lineHeight);
+
+        // draw numbers
+        statScrn.drawMultiDigit(numY, statsObj[key], startX + 400, startY + i * lineHeight - 20, digitWidth);
+
+        i++;
+    }
 }
 
 /**
@@ -517,18 +549,21 @@ function draw() {
 
   } else if (deathScrn.visible) {
     deathScrn.screenDraw(death);
-  }else if (showControls) {
+  } else if (showControls) {
     tutorialScrn.screenDraw(tutorial);
+  } else if (statScrn.visible) {
+    statScrn.screenDraw(stats);
+    drawStats(gameStats);
   } else {
     titleScrn.screenDraw(title);
   }
 }
 
 function ammoReload() {
-  setTimeout(() => {
-                        ammo = 10 / currentLevel;
-                    }, 1000);
-  canShoot = true;
+  setTimeout(() => { 
+    ammo = 10 / currentLevel;
+    canShoot = true;
+  }, 1000);
 }
 
 /**
@@ -554,6 +589,12 @@ function keyPressed() {
       restartGame();
     }
   }
+  // Restart game after seeing Stat Screen
+  if (statScrn.visible && key === 'Enter') {
+        statScrn.visible = false;
+        completeGameReset();  // this will bring player back to level 1
+        playInitiated = true;
+    }
   return false;
 }
 
@@ -592,6 +633,7 @@ function completeGameReset() {
   playInitiated = false;
   titleScrn.visible = true;
   deathScrn.visible = false;
+  statScrn.visible = false;
   
   // Clear any keys that might be stuck
   for (let key in keys) {
@@ -646,5 +688,6 @@ function restartGame() {
   }
 
   deathScrn.visible = false;
+  statScrn.visible = false;
   playInitiated = true;
 }

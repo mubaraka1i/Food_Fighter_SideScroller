@@ -20,6 +20,7 @@ function checkCollisions() {
           health.healthDec(10);
         }
         enemiesArray.splice(i, 1);
+        gameStats.enemiesKilled++;
         continue;
       }
     } else if (enemy instanceof FlyingEnemies) {
@@ -30,6 +31,7 @@ function checkCollisions() {
           health.healthDec(10);
         }
         enemiesArray.splice(i, 1);
+        gameStats.enemiesKilled++;
         continue;
       }
     }
@@ -45,6 +47,7 @@ function checkCollisions() {
           health.healthDec(5); // Less damage than regular enemies
         }
         enemiesArray.splice(i, 1); // Remove minion on contact
+        gameStats.enemiesKilled++;
         continue;
       }
     }
@@ -75,8 +78,11 @@ function checkCollisions() {
         if (hit) {
           enemy.takeDamage(1); // Minions have takeDamage method
           bullets.splice(j, 1);
+          gameStats.shotsHit++;
+          gameStats.damageDone += 1;
           if (enemy.health <= 0) {
             enemiesArray.splice(i, 1);
+            gameStats.enemiesKilled++;
           }
           break; 
         }
@@ -85,6 +91,7 @@ function checkCollisions() {
       // Regular enemies (not minions) get destroyed immediately
       if (hit && !isMinion) {
         enemiesArray.splice(i, 1);
+        gameStats.enemiesKilled++;
         bullets.splice(j, 1);
         break; 
       }
@@ -112,6 +119,7 @@ function checkCollisions() {
         
         if (boss.getHealth() <= 0) {
           bossActive = false;
+          gameStats.enemiesKilled++;
           boss = null;
           goToNextLevel();
           return;

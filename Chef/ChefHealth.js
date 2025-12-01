@@ -79,7 +79,7 @@ class ChefHealth {
    * @param {number} damage: amount to decrease health by.
    */
   healthDec(damage) {
-    this.health -= damage;
+    this.health -= 0; // 0 for testing
     this.triggerNotification("damage", damage);
   }
 

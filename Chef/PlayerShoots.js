@@ -26,6 +26,7 @@ class PlayerShoots {
       if (this.bullets[i].x > levelWidth || this.bullets[i].x < 0 || 
           this.bullets[i].y > height || this.bullets[i].y < 0) {
         this.bullets.splice(i, 1);
+        gameStats.shotsMissed++;
         continue;
       }
     }

@@ -207,6 +207,7 @@ class LevelCreator {
      * @returns {number} the effect if reached, null otherwise
      */
     powerUpReached(playerHitbox) {
+        gameStats.powerUpsUsed++;
         for (let i = this.powerList.length - 1; i >= 0; i--) {
             let powerUp = this.powerList[i]; // {powerUpHitbox} powerup;
             if (powerUp.checkCollision(playerHitbox)) {
