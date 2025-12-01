@@ -33,6 +33,7 @@ class LevelCreator {
 
         // Track collected power-ups for this session
         this.collectedPowerUps = new Set();
+        this.activeStatus = [];
     }
     
     /** 
@@ -238,11 +239,14 @@ class LevelCreator {
      * @param {number} effect 1-4, dictates the effect that is applied to the player
      */
     applyPowerUpEffect(effect) {
+        const now = millis();
         switch(effect) {
             case 1: // speed boost
                 if (player.speed <= 5) { // prevents stacking
                     player.speed += 2;
-                    setTimeout(() => { player.speed -= 2; }, 10000); // speed goes to normal after 10 seconds
+                    const duration = 10000; // 10s
+                    this.activeStatus.push({effect, endsAt: now + duration});
+                    setTimeout(() => { player.speed -= 2; }, duration); // speed goes to normal after 10 seconds
                 }
                 break;
             case 2: // health boost
@@ -257,19 +261,45 @@ class LevelCreator {
             case 3: // protection boost
                 if (!player.shieldActive) {
                     player.activateShield();
+                    this.activeStatus.push({effect, endsAt: now + player.shieldDuration});
                 }
                 break;
             case 4: // damage boost
                 if (!player.damageBoostActive) {
                     player.damageBoostActive = true;
                     player.damageMultiplier = 2; // double damage
+                    const duration = 7000; // 7s
+                    this.activeStatus.push({effect, endsAt: now + duration});
                     setTimeout(() => {
                         player.damageBoostActive = false;
                         player.damageMultiplier = 1;
-                    }, 7000); // lasts 7s
+                    }, duration); // lasts 7s
                 }
                 break;
         }
+    }
+
+    drawActiveStatus() {
+        const now = millis();
+
+        // Remove expired statuses
+        this.activeStatus = this.activeStatus.filter(s => s.endsAt > now);
+
+        // Draw top-down, earliest picked first
+        let iconX = 20;
+        let iconY = 700;
+        let spacing = 75;
+
+        this.activeStatus.forEach((s, i) => {
+            let icon;
+            switch(s.effect) {
+                case 1: icon = speedStatus; break;
+                case 3: icon = shieldStatus; break;
+                case 4: icon = damageStatus; break;
+                default: return; // skip health, no icon
+            }
+            image(icon, iconX, iconY + i * spacing, 60, 60);
+        });
     }
 
     /**

@@ -92,10 +92,4 @@ class PowerUpHitbox {
     checkCollision(playerHitbox) {
         return playerHitbox.playerHitCircle(this.x, this.y, this.r);
     }
-
-    /**
-     * NOT YET IMPLEMENTED
-     */
-    activate() {
-    }
 }

@@ -166,6 +166,11 @@ function preload() {
   shieldBoost = loadImage('Assets/power_shield.png');
   damageBoost = loadImage('Assets/power_damage.png');
   shieldDome = loadImage('Assets/shield_dome.png');
+
+  // Load PowerUP status symbols
+  speedStatus = loadImage('Assets/status_speed.png');
+  shieldStatus = loadImage('Assets/status_shield.png');
+  damageStatus = loadImage('Assets/status_damage.png');
 }
 
 /**
@@ -471,6 +476,9 @@ function draw() {
       boss.draw();
     }
     pop();
+
+    // draw powerUp statuses
+    levelCreate.drawActiveStatus();
 
     health.healthDraw(); // outside of push-pop so health is fixed to screen
 
