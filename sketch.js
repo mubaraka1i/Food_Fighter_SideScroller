@@ -45,6 +45,7 @@ let speedBoost, healthBoost, shieldBoost, damageBoost, shieldDome;
 let level1BackgroundImg, level2BackgroundImg, level3BackgroundImg, level4BackgroundImg, level5BackgroundImg;
 let chefHat;
 let title, death, tutorial;
+let hp, hpDec, hpInc, num_G, num_R;
 
 /**
  * Preloads all images that are used.
@@ -54,6 +55,13 @@ function preload() {
   death = loadImage('Assets/gameoverscreen.png');
   tutorial = loadImage('Assets/tutorialscreen.png');
   chefHat = loadImage('Assets/chef_health.png');
+
+  // Load HP:, hpInc, hpDec, and letters
+  hp = loadImage('Assets/hp_G.png'); // "HP:"
+  hpDec = loadImage('Assets/hpDecNoti.png'); // plus sign
+  hpInc = loadImage('Assets/hpIncNoti.png'); // minus sign
+  num_G = loadImage('Assets/num_G.png'); // green numbers
+  num_R = loadImage('Assets/num_R.png'); // red numbers
 
   // Load background images
   level1BackgroundImg = loadImage('Assets/Kitchen1.png');
@@ -168,7 +176,8 @@ function setup() {
 
   player = new Chef(50, 0, chefSprites);
   playerShoots = new PlayerShoots();
-  health = new ChefHealth(50, chefHat);
+  health = new ChefHealth(50, chefHat, hpDec, hpInc, hp, num_G, num_R);
+  health.setPlayer(player);
   playerHitbox = new ChefHitbox(player, showHitboxes);
   titleScrn = new TitleScreen(0);
   deathScrn = new TitleScreen(1);
@@ -225,6 +234,7 @@ function loadLevel(levelNumber) {
   player.y = 0;
   player.velocityY = 0;
   enemySpawnTimer = 0;
+  health.setPlayer(player);
 
   // CLEAR ALL BULLETS WHEN STARTING NEW LEVEL
   if (playerShoots) {
