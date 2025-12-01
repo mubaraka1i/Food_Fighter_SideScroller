@@ -273,28 +273,43 @@ class LevelCreator {
         }
     }
 
+    /**
+     * Draws active power-up status icons at the bottom left of the screen.
+     */
     drawActiveStatus() {
-        const now = millis();
+        let xPos = 50;
+        let yPos = height - 100;
+        let iconSize = 40;
+        let spacing = 50;
 
-        // Remove expired statuses
-        this.activeStatus = this.activeStatus.filter(s => s.endsAt > now);
-
-        // Draw top-down, earliest picked first
-        let iconX = 20;
-        let iconY = 700;
-        let spacing = 75;
-
-        this.activeStatus.forEach((s, i) => {
-            let icon;
-            switch(s.effect) {
-                case 1: icon = speedStatus; break;
-                case 3: icon = shieldStatus; break;
-                case 4: icon = damageStatus; break;
-                default: return; // skip health, no icon
+        // Draw speed boost status if active
+        if (player && player.speed > 5) {
+            if (speedStatus) {
+                imageMode(CORNER);
+                image(speedStatus, xPos, yPos, iconSize, iconSize);
             }
-            image(icon, iconX, iconY + i * spacing, 60, 60);
-        });
+            xPos += spacing;
+        }
+
+        // Draw shield status if active
+        if (player && player.shieldActive) {
+            if (shieldStatus) {
+                imageMode(CORNER);
+                image(shieldStatus, xPos, yPos, iconSize, iconSize);
+            }
+            xPos += spacing;
+        }
+
+        // Draw damage boost status if active
+        if (player && player.damageBoostActive) {
+            if (damageStatus) {
+                imageMode(CORNER);
+                image(damageStatus, xPos, yPos, iconSize, iconSize);
+            }
+            xPos += spacing;
+        }
     }
+
 
     /**
      * Draws ALL power ups to the screen.
