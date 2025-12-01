@@ -263,7 +263,7 @@ function loadLevel(levelNumber) {
 
   switch(levelNumber) {
     case 1:
-      ammo = Math.round(10 / currentLevel); // Will be 10
+      ammo = Math.round(12 - currentLevel); // Will be 11
       levelWidth = 3000;
       bossSpawnPosition = 2500;
       enemySpawnRate = 120; // 2 seconds at 60fps
@@ -277,7 +277,7 @@ function loadLevel(levelNumber) {
       powerList = levelCreate.powerList; // Use the powerList from levelCreate
       break;
     case 2:
-      ammo = Math.round(10 / currentLevel); // Will be 5
+      ammo = Math.round(12 - currentLevel); // Will be 10
       levelWidth = 7000; 
       bossSpawnPosition = 6500;
       enemySpawnRate = 90; // 1.5 seconds at 60fps
@@ -291,7 +291,7 @@ function loadLevel(levelNumber) {
       powerList = levelCreate.powerList;
       break;
     case 3:
-      ammo = Math.round(10 / currentLevel); // Will be 3
+      ammo = Math.round(12 - currentLevel); // Will be 9
       levelWidth = 7000;
       bossSpawnPosition = 6500;
       enemySpawnRate = 60; // 1 seconds at 60fps
@@ -305,7 +305,7 @@ function loadLevel(levelNumber) {
       powerList = levelCreate.powerList;
       break;
     case 4:
-      ammo = Math.round(10 / currentLevel); // Will be 3
+      ammo = Math.round(12 - currentLevel); // Will be 8
       levelWidth = 8000; // Soda level
       bossSpawnPosition = 7500;
       enemySpawnRate = 45; // 0.75 seconds at 60fps
@@ -320,7 +320,7 @@ function loadLevel(levelNumber) {
       break;
     // --- NEW: Case 5 ---
     case 5:
-      ammo = Math.round(10 / currentLevel); // Will be 2
+      ammo = Math.round(12 - currentLevel); // Will be 7
       levelWidth = 8000; // Cake level
       bossSpawnPosition = 7500;
       enemySpawnRate = 30; // 0.5 seconds at 60fps
@@ -595,7 +595,7 @@ function draw() {
 function ammoReload() {
   setTimeout(() => { 
     // Round to nearest whole number
-    ammo = Math.round(10 / currentLevel);
+    ammo = Math.round(12 - currentLevel);
     canShoot = true;
   }, 1000);
 }
