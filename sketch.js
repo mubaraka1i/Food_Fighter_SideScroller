@@ -31,6 +31,8 @@ let reloadingTime;
 let boss;
 let bossActive = false;
 
+let debugMode;
+
 // Enemy spawn variables
 let enemySpawnRate; // Frames between enemy spawns
 let enemySpawnTimer = 0;
@@ -206,6 +208,8 @@ function setup() {
   canShoot = true;
   reloadingTime = 2000;
 
+  debugMode = new DebugMode();
+
   loadLevel(1);
 
   document.addEventListener('keydown', (e) => {
@@ -350,6 +354,11 @@ function goToNextLevel() {
  * Spawns the boss when called using the currentLevel number.
  */
 function spawnBoss() {
+  // Check debug mode
+  if (debugMode.active && !debugMode.canSpawnBoss) {
+    return; // Don't spawn boss if disabled in debug mode
+  }
+  
   let bossX = levelWidth - 200; // 200px from the end of the level
   let bossY = height - 175; // On the ground
   
@@ -393,6 +402,11 @@ function spawnPowerUps() {
  * Adds an enemy to the enemies array depending on the currentLevel number if enemySpawnTimer is at least enemySpawnRate.
  */
 function spawnEnemies() {
+  // Check debug mode
+  if (debugMode.active && !debugMode.canSpawnFlying && !debugMode.canSpawnGround) {
+    return; // Don't spawn any enemies if both are disabled in debug mode
+  }
+  
   if (!bossActive) {
     enemySpawnTimer++;
     
@@ -401,6 +415,12 @@ function spawnEnemies() {
       
       if (random() < 0.5) {
         // Ground enemy (minion) for current level
+        if (debugMode.active && !debugMode.canSpawnGround) {
+          // Skip ground enemies if disabled in debug mode
+          enemySpawnTimer = 0;
+          return;
+        }
+        
         let spritesArray;
         switch (currentLevel) {
           case 1: spritesArray = cupcakeCandleSprites; break;
@@ -409,10 +429,15 @@ function spawnEnemies() {
           case 4: spritesArray = sodaBubbleSprites; break;
           case 5: spritesArray = cakeCrumbSprites; break;
         }
-        // FIXED: Remove the spawnY parameter assignment syntax
         enemiesArray.push(new GroundEnemies(spawnX, height-90, spritesArray));
       } else {
         // Flying enemy remains unchanged
+        if (debugMode.active && !debugMode.canSpawnFlying) {
+          // Skip flying enemies if disabled in debug mode
+          enemySpawnTimer = 0;
+          return;
+        }
+        
         enemiesArray.push(new FlyingEnemies(spawnX, random(100, height / 2)));
       }
       
@@ -509,6 +534,8 @@ function draw() {
     }
     pop();
 
+    debugMode.draw();
+
     // draw powerUp statuses
     levelCreate.drawActiveStatus();
 
@@ -572,12 +599,19 @@ function ammoReload() {
  * @returns {boolean} false to prevent default browser behavior
  */
 function keyPressed() {
+  // Debug mode sequence checking
+  debugMode.checkSequence(key);
+  
+  // Handle debug mode commands
+  debugMode.handleKey(key);
+  
   // Toggle tutorial on title screen
-  if (key === '1') {
+  if (key === '1' && !debugMode.active) { // Only handle '1' for tutorial if not in debug mode
     if (titleScrn.visible) {
       showControls = !showControls; // toggle tutorial visibility
     }
   }
+  
   // Single-trigger keys
   if (key === 'Enter') {
     if (titleScrn.visible && !showControls) { // Only start game if tutorial is not visible
@@ -589,15 +623,8 @@ function keyPressed() {
       restartGame();
     }
   }
-  // Restart game after seeing Stat Screen
-  if (statScrn.visible && key === 'Enter') {
-        statScrn.visible = false;
-        completeGameReset();  // this will bring player back to level 1
-        playInitiated = true;
-    }
   return false;
 }
-
 /**
  * Completely reset the game to level 1.
  */

@@ -11,6 +11,44 @@ class SodaBoss extends Boss {
         this.maxHealth = 35;
         this.minionSpawnInterval = 180;
         this.maxMinions = 3;
+        
+        // Customize jump for SodaBoss
+        this.jumpInterval = 240; // 4 seconds between jumps
+        this.jumpChance = 0.004; // 0.4% chance per frame
+        this.jumpHeight = 250; // Lower jump
+        this.jumpSpeed = 0.015; // Slower jump
+    }
+
+    /**
+     * Override jump trail drawing for SodaBoss
+     */
+    drawJumpTrail() {
+        push();
+        noFill();
+        stroke(0, 150, 255, 100); // Blue trail for soda
+        strokeWeight(4);
+        
+        // Draw bubbles as trail
+        for (let i = 0; i < 5; i++) {
+            const trailProgress = this.jumpProgress - i * 0.05;
+            if (trailProgress > 0) {
+                const trailX = lerp(this.jumpStartX, this.jumpTargetX, trailProgress);
+                const t = trailProgress;
+                let trailY;
+                
+                const peak = 0.5;
+                if (t < peak) {
+                    const normalizedT = t / peak;
+                    trailY = this.jumpStartY - this.jumpHeight * (1 - (1 - normalizedT) * (1 - normalizedT));
+                } else {
+                    const normalizedT = (t - peak) / (1 - peak);
+                    trailY = this.jumpStartY - this.jumpHeight * (1 - normalizedT * normalizedT);
+                }
+                
+                circle(trailX + this.width/2, trailY + this.height/2, 20 + i * 5);
+            }
+        }
+        pop();
     }
 
     /**

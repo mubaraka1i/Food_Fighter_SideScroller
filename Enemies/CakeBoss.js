@@ -1,20 +1,93 @@
-// Placeholder for Level 5 Boss
-class CakeBoss extends Boss { // Inherits from OriginalBoss for now
+class CakeBoss extends Boss {
     /**
-     * Creates the cake boss in level 5 and draws it. (PLACEHOLDER)
+     * Creates the cake boss in level 5 and draws it.
      * 
      * @param {number} x top left corner x coordinate of the boss
      * @param {number} y top left corner y coordinate of the boss
      */
     constructor(x, y) {
-        super(x, y, 'cake', cakeBoss.idle); // Calls the constructor of OriginalBoss
-        this.width = 200; // Bigger!
+        super(x, y, 'cake', cakeBoss.idle);
+        this.width = 200;
         this.height = 200;
-        this.y = height - this.height; // Adjust Y for new height
-        this.health = 50; // Final boss health
+        this.y = height - this.height;
+        this.health = 50;
         this.maxHealth = 50; 
         this.minionSpawnInterval = 150;
         this.maxMinions = 4;
+        
+        // Customize jump for CakeBoss
+        this.jumpInterval = 180; // 3 seconds between jumps
+        this.jumpChance = 0.005; // 0.5% chance per frame
+        this.jumpHeight = 350; // Higher jump for bigger boss
+        this.jumpSpeed = 0.012; // Even slower jump for dramatic effect
+    }
+
+    /**
+     * Override jump trail drawing for CakeBoss
+     */
+    drawJumpTrail() {
+        push();
+        noFill();
+        stroke(255, 105, 180, 100); // Pink trail for cake
+        strokeWeight(6);
+        
+        // Draw sprinkles as trail
+        for (let i = 0; i < 8; i++) {
+            const trailProgress = this.jumpProgress - i * 0.03;
+            if (trailProgress > 0) {
+                const trailX = lerp(this.jumpStartX, this.jumpTargetX, trailProgress);
+                const t = trailProgress;
+                let trailY;
+                
+                const peak = 0.5;
+                if (t < peak) {
+                    const normalizedT = t / peak;
+                    trailY = this.jumpStartY - this.jumpHeight * (1 - (1 - normalizedT) * (1 - normalizedT));
+                } else {
+                    const normalizedT = (t - peak) / (1 - peak);
+                    trailY = this.jumpStartY - this.jumpHeight * (1 - normalizedT * normalizedT);
+                }
+                
+                // Draw sprinkle at trail position
+                fill(random(255), random(255), random(255), 200);
+                noStroke();
+                rect(trailX + this.width/2 + random(-10, 10), 
+                     trailY + this.height/2 + random(-10, 10), 
+                     8, 8);
+            }
+        }
+        pop();
+    }
+
+    /**
+     * Override invulnerability effect for CakeBoss
+     */
+    drawInvulnerabilityEffect() {
+        push();
+        noFill();
+        stroke(255, 215, 0, 150); // Gold outline for cake boss
+        strokeWeight(6);
+        rect(this.x - 8, this.y - 8, this.width + 16, this.height + 16);
+        
+        // Draw "FINAL BOSS" text
+        fill(255, 215, 0, 200);
+        noStroke();
+        textAlign(CENTER);
+        textSize(18);
+        textStyle(BOLD);
+        text("FINAL BOSS - INVULNERABLE", this.x + this.width / 2, this.y - 25);
+        
+        // Draw birthday candle flames around the boss
+        for (let i = 0; i < 8; i++) {
+            const angle = (TWO_PI / 8) * i + frameCount * 0.1;
+            const radius = this.width / 2 + 20;
+            const flameX = this.x + this.width / 2 + cos(angle) * radius;
+            const flameY = this.y + this.height / 2 + sin(angle) * radius;
+            
+            fill(255, random(150, 255), 0, 200);
+            ellipse(flameX, flameY, 15, 20);
+        }
+        pop();
     }
 
     /**
