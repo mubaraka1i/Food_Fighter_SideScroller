@@ -496,10 +496,10 @@ function draw() {
 
     if (ammo >= 1 && canShoot) {
       handleControls();
-      text("Ammo: " + ammo, 50, height - 50);
+      //text("Ammo: " + ammo, 50, height - 50);
     } else {
       canShoot = false;
-      text("Reloading...", 50, height - 50);
+      //text("Reloading...", 50, height - 50);
       ammoReload();
     }
 
@@ -533,6 +533,12 @@ function draw() {
       boss.draw();
     }
     pop();
+
+    if (ammo >= 1 && canShoot) {
+      text("Ammo: " + ammo, 50, height - 50);
+    } else {
+      text("Reloading...", 50, height - 50);
+    }
 
     debugMode.draw();
 
