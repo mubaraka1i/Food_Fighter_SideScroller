@@ -629,6 +629,12 @@ function keyPressed() {
     } else if (deathScrn.visible) {
       restartGame();
     }
+    // Restart game after seeing Stat Screen
+    if (statScrn.visible && key === 'Enter') 
+    { 
+      statScrn.visible = false;
+      completeGameReset(); // this will bring player back to level 1 
+    }
   }
   return false;
 }
