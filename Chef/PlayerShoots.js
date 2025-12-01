@@ -25,8 +25,11 @@ class PlayerShoots {
       // Remove bullets that go off the level 
       if (this.bullets[i].x > levelWidth || this.bullets[i].x < 0 || 
           this.bullets[i].y > height || this.bullets[i].y < 0) {
+        // Only count as missed if the bullet hasn't been marked as hitting something
+        if (!this.bullets[i].hasHit) {
+          gameStats.shotsMissed++;
+        }
         this.bullets.splice(i, 1);
-        gameStats.shotsMissed++;
         continue;
       }
     }
@@ -56,7 +59,8 @@ class PlayerShoots {
       speedX: shootInfo.speedX,
       speedY: shootInfo.speedY,
       size: 15,
-      direction: shootInfo.direction
+      direction: shootInfo.direction,
+      hasHit: false // NEW: track if this bullet has hit something
     });
 
     player.startShooting(ammo);

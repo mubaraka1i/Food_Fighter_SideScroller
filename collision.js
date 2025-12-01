@@ -18,6 +18,7 @@ function checkCollisions() {
         if (!player.shieldActive) {
           player.takeDamage();
           health.healthDec(10);
+          gameStats.damageTaken += 10; // TRACK DAMAGE TAKEN
         }
         enemiesArray.splice(i, 1);
         gameStats.enemiesKilled++;
@@ -29,6 +30,7 @@ function checkCollisions() {
         if (!player.shieldActive) {
           player.takeDamage();
           health.healthDec(10);
+          gameStats.damageTaken += 10; // TRACK DAMAGE TAKEN
         }
         enemiesArray.splice(i, 1);
         gameStats.enemiesKilled++;
@@ -45,6 +47,7 @@ function checkCollisions() {
         if (!player.shieldActive) {
           player.takeDamage();
           health.healthDec(5); // Less damage than regular enemies
+          gameStats.damageTaken += 5; // TRACK DAMAGE TAKEN
         }
         enemiesArray.splice(i, 1); // Remove minion on contact
         gameStats.enemiesKilled++;
@@ -77,6 +80,7 @@ function checkCollisions() {
         
         if (hit) {
           enemy.takeDamage(1); // Minions have takeDamage method
+          bullets[j].hasHit = true; 
           bullets.splice(j, 1);
           gameStats.shotsHit++;
           gameStats.damageDone += 1;
@@ -92,6 +96,9 @@ function checkCollisions() {
       if (hit && !isMinion) {
         enemiesArray.splice(i, 1);
         gameStats.enemiesKilled++;
+        gameStats.shotsHit++;
+        gameStats.damageDone += 1;
+        bullets[j].hasHit = true; 
         bullets.splice(j, 1);
         break; 
       }
@@ -107,6 +114,7 @@ function checkCollisions() {
       if (!player.shieldActive) {
         player.takeDamage();
         health.healthDec(1);
+        gameStats.damageTaken += 1; // TRACK DAMAGE TAKEN FROM BOSS
       }
     }
 
@@ -115,7 +123,10 @@ function checkCollisions() {
       const bullet = bullets[j];
       if (collideRectCircle(bossHB.x, bossHB.y, bossHB.w, bossHB.h, bullet.x, bullet.y, bullet.size)) {
         boss.takeDamage(1);
+        bullets[j].hasHit = true; 
         bullets.splice(j, 1);
+        gameStats.shotsHit++; // TRACK BOSS HIT
+        gameStats.damageDone += 1; // TRACK BOSS DAMAGE
         
         if (boss.getHealth() <= 0) {
           bossActive = false;
@@ -138,6 +149,7 @@ function checkCollisions() {
         if (!player.shieldActive) {
           player.takeDamage();
           health.healthDec(1);
+          gameStats.damageTaken += 1; // TRACK DAMAGE FROM BOSS PROJECTILES
         }
         bossProjectiles.splice(k, 1);
       }

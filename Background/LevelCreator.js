@@ -200,14 +200,7 @@ class LevelCreator {
         return false;
     }
 
-    /**
-     * Finds if the player has touched a power up in powerList and calls applyPowerUpEffect if reached.
-     * 
-     * @param {PlayerHitbox} playerHitbox 
-     * @returns {number} the effect if reached, null otherwise
-     */
     powerUpReached(playerHitbox) {
-        gameStats.powerUpsUsed++;
         for (let i = this.powerList.length - 1; i >= 0; i--) {
             let powerUp = this.powerList[i]; // {powerUpHitbox} powerup;
             if (powerUp.checkCollision(playerHitbox)) {
@@ -218,6 +211,9 @@ class LevelCreator {
 
                 this.powerList.splice(i, 1); // removes the powerUp from the list
                 this.applyPowerUpEffect(effect);
+                
+                // INCREMENT STAT HERE - only when power-up is actually collected
+                gameStats.powerUpsUsed++;
                 return effect;
             }
         }
@@ -240,41 +236,38 @@ class LevelCreator {
      * @param {number} effect 1-4, dictates the effect that is applied to the player
      */
     applyPowerUpEffect(effect) {
-        const now = millis();
         switch(effect) {
             case 1: // speed boost
                 if (player.speed <= 5) { // prevents stacking
                     player.speed += 2;
-                    const duration = 10000; // 10s
-                    this.activeStatus.push({effect, endsAt: now + duration});
-                    setTimeout(() => { player.speed -= 2; }, duration); // speed goes to normal after 10 seconds
+                    setTimeout(() => { player.speed -= 2; }, 10000); // speed goes to normal after 10 seconds
                 }
                 break;
             case 2: // health boost
                 if (health.getHealth() < 50) { // prevents over fill of HP
+                    let healAmount;
                     if (health.getHealth() + 10 <= 50) {
-                        health.healthInc(10);
+                        healAmount = 10;
                     } else {
-                        health.healthInc(50 - health.getHealth()); // sets health to 50
+                        healAmount = 50 - health.getHealth(); // sets health to 50
                     }
+                    health.healthInc(healAmount);
+                    gameStats.healthHealed += healAmount; // TRACK HEALTH HEALED
                 }
                 break;
             case 3: // protection boost
                 if (!player.shieldActive) {
                     player.activateShield();
-                    this.activeStatus.push({effect, endsAt: now + player.shieldDuration});
                 }
                 break;
             case 4: // damage boost
                 if (!player.damageBoostActive) {
                     player.damageBoostActive = true;
                     player.damageMultiplier = 2; // double damage
-                    const duration = 7000; // 7s
-                    this.activeStatus.push({effect, endsAt: now + duration});
                     setTimeout(() => {
                         player.damageBoostActive = false;
                         player.damageMultiplier = 1;
-                    }, duration); // lasts 7s
+                    }, 7000); // lasts 7s
                 }
                 break;
         }
