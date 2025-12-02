@@ -200,6 +200,12 @@ class LevelCreator {
         return false;
     }
 
+    /**
+     * Checks if a player has reached a power up.
+     * 
+     * @param {ChefHitbox} playerHitbox hitbox to check with the powerUps
+     * @returns {number} effect (1-4) if reached
+     */
     powerUpReached(playerHitbox) {
         for (let i = this.powerList.length - 1; i >= 0; i--) {
             let powerUp = this.powerList[i]; // {powerUpHitbox} powerup;

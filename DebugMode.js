@@ -1,4 +1,7 @@
 class DebugMode {
+    /**
+     * Creates a object of the DebugMode class.
+     */
     constructor() {
         this.active = false;
         this.keySequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight'];

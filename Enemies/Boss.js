@@ -279,10 +279,9 @@ class Boss {
   }
 
   /**
-   * NOT YET IMPLEMENTED.
+   * Default minion spawning - can be overriden
    */
   spawnMinions() {
-    // Default minion spawning - can be overridden
     // Child classes can add their own minions to enemiesArray
   }
 

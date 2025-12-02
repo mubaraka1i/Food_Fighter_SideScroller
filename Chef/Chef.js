@@ -68,7 +68,7 @@ class Chef {
 
   /**
    * Updates the collision responses for player's position.
-   * * @param {Object} currentLayout: LevelLayout object, the layout of the current level
+   * @param {Object} currentLayout: LevelLayout object, the layout of the current level
    */
   update(currentLayout) {
     // Update shield timer first
@@ -189,18 +189,32 @@ class Chef {
     pop();
   }
 
+  /**
+   * Sets isMovingLeft to isPressed
+   * @param {boolean} isPressed true if should be moving left, false if not
+   */
   moveLeft(isPressed) {
     this.isMovingLeft = isPressed;
   }
 
+  /**
+   * Sets isMovingRight to isPressed
+   * @param {boolean} isPressed true if should be moving right, false if not
+   */
   moveRight(isPressed) {
     this.isMovingRight = isPressed;
   }
 
+  /**
+   * @returns {number} player x position
+   */
   currentX(){
     return this.x;
   }
 
+  /**
+   * @returns {number} player y position
+   */
   currentY(){
     return this.y;
   }

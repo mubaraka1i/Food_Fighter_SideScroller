@@ -58,7 +58,8 @@ let gameStats = {
     powerUpsUsed: 0,
     damageDone: 0,
     damageTaken: 0,
-    healthHealed: 0
+    healthHealed: 0,
+    levelReached: 0
 };
 
 /**
@@ -247,6 +248,7 @@ function loadLevel(levelNumber) {
   obstaclesInitialized = false;
   enemiesArray = [];
   powerList = [];
+  gameStats.levelReached = 0;
   boss = null;
   bossActive = false;
   cameraX = 0;
@@ -458,6 +460,11 @@ function handleControls() {
   }
 }
 
+/**
+ * Draws the player stats on the screen.
+ * 
+ * @param {Set} statsObj a set of player stats
+ */
 function drawStats(statsObj) {
     let startX = 300;
     let startY = 275;
@@ -484,6 +491,10 @@ function drawStats(statsObj) {
  */
 function draw() {
   if (playInitiated) {
+    if (player.currentX() > gameStats.levelReached) {
+      gameStats.levelReached = player.currentX();
+    }
+
     cameraX = player.currentX() - width / 2;
     cameraX = constrain(cameraX, 0, levelWidth - width);
 
@@ -539,6 +550,13 @@ function draw() {
     } else {
       text("Reloading...", 50, height - 50);
     }
+
+    let percentage = floor(gameStats.levelReached / bossSpawnPosition * 100);
+    if (percentage > 100) {
+      percentage = 100;
+    }
+
+    text("Level Reached: " + percentage + "%", width - 125, 25);
 
     debugMode.draw();
 
