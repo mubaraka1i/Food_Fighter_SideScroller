@@ -259,7 +259,7 @@ function loadLevel(levelNumber) {
   enemySpawnTimer = 0;
   health.setPlayer(player);
 
-  // Initialize ammo
+  // Initialize ammo (calculate based on level number)
   ammo = Math.round(12 - levelNumber);
   canShoot = true;
   isReloading = false;
@@ -272,7 +272,6 @@ function loadLevel(levelNumber) {
 
   switch(levelNumber) {
     case 1:
-      ammo = Math.round(12 - currentLevel); // Will be 11
       levelWidth = 3000;
       bossSpawnPosition = 2500;
       enemySpawnRate = 120; // 2 seconds at 60fps
@@ -286,7 +285,6 @@ function loadLevel(levelNumber) {
       powerList = levelCreate.powerList; // Use the powerList from levelCreate
       break;
     case 2:
-      ammo = Math.round(12 - currentLevel); // Will be 10
       levelWidth = 7000; 
       bossSpawnPosition = 6500;
       enemySpawnRate = 90; // 1.5 seconds at 60fps
@@ -300,7 +298,6 @@ function loadLevel(levelNumber) {
       powerList = levelCreate.powerList;
       break;
     case 3:
-      ammo = Math.round(12 - currentLevel); // Will be 9
       levelWidth = 7000;
       bossSpawnPosition = 6500;
       enemySpawnRate = 60; // 1 seconds at 60fps
@@ -314,7 +311,6 @@ function loadLevel(levelNumber) {
       powerList = levelCreate.powerList;
       break;
     case 4:
-      ammo = Math.round(12 - currentLevel); // Will be 8
       levelWidth = 8000; // Soda level
       bossSpawnPosition = 7500;
       enemySpawnRate = 45; // 0.75 seconds at 60fps
@@ -329,7 +325,6 @@ function loadLevel(levelNumber) {
       break;
     // --- NEW: Case 5 ---
     case 5:
-      ammo = Math.round(12 - currentLevel); // Will be 7
       levelWidth = 8000; // Cake level
       bossSpawnPosition = 7500;
       enemySpawnRate = 30; // 0.5 seconds at 60fps
@@ -494,6 +489,18 @@ function completeReloading() {
   ammo = Math.round(12 - currentLevel);
 }
 
+function ammoReload() {
+  // Only handle reloading if we're currently reloading
+  if (isReloading && reloadStartTime) {
+    let timeSinceReload = millis() - reloadStartTime;
+    
+    // Check if reload time has passed
+    if (timeSinceReload >= reloadingTime) {
+      completeReloading();
+    }
+  }
+}
+
 /**
  * Draws the player stats on the screen.
  * 
@@ -539,12 +546,10 @@ function draw() {
     translate(-cameraX, 0);
     if(currentBackground) currentBackground.draw(cameraX);
 
-    if (ammo >= 1 && canShoot && !isReloading) {
+    // Handle shooting controls
+    if (ammo > 0 && canShoot && !isReloading) {
       handleControls();
-      //text("Ammo: " + ammo, 50, height - 50);
     } else {
-      //canShoot = false;
-      //text("Reloading...", 50, height - 50);
       ammoReload();
     }
 
@@ -579,32 +584,42 @@ function draw() {
     }
     pop();
 
-  if (!isReloading && ammo > 0) {
-    text("Ammo: " + ammo, 50, height - 50);
-  } else if (isReloading) {
-    // Show reload progress
-    let progress = (millis() - reloadStartTime) / reloadingTime;
-    let progressBarWidth = 100;
-    let progressX = 50;
-    let progressY = height - 40;
+    // Draw ammo display with proper text settings
+    push(); // Save current drawing state
+    textSize(16); // Set consistent text size
+    textAlign(LEFT, CENTER);
     
-    // Draw reload progress bar
-    fill(100);
-    rect(progressX, progressY, progressBarWidth, 10);
-    fill(0, 255, 0);
-    rect(progressX, progressY, progressBarWidth * progress, 10);
-    
-    text("Reloading...", 50, height - 50);
-  } else {
-    text("Ammo: " + ammo, 50, height - 50);
-  }
+    if (!isReloading && ammo > 0) {
+      text("Ammo: " + ammo, 50, height - 45);
+    } else if (isReloading) {
+      // Show reload progress
+      let progress = (millis() - reloadStartTime) / reloadingTime;
+      let progressBarWidth = 100;
+      let progressX = 50;
+      let progressY = height - 35;
+      
+      // Draw reload progress bar
+      fill(100);
+      rect(progressX, progressY, progressBarWidth, 10);
+      fill(0, 255, 0);
+      rect(progressX, progressY, progressBarWidth * progress, 10);
+      
+      text("Reloading...", 50, height - 55);
+    } else {
+      text("Ammo: " + ammo, 50, height - 45);
+    }
+    pop(); // Restore drawing state
 
+    // Draw level progress
+    push();
+    textSize(16);
+    textAlign(RIGHT, TOP);
     let percentage = floor(gameStats.levelReached / bossSpawnPosition * 100);
     if (percentage > 100) {
       percentage = 100;
     }
-
-    text("Level Reached: " + percentage + "%", width - 125, 25);
+    text("Level Reached: " + percentage + "%", width - 50, 25);
+    pop();
 
     debugMode.draw();
 
@@ -658,18 +673,6 @@ function draw() {
   }
 }
 
-function ammoReload() {
-  // Only handle reloading if we're currently reloading
-  if (isReloading && reloadStartTime) {
-    let timeSinceReload = millis() - reloadStartTime;
-    
-    // Check if reload time has passed
-    if (timeSinceReload >= reloadingTime) {
-      completeReloading();
-    }
-  }
-}
-
 /**
  * Called if a keyboard button is pressed by the player.
  * 
@@ -708,16 +711,23 @@ function keyPressed() {
   }
   return false;
 }
+
 /**
  * Completely reset the game to level 1.
  */
 function completeGameReset() {
-
-  // Reset ammo and reload state
-  ammo = Math.round(12 - 1); // Level 1 ammo
-  canShoot = true;
-  isReloading = false;
-  reloadStartTime = null;
+  // Reset ALL game stats when starting a new game
+  gameStats = {
+    shotsFired: 0,
+    shotsMissed: 0,
+    shotsHit: 0,
+    enemiesKilled: 0,
+    powerUpsUsed: 0,
+    damageDone: 0,
+    damageTaken: 0,
+    healthHealed: 0,
+    levelReached: 0
+  };
 
   // Reset to level 1
   currentLevel = 1;
@@ -746,6 +756,11 @@ function completeGameReset() {
     health.health = 50;
   }
   
+  // Reset ammo and reload state (will be set properly in loadLevel)
+  canShoot = true;
+  isReloading = false;
+  reloadStartTime = null;
+  
   // Reset screens
   playInitiated = false;
   titleScrn.visible = true;
@@ -757,7 +772,7 @@ function completeGameReset() {
     keys[key] = false;
   }
   
-  // Load level 1 to reset obstacles and layout
+  // Load level 1 to reset obstacles and layout (this will also set ammo)
   loadLevel(1);
 }
 
@@ -765,6 +780,8 @@ function completeGameReset() {
  * Restarts the current level.
  */
 function restartGame() {
+  // Reset only the levelReached stat when player dies
+  gameStats.levelReached = 0;
 
   // Reset ammo and reload state
   ammo = Math.round(12 - currentLevel);
