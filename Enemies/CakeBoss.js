@@ -60,37 +60,6 @@ class CakeBoss extends Boss {
     }
 
     /**
-     * Override invulnerability effect for CakeBoss
-     */
-    drawInvulnerabilityEffect() {
-        push();
-        noFill();
-        stroke(255, 215, 0, 150); // Gold outline for cake boss
-        strokeWeight(6);
-        rect(this.x - 8, this.y - 8, this.width + 16, this.height + 16);
-        
-        // Draw "FINAL BOSS" text
-        fill(255, 215, 0, 200);
-        noStroke();
-        textAlign(CENTER);
-        textSize(18);
-        textStyle(BOLD);
-        text("FINAL BOSS - INVULNERABLE", this.x + this.width / 2, this.y - 25);
-        
-        // Draw birthday candle flames around the boss
-        for (let i = 0; i < 8; i++) {
-            const angle = (TWO_PI / 8) * i + frameCount * 0.1;
-            const radius = this.width / 2 + 20;
-            const flameX = this.x + this.width / 2 + cos(angle) * radius;
-            const flameY = this.y + this.height / 2 + sin(angle) * radius;
-            
-            fill(255, random(150, 255), 0, 200);
-            ellipse(flameX, flameY, 15, 20);
-        }
-        pop();
-    }
-
-    /**
     * Shoots a projectile at the player's coordiantes.
     * 
     * @param {number} playerX x value to shoot at

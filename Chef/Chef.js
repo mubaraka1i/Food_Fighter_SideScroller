@@ -48,13 +48,16 @@ class Chef {
     this.isMovingLeft = keys['a'] || keys['arrowleft'];
     this.isMovingRight = keys['d'] || keys['arrowright'];
 
-    // Ducking
+    // Ducking input
     if (keys['s'] || keys['arrowdown']) {
       this.duck(); // <--- ADD THIS: Tell the Chef to duck
       playerHitbox.duck(); // Keep this for the visual green box
     } else {
-      this.cancelDuck(); // <--- ADD THIS: Tell the Chef to stand up
-      playerHitbox.cancelDuck();
+      // Only try to stand up when duck key is released AND we're not automatically forced to crouch
+      if (this.isDucking) {
+        this.cancelDuck(); // <--- This now checks if it's safe to stand
+        playerHitbox.cancelDuck();
+      }
     }
 
     // Jumping (Single press)
@@ -71,20 +74,46 @@ class Chef {
    * @param {Object} currentLayout: LevelLayout object, the layout of the current level
    */
   update(currentLayout) {
-    // Update shield timer first
-    this.updateShield();
+  // Update shield timer first
+  this.updateShield();
 
-    let obstacleTracker = (currentLayout && currentLayout.getObstacles()) ? currentLayout.getObstacles() : null;
+  let obstacleTracker = (currentLayout && currentLayout.getObstacles()) ? currentLayout.getObstacles() : null;
 
-    // --- STEP 1: HANDLE X AXIS MOVEMENT ---
-    if (this.isMovingLeft) {
-      this.facingDirection = 'left';
-      this.x -= this.speed;
+  // --- AUTO-CROUCH CHECK: If player is under an obstacle and tries to stand, force crouch ---
+  if (!this.isDucking && obstacleTracker) {
+    // Check if player's head would hit an obstacle if they stood up
+    const headCheckHeight = 20; // How far above the player to check
+    const headCheckX = this.x + (this.width * 0.2); // Check near the head area
+    const headCheckWidth = this.width * 0.6;
+    
+    for (let obstacle of obstacleTracker.getObstacles()) {
+      let obsX = obstacle.topLeft[0];
+      let obsY = obstacle.topLeft[1];
+      let obsW = obstacle.width;
+      let obsH = obstacle.height;
+      
+      // Check if obstacle is above player's head
+      if (obsY + obsH > this.y - headCheckHeight && obsY < this.y &&
+          headCheckX < obsX + obsW && headCheckX + headCheckWidth > obsX) {
+        // Player's head is under an obstacle - force crouch
+        if (!this.isDucking) {
+          this.duck();
+          playerHitbox.duck();
+        }
+        break;
+      }
     }
-    if (this.isMovingRight) {
-      this.facingDirection = 'right';
-      this.x += this.speed;
-    }
+  }
+
+  // --- STEP 1: HANDLE X AXIS MOVEMENT ---
+  if (this.isMovingLeft) {
+    this.facingDirection = 'left';
+    this.x -= this.speed;
+  }
+  if (this.isMovingRight) {
+    this.facingDirection = 'right';
+    this.x += this.speed;
+  }
 
     // Check X Collision immediately after moving X
     if (obstaclesInitialized && obstacleTracker) {
@@ -268,21 +297,70 @@ class Chef {
   }
   
   /**
-   * Moves the player's y coordinate when ducking is done.
+   * Moves the player's y coordinate when ducking is done, but only if safe to stand.
    */
   cancelDuck() {
     if (this.isDucking) {
-      this.isDucking = false;
-      if (this.originalHeight) {
-        const heightDifference = this.originalHeight - this.height;
-        this.y -= heightDifference; // move back up
-        this.height = this.originalHeight;
+      // Check if we can stand up safely
+      let obstacleTracker = (currentLayout && currentLayout.getObstacles()) ? currentLayout.getObstacles() : null;
+      
+      if (this.canStandUp(obstacleTracker)) {
+        this.isDucking = false;
+        if (this.originalHeight) {
+          const heightDifference = this.originalHeight - this.height;
+          this.y -= heightDifference; // move back up
+          this.height = this.originalHeight;
+        } else {
+          // Fallback if originalHeight wasn't set
+          this.height = 150; // Default height
+          this.y = height - this.height; // Reset to ground level
+        }
       } else {
-        // Fallback if originalHeight wasn't set
-        this.height = 150; // Default height
-        this.y = height - this.height; // Reset to ground level
+        // Can't stand up yet - stay crouched
+        // Could add visual feedback here (like a warning shake or sound)
       }
     }
+  }
+
+  /**
+   * Checks if the player can stand up without hitting an obstacle above them
+   * 
+   * @param {Object} obstacleTracker ObstacleTracker object from currentLayout
+   * @returns {boolean} true if player can stand up safely, false if they would collide
+   */
+  canStandUp(obstacleTracker) {
+    if (!obstacleTracker || !obstacleTracker.getObstacles) return true;
+    
+    const obstacles = obstacleTracker.getObstacles();
+    if (!obstacles || obstacles.length === 0) return true;
+    
+    // Calculate the player's standing hitbox position
+    const standingHeight = 150; // Default standing height
+    const standingY = this.y + (this.height - standingHeight); // Move up when standing
+    
+    // Hitbox dimensions for standing
+    const hitWidth = this.width * 0.6;
+    const hitX = this.x + (this.width - hitWidth) / 2;
+    const hitHeight = standingHeight - 18;
+    const hitY = standingY + 18;
+    
+    // Check collision with all obstacles
+    for (let obstacle of obstacles) {
+      let obsX = obstacle.topLeft[0];
+      let obsY = obstacle.topLeft[1];
+      let obsW = obstacle.width;
+      let obsH = obstacle.height;
+      
+      // Check if standing hitbox would collide with this obstacle
+      if (hitX < obsX + obsW &&
+          hitX + hitWidth > obsX &&
+          hitY < obsY + obsH &&
+          hitY + hitHeight > obsY) {
+        return false; // Would collide if standing up
+      }
+    }
+    
+    return true; // Safe to stand up
   }
 
   /**
@@ -318,14 +396,32 @@ class Chef {
    * @returns {Object} {x, y, speedX, speedY, direction}
    */
   getShootInfo() {
-    let shootY = playerHitbox.getCenterY();
-    
-    // Determine X based on facing direction and hitbox
+    // Calculate bullet spawn position - adjust for crouching
+    let shootY;
     let shootX;
-    if (this.facingDirection === 'right') {
-      shootX = playerHitbox.x + playerHitbox.hitWidth; // Right edge of hitbox
+    
+    if (this.isDucking) {
+      // When crouching, shoot from a lower position - adjust the 0.6 value to make it higher or lower
+      // 0.6 = 60% from top, which is fairly low on the crouching sprite
+      // Try values between 0.4 (higher) and 0.8 (lower) to find the right spot
+      shootY = this.y + (this.height * 0.6); // Lower position for crouching
+      
+      // X position based on facing direction - adjust these values too if needed
+      if (this.facingDirection === 'right') {
+        shootX = this.x + this.width * 0.8; // Near the right shoulder
+      } else {
+        shootX = this.x + this.width * 0.2; // Near the left shoulder
+      }
     } else {
-      shootX = playerHitbox.x; // Left edge of hitbox
+      // Use the normal hitbox center when standing
+      shootY = playerHitbox.getCenterY();
+      
+      // X based on facing direction and hitbox
+      if (this.facingDirection === 'right') {
+        shootX = playerHitbox.x + playerHitbox.hitWidth; // Right edge of hitbox
+      } else {
+        shootX = playerHitbox.x; // Left edge of hitbox
+      }
     }
 
     // Calculate mouse position relative to the player (accounting for camera)
@@ -341,9 +437,14 @@ class Chef {
       (this.facingDirection === 'right' && mouseWorldX < shootX) ||
       (this.facingDirection === 'left' && mouseWorldX > shootX);
 
-    // If mouse is on opposite side or very close to player, shoot straight
-    if (isMouseOppositeDirection || (abs(dirX) < 50 && abs(dirY) < 50)) {
-      // Shoot straight in the direction the player is facing
+    // Special handling for crouching: if crouching and mouse is behind, shoot straight
+    if (isMouseOppositeDirection) {
+      // When mouse is behind, shoot straight in facing direction
+      dirX = this.facingDirection === 'right' ? 1 : -1;
+      dirY = 0;
+    }
+    // Also shoot straight if mouse is too close vertically when crouching
+    else if (this.isDucking && abs(dirY) < 30) {
       dirX = this.facingDirection === 'right' ? 1 : -1;
       dirY = 0;
     }
@@ -491,5 +592,11 @@ class Chef {
     this.shieldActive = false;
     this.damageBoostActive = false;
     this.damageMultiplier = 1;
+    
+    // Also update the player hitbox
+    if (playerHitbox) {
+      playerHitbox.cancelDuck();
+      playerHitbox.update();
+    }
   }
 }

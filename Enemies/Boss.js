@@ -321,11 +321,6 @@ class Boss {
         projectile.drawHitbox();
       }
     }
-    
-    // Draw invulnerability indicator during jump
-    if (this.isInvulnerable) {
-      this.drawInvulnerabilityEffect();
-    }
   }
 
     /**
@@ -343,25 +338,6 @@ class Boss {
     const trailY = this.y + this.height / 2;
     
     arc(trailX, trailY, 30, 30, PI, TWO_PI);
-    pop();
-  }
-
-  /**
-   * Draws invulnerability effect during jump
-   */
-  drawInvulnerabilityEffect() {
-    push();
-    noFill();
-    stroke(255, 255, 0, 150);
-    strokeWeight(4);
-    rect(this.x - 5, this.y - 5, this.width + 10, this.height + 10);
-    
-    // Draw "INVULNERABLE" text
-    fill(255, 255, 0, 200);
-    noStroke();
-    textAlign(CENTER);
-    textSize(16);
-    text("INVULNERABLE", this.x + this.width / 2, this.y - 20);
     pop();
   }
 
