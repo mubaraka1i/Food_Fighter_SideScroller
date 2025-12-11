@@ -51,6 +51,9 @@ let chefHat;
 let title, death, tutorial, stats, statInfo;
 let hp, hpDec, hpInc, num_G, num_R, numY;
 
+let gamePaused = false;
+let pauseMenu = null;
+
 // For tracking stats
 let gameStats = {
     shotsFired: 0,
@@ -192,9 +195,6 @@ function preload() {
   damageStatus = loadImage('Assets/status_damage.png');
 }
 
-/**
- * Creates the canvas, sets up global variables and calls loadLevel(1).
- */
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
@@ -207,6 +207,7 @@ function setup() {
   deathScrn = new TitleScreen(1);
   tutorialScrn = new TitleScreen(2);
   statScrn = new TitleScreen(3);
+  pauseMenu = new PauseMenu(); // Add this line
   boss = null;
   canShoot = true;
 
@@ -532,135 +533,206 @@ function drawStats(statsObj) {
  */
 function draw() {
   if (playInitiated) {
-    if (player.currentX() > gameStats.levelReached) {
-      gameStats.levelReached = player.currentX();
-    }
+    if (!gamePaused) {
+      // --- NORMAL GAME LOGIC (when not paused) ---
+      if (player.currentX() > gameStats.levelReached) {
+        gameStats.levelReached = player.currentX();
+      }
 
-    cameraX = player.currentX() - width / 2;
-    cameraX = constrain(cameraX, 0, levelWidth - width);
+      cameraX = player.currentX() - width / 2;
+      cameraX = constrain(cameraX, 0, levelWidth - width);
 
-    background(240, 248, 255);
+      background(240, 248, 255);
 
-    // Draw current level background
-    push();
-    translate(-cameraX, 0);
-    if(currentBackground) currentBackground.draw(cameraX);
+      // Draw current level background
+      push();
+      translate(-cameraX, 0);
+      if(currentBackground) currentBackground.draw(cameraX);
 
-    // Handle shooting controls
-    if (ammo > 0 && canShoot && !isReloading) {
-      handleControls();
-    } else {
-      ammoReload();
-    }
+      // Handle shooting controls
+      if (ammo > 0 && canShoot && !isReloading) {
+        handleControls();
+      } else {
+        ammoReload();
+      }
 
-    player.updateInput(); // constantly update simultaneous input
+      player.updateInput(); // constantly update simultaneous input
 
-    // prevents constant redraw that causes lag
-    if (obstaclesInitialized) {
-      currentLayout.drawObstacles(player.currentX(), width);
-    }
+      // prevents constant redraw that causes lag
+      if (obstaclesInitialized) {
+        currentLayout.drawObstacles(player.currentX(), width);
+      }
 
-    // Draw all game objects in world coordinates
-    player.draw();
-    playerShoots.draw();
-    playerHitbox.drawPlayerHitbox();
+      // Draw all game objects in world coordinates
+      player.draw();
+      playerShoots.draw();
+      playerHitbox.drawPlayerHitbox();
 
-    spawnPowerUps();
-  
-    if (player.shieldActive) {
-      // Draw shield glow/image centered over chef
-      imageMode(CENTER);
-      image(shieldDome, player.x + player.width / 2, player.y + player.height / 2, player.width, player.height);
-    }
-
-    // Draw all enemies
-    for (let enemy of enemiesArray) {
-      enemy.draw();
-    }
-
-    // Draw the boss if he exists
-    if (boss !== null) {
-      boss.draw();
-    }
-    pop();
-
-    // Draw ammo display with proper text settings
-    push(); // Save current drawing state
-    textSize(16); // Set consistent text size
-    textAlign(LEFT, CENTER);
+      spawnPowerUps();
     
-    if (!isReloading && ammo > 0) {
-      text("Ammo: " + ammo, 50, height - 45);
-    } else if (isReloading) {
-      // Show reload progress
-      let progress = (millis() - reloadStartTime) / reloadingTime;
-      let progressBarWidth = 100;
-      let progressX = 50;
-      let progressY = height - 35;
+      if (player.shieldActive) {
+        // Draw shield glow/image centered over chef
+        imageMode(CENTER);
+        image(shieldDome, player.x + player.width / 2, player.y + player.height / 2, player.width, player.height);
+      }
+
+      // Draw all enemies
+      for (let enemy of enemiesArray) {
+        enemy.draw();
+      }
+
+      // Draw the boss if he exists
+      if (boss !== null) {
+        boss.draw();
+      }
+      pop();
+
+      // Draw ammo display with proper text settings
+      push(); // Save current drawing state
+      textSize(16); // Set consistent text size
+      textAlign(LEFT, CENTER);
       
-      // Draw reload progress bar
-      fill(100);
-      rect(progressX, progressY, progressBarWidth, 10);
-      fill(0, 255, 0);
-      rect(progressX, progressY, progressBarWidth * progress, 10);
+      if (!isReloading && ammo > 0) {
+        text("Ammo: " + ammo, 50, height - 45);
+      } else if (isReloading) {
+        // Show reload progress
+        let progress = (millis() - reloadStartTime) / reloadingTime;
+        let progressBarWidth = 100;
+        let progressX = 50;
+        let progressY = height - 35;
+        
+        // Draw reload progress bar
+        fill(100);
+        rect(progressX, progressY, progressBarWidth, 10);
+        fill(0, 255, 0);
+        rect(progressX, progressY, progressBarWidth * progress, 10);
+        
+        text("Reloading...", 50, height - 55);
+      } else {
+        text("Ammo: " + ammo, 50, height - 45);
+      }
       
-      text("Reloading...", 50, height - 55);
+      // Draw pause hint
+      fill(0);
+      textSize(16);
+      text("Press ESC to pause", width - 200, 60);
+      pop(); // Restore drawing state
+
+      // Draw level progress
+      push();
+      textSize(16);
+      textAlign(RIGHT, TOP);
+      let percentage = floor(gameStats.levelReached / bossSpawnPosition * 100);
+      if (percentage > 100) {
+        percentage = 100;
+      }
+      text("Level Reached: " + percentage + "%", width - 50, 25);
+      pop();
+
+      debugMode.draw();
+
+      // draw powerUp statuses
+      levelCreate.drawActiveStatus();
+
+      health.healthDraw(); // outside of push-pop so health is fixed to screen
+
+      let playerHitboxX = playerHitbox.getCenterX();
+      let playerHitboxY = playerHitbox.getCenterY();
+
+      if (health.getHealth() <= 0) {
+        playInitiated = false;
+        deathScrn.visible = true;
+        return;
+      }
+
+      if (!bossActive && player.currentX() >= bossSpawnPosition) {
+        spawnBoss();
+      }
+
+      // Only spawn enemies if no boss is active
+      if (!bossActive) {
+        spawnEnemies();
+      }
+
+      playerShoots.update();
+      player.update(currentLayout);
+      playerHitbox.update();
+      levelCreate.powerUpReached(playerHitbox);
+
+      for (let i = enemiesArray.length - 1; i >= 0; i--) {
+        enemiesArray[i].update(playerHitboxX, playerHitboxY);
+      }
+
+      if (boss !== null) {
+        boss.update(playerHitboxX, playerHitboxY);
+      }
+
+      checkCollisions();
+      // --- END NORMAL GAME LOGIC ---
     } else {
+      // --- GAME IS PAUSED ---
+      // Draw the game in its current state (frozen)
+      cameraX = player.currentX() - width / 2;
+      cameraX = constrain(cameraX, 0, levelWidth - width);
+
+      background(240, 248, 255);
+
+      // Draw current level background (frozen)
+      push();
+      translate(-cameraX, 0);
+      if(currentBackground) currentBackground.draw(cameraX);
+
+      // Draw obstacles (frozen)
+      if (obstaclesInitialized) {
+        currentLayout.drawObstacles(player.currentX(), width);
+      }
+
+      // Draw all game objects (frozen)
+      player.draw();
+      playerShoots.draw();
+      playerHitbox.drawPlayerHitbox();
+
+      spawnPowerUps();
+    
+      if (player.shieldActive) {
+        imageMode(CENTER);
+        image(shieldDome, player.x + player.width / 2, player.y + player.height / 2, player.width, player.height);
+      }
+
+      // Draw all enemies (frozen)
+      for (let enemy of enemiesArray) {
+        enemy.draw();
+      }
+
+      // Draw the boss if he exists (frozen)
+      if (boss !== null) {
+        boss.draw();
+      }
+      pop();
+
+      // Draw UI elements
+      push();
+      textSize(16);
+      textAlign(LEFT, CENTER);
       text("Ammo: " + ammo, 50, height - 45);
+      textAlign(RIGHT, TOP);
+      let percentage = floor(gameStats.levelReached / bossSpawnPosition * 100);
+      if (percentage > 100) {
+        percentage = 100;
+      }
+      text("Level Reached: " + percentage + "%", width - 50, 25);
+      pop();
+
+      health.healthDraw();
+      levelCreate.drawActiveStatus();
+      // --- END PAUSED GAME DRAW ---
     }
-    pop(); // Restore drawing state
-
-    // Draw level progress
-    push();
-    textSize(16);
-    textAlign(RIGHT, TOP);
-    let percentage = floor(gameStats.levelReached / bossSpawnPosition * 100);
-    if (percentage > 100) {
-      percentage = 100;
+    
+    // Draw pause menu on top of everything if visible
+    if (pauseMenu && pauseMenu.visible) {
+      pauseMenu.draw();
     }
-    text("Level Reached: " + percentage + "%", width - 50, 25);
-    pop();
-
-    debugMode.draw();
-
-    // draw powerUp statuses
-    levelCreate.drawActiveStatus();
-
-    health.healthDraw(); // outside of push-pop so health is fixed to screen
-
-    let playerHitboxX = playerHitbox.getCenterX();
-    let playerHitboxY = playerHitbox.getCenterY();
-
-    if (health.getHealth() <= 0) {
-      playInitiated = false;
-      deathScrn.visible = true;
-      return;
-    }
-
-    if (!bossActive && player.currentX() >= bossSpawnPosition) {
-      spawnBoss();
-    }
-
-    // Only spawn enemies if no boss is active
-    if (!bossActive) {
-      spawnEnemies();
-    }
-
-    playerShoots.update();
-    player.update(currentLayout);
-    playerHitbox.update();
-    levelCreate.powerUpReached(playerHitbox);
-
-    for (let i = enemiesArray.length - 1; i >= 0; i--) {
-      enemiesArray[i].update(playerHitboxX, playerHitboxY);
-    }
-
-    if (boss !== null) {
-      boss.update(playerHitboxX, playerHitboxY);
-    }
-
-    checkCollisions();
-
+    
   } else if (deathScrn.visible) {
     deathScrn.screenDraw(death);
   } else if (showControls) {
@@ -692,21 +764,52 @@ function keyPressed() {
     }
   }
   
-  // Single-trigger keys
-  if (key === 'Enter') {
-    if (titleScrn.visible && !showControls) { // Only start game if tutorial is not visible
-      // Reset the game completely before starting
-      completeGameReset();
-      titleScrn.screenRemove();
-      playInitiated = true;
-    } else if (deathScrn.visible) {
-      restartGame();
+  // Pause menu controls
+  if (playInitiated && pauseMenu && pauseMenu.visible) {
+    switch(key) {
+      case 'Escape':
+        gamePaused = false;
+        pauseMenu.hide();
+        break;
+      case 'ArrowUp':
+        pauseMenu.moveSelection(-1);
+        break;
+      case 'ArrowDown':
+        pauseMenu.moveSelection(1);
+        break;
+      case 'Enter':
+        pauseMenu.selectOption();
+        break;
     }
-    // Restart game after seeing Stat Screen
-    if (statScrn.visible && key === 'Enter') 
-    { 
-      statScrn.visible = false;
-      completeGameReset(); // this will bring player back to level 1 
+    return false;
+  }
+  
+  // Pause the game
+  if (playInitiated && key === 'Escape' && !gamePaused) {
+    gamePaused = true;
+    if (pauseMenu) {
+      pauseMenu.show();
+    }
+    return false;
+  }
+  
+  // Single-trigger keys (only when not paused)
+  if (!gamePaused) {
+    if (key === 'Enter') {
+      if (titleScrn.visible && !showControls) { // Only start game if tutorial is not visible
+        // Reset the game completely before starting
+        completeGameReset();
+        titleScrn.screenRemove();
+        playInitiated = true;
+      } else if (deathScrn.visible) {
+        restartGame();
+      }
+      // Restart game after seeing Stat Screen
+      if (statScrn.visible && key === 'Enter') 
+      { 
+        statScrn.visible = false;
+        completeGameReset(); // this will bring player back to level 1 
+      }
     }
   }
   return false;
