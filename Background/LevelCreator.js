@@ -246,7 +246,9 @@ class LevelCreator {
             case 1: // speed boost
                 if (player.speed <= 5) { // prevents stacking
                     player.speed += 2;
-                    setTimeout(() => { player.speed -= 2; }, 10000); // speed goes to normal after 10 seconds
+                    const duration = 10000; // 10 seconds
+                    setTimeout(() => { player.speed -= 2; }, duration);
+                    speedBoostEndTime = millis() + duration;
                 }
                 break;
             case 2: // health boost
@@ -264,16 +266,20 @@ class LevelCreator {
             case 3: // protection boost
                 if (!player.shieldActive) {
                     player.activateShield();
+                    const duration = 5000; // 5 seconds
+                    shieldEndTime = millis() + duration;
                 }
                 break;
             case 4: // damage boost
                 if (!player.damageBoostActive) {
                     player.damageBoostActive = true;
                     player.damageMultiplier = 2; // double damage
+                    const duration = 7000; // 7 seconds
                     setTimeout(() => {
                         player.damageBoostActive = false;
                         player.damageMultiplier = 1;
-                    }, 7000); // lasts 7s
+                    }, duration);
+                    damageBoostEndTime = millis() + duration;
                 }
                 break;
         }

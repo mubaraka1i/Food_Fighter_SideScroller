@@ -67,6 +67,11 @@ let gameStats = {
     levelReached: 0
 };
 
+// Timer variables for power-ups
+let speedBoostEndTime = 0;
+let shieldEndTime = 0;
+let damageBoostEndTime = 0;
+
 /**
  * Preloads all images that are used.
  */
@@ -207,7 +212,7 @@ function setup() {
   deathScrn = new TitleScreen(1);
   tutorialScrn = new TitleScreen(2);
   statScrn = new TitleScreen(3);
-  pauseMenu = new PauseMenu(); // Add this line
+  pauseMenu = new PauseMenu();
   boss = null;
   canShoot = true;
 
@@ -528,6 +533,138 @@ function drawStats(statsObj) {
 }
 
 /**
+ * Draws a red vignette effect when health is low
+ */
+function drawLowHealthVignette() {
+  if (health && health.getHealth) {
+    const currentHealth = health.getHealth();
+    const maxHealth = 50;
+    
+    // Only show vignette when health is below 30
+    if (currentHealth <= 30) {
+      push();
+      noStroke();
+      
+      // Calculate intensity: 0 health = max intensity, 30 health = minimal intensity
+      const intensity = map(currentHealth, 0, 30, 120, 30, true);
+      
+      // Add pulsing effect when critically low (below 10 health)
+      let alpha = intensity;
+      if (currentHealth <= 10 && !gamePaused) {
+        // Fast pulse for critical health
+        const pulse = sin(millis() * 0.02) * 40;
+        alpha = constrain(intensity + pulse, 30, 160);
+      }
+      
+      // Draw a simple red overlay with transparency
+      fill(255, 0, 0, alpha);
+      
+      // Draw 4 rectangles from edges for vignette effect
+      const vignetteSize = 200; // How far the red extends from edges
+      
+      // Top
+      rect(0, 0, width, vignetteSize);
+      // Bottom
+      rect(0, height - vignetteSize, width, vignetteSize);
+      // Left
+      rect(0, 0, vignetteSize, height);
+      // Right
+      rect(width - vignetteSize, 0, vignetteSize, height);
+      
+      
+      // Top-left corner
+      for (let i = 0; i < 3; i++) {
+        const cornerSize = vignetteSize * (1 + i * 0.5);
+        fill(255, 0, 0, alpha * (0.7 - i * 0.2));
+        triangle(0, 0, cornerSize, 0, 0, cornerSize);
+      }
+      
+      // Top-right corner
+      for (let i = 0; i < 3; i++) {
+        const cornerSize = vignetteSize * (1 + i * 0.5);
+        fill(255, 0, 0, alpha * (0.7 - i * 0.2));
+        triangle(width, 0, width - cornerSize, 0, width, cornerSize);
+      }
+      
+      // Bottom-left corner
+      for (let i = 0; i < 3; i++) {
+        const cornerSize = vignetteSize * (1 + i * 0.5);
+        fill(255, 0, 0, alpha * (0.7 - i * 0.2));
+        triangle(0, height, 0, height - cornerSize, cornerSize, height);
+      }
+      
+      // Bottom-right corner
+      for (let i = 0; i < 3; i++) {
+        const cornerSize = vignetteSize * (1 + i * 0.5);
+        fill(255, 0, 0, alpha * (0.7 - i * 0.2));
+        triangle(width, height, width, height - cornerSize, width - cornerSize, height);
+      }
+      
+      // Add subtle screen shake effect when critically low (below 10 health)
+      if (currentHealth <= 10 && !gamePaused) {
+        const shakeAmount = sin(millis() * 0.03) * 2;
+        translate(random(-shakeAmount, shakeAmount), random(-shakeAmount, shakeAmount));
+      }
+      
+      pop();
+    }
+  }
+}
+
+/**
+ * Draws timer countdowns under power-up status icons
+ */
+function drawPowerUpTimers() {
+  let xPos = 50;
+  let yPos = height - 100;
+  let iconSize = 40;
+  let spacing = 50;
+  let timerYOffset = 25;
+  
+  // Draw speed boost timer if active
+  if (player && player.speed > 5 && speedBoostEndTime > 0) {
+    const timeLeft = max(0, (speedBoostEndTime - millis()) / 1000);
+    if (timeLeft > 0) {
+      push();
+      fill(255);
+      textSize(12);
+      textAlign(CENTER);
+      text(nf(timeLeft, 0, 1) + "s", xPos + iconSize/2, yPos + iconSize + timerYOffset);
+      pop();
+    }
+    xPos += spacing;
+  }
+
+  // Draw shield timer if active
+  if (player && player.shieldActive && shieldEndTime > 0) {
+    const timeLeft = max(0, (shieldEndTime - millis()) / 1000);
+    if (timeLeft > 0) {
+      push();
+      fill(255);
+      textSize(12);
+      textAlign(CENTER);
+      text(nf(timeLeft, 0, 1) + "s", xPos + iconSize/2, yPos + iconSize + timerYOffset);
+      pop();
+    }
+    xPos += spacing;
+  }
+
+  // Draw damage boost timer if active
+  if (player && player.damageBoostActive && damageBoostEndTime > 0) {
+    const timeLeft = max(0, (damageBoostEndTime - millis()) / 1000);
+    if (timeLeft > 0) {
+      push();
+      fill(255);
+      textSize(12);
+      textAlign(CENTER);
+      text(nf(timeLeft, 0, 1) + "s", xPos + iconSize/2, yPos + iconSize + timerYOffset);
+      pop();
+    }
+    xPos += spacing;
+  }
+}
+
+/**
  * Constantly called to update drawings, positions, status of objects, and collisions.
  * @returns {undefined} exit if health is 0
  */
@@ -633,8 +770,14 @@ function draw() {
 
       // draw powerUp statuses
       levelCreate.drawActiveStatus();
+      
+      // Draw power-up timers
+      drawPowerUpTimers();
 
       health.healthDraw(); // outside of push-pop so health is fixed to screen
+      
+      // Draw low health vignette
+      drawLowHealthVignette();
 
       let playerHitboxX = playerHitbox.getCenterX();
       let playerHitboxY = playerHitbox.getCenterY();
@@ -725,6 +868,8 @@ function draw() {
 
       health.healthDraw();
       levelCreate.drawActiveStatus();
+      drawPowerUpTimers();
+      drawLowHealthVignette();
       // --- END PAUSED GAME DRAW ---
     }
     
@@ -864,6 +1009,11 @@ function completeGameReset() {
   isReloading = false;
   reloadStartTime = null;
   
+  // Reset power-up timers
+  speedBoostEndTime = 0;
+  shieldEndTime = 0;
+  damageBoostEndTime = 0;
+  
   // Reset screens
   playInitiated = false;
   titleScrn.visible = true;
@@ -926,6 +1076,11 @@ function restartGame() {
     currentLayout.levelMaker(height, player.currentX(), width);
     obstaclesInitialized = true;
   }
+
+  // Reset power-up timers
+  speedBoostEndTime = 0;
+  shieldEndTime = 0;
+  damageBoostEndTime = 0;
 
   for (let key in keys) {
     keys[key] = false;
