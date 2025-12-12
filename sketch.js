@@ -234,14 +234,16 @@ function preload() {
 }
 
 
-
 function startAudioOnFirstInteraction() {
   if (audioStarted) return;
   audioStarted = true;
 
   userStartAudio().then(() => {
-    playMenuMusic();
-    console.log("Menu music started from user interaction");
+    
+    if (!playInitiated && titleScrn.visible) {
+      playMenuMusic();
+      console.log("Menu music started from user interaction");
+    }
   });
 }
 
