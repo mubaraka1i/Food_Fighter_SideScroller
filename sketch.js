@@ -37,6 +37,11 @@ let audioStarted = false;
 let pauseMusic;
 let justFinishedLore = false;
 
+let musicMuted = false;
+let soundEffectsMuted = false;
+let volumeSlider;
+let soundEffectsSlider;
+
 let boss;
 let bossActive = false;
 
@@ -286,10 +291,10 @@ function preload() {
 }
 
 function playSound(sound, volume = 0.7) {
-  if (sound && audioStarted) {
+  if (sound && audioStarted && !soundEffectsMuted) {
     // Check if the sound is already playing
     if (!sound.isPlaying()) {
-      sound.setVolume(volume);
+      sound.setVolume(volume * (soundEffectsSlider ? soundEffectsSlider.value() : 1));
       sound.play();
     }
   }
@@ -310,6 +315,19 @@ function startAudioOnFirstInteraction() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+
+  // Create volume controls (position them in a corner)
+  createP('Controls: M = Toggle Music, P = Toggle Sound Effects').position(10, 200).style('color', 'black').style('font-size', '14px');
+  
+  // Create volume slider
+  createP('Music Volume:').position(10, 240).style('color', 'black').style('font-size', '14px');
+  volumeSlider = createSlider(0, 1, 0.5, 0.1).position(10, 270).size(150);
+  volumeSlider.input(updateVolume);
+  
+  // Create sound effects slider
+  createP('Sound Effects:').position(10, 300).style('color', 'black').style('font-size', '14px');
+  soundEffectsSlider = createSlider(0, 1, 0.7, 0.1).position(10, 330).size(150);
+  soundEffectsSlider.input(updateSoundEffects);
 
   window.addEventListener("mousemove", startAudioOnFirstInteraction);
   window.addEventListener("mousedown", startAudioOnFirstInteraction);
@@ -591,6 +609,8 @@ function spawnEnemies() {
 }
 
 function playLevelMusic(level) {
+  if (musicMuted) return; // Don't play if music is muted
+  
   // Stop any currently playing music
   if (currentMusic && currentMusic.isPlaying()) {
     currentMusic.stop();
@@ -598,7 +618,8 @@ function playLevelMusic(level) {
 
   currentMusic = levelMusic[level];
   if (currentMusic) {
-    currentMusic.setVolume(0.4); // Lower volume for level music
+    const volumeLevel = volumeSlider ? volumeSlider.value() : 0.4;
+    currentMusic.setVolume(volumeLevel);
     currentMusic.setLoop(true);
     
     // Special handling for Level 2 music
@@ -610,7 +631,10 @@ function playLevelMusic(level) {
   }
 }
 
+
 function playMenuMusic() {
+  if (musicMuted) return; // Don't play if music is muted
+  
   // Only start menu music if it's not already playing
   if (currentMusic !== menuMusic || !currentMusic.isPlaying()) {
     // Stop any currently playing music
@@ -621,7 +645,8 @@ function playMenuMusic() {
     currentMusic = menuMusic;
     
     if (currentMusic) {
-      currentMusic.setVolume(0.5); // Lower volume for menu music
+      const volumeLevel = volumeSlider ? volumeSlider.value() * 0.5 : 0.25;
+      currentMusic.setVolume(volumeLevel);
       currentMusic.setLoop(true);
       currentMusic.play();
     }
@@ -629,6 +654,8 @@ function playMenuMusic() {
 }
 
 function playPauseMenuMusic() {
+  if (musicMuted) return; // Don't play if music is muted
+  
   // Pause the level music
   if (currentMusic && currentMusic.isPlaying()) {
     currentMusic.pause();
@@ -636,6 +663,8 @@ function playPauseMenuMusic() {
 
   // Start pause menu music
   if (!pauseMusic.isPlaying()) {
+    const volumeLevel = volumeSlider ? volumeSlider.value() * 0.5 : 0.25;
+    pauseMusic.setVolume(volumeLevel);
     pauseMusic.setLoop(true);
     pauseMusic.play();
   }
@@ -734,11 +763,11 @@ function drawLowHealthVignette() {
     const currentHealth = health.getHealth();
     const maxHealth = 50;
 
-    if (currentHealth <= 30) {
+    if (currentHealth <= 25) {  // Changed from 30 to 25
       push();
       noStroke();
 
-      const intensity = map(currentHealth, 0, 30, 120, 30, true);
+      const intensity = map(currentHealth, 0, 25, 120, 30, true);  // Changed from 30 to 25
 
       let alpha = intensity;
       if (currentHealth <= 10 && !gamePaused) {
@@ -859,6 +888,17 @@ function draw() {
     return;
   }
   
+  // Draw mute status indicators
+  if (playInitiated || titleScrn.visible || victoryScrn.visible || deathScrn.visible) {
+    push();
+    fill(0);
+    textSize(14);
+    textAlign(LEFT, TOP);
+    text(`Music: ${musicMuted ? 'MUTED' : 'ON'} (M to toggle)`, width - 200, 10);
+    text(`Sound FX: ${soundEffectsMuted ? 'MUTED' : 'ON'} (S to toggle)`, width - 200, 30);
+    pop();
+  }
+  
   if (playInitiated) {
     if (!gamePaused) {
       // --- NORMAL GAME LOGIC (when not paused) ---
@@ -914,7 +954,7 @@ function draw() {
       textAlign(LEFT, CENTER);
 
       if (!isReloading && ammo > 0) {
-        text("Ammo: " + ammo, 50, height - 45);
+        text("Ammo: " + ammo, 50, height - 25);
       } else if (isReloading) {
         let progress = (millis() - reloadStartTime) / reloadingTime;
         let progressBarWidth = 100;
@@ -1054,14 +1094,10 @@ function draw() {
   } else if (deathScrn.visible) {
     // Game Over screen
     deathScrn.screenDraw(death);  // Use death (game over) image
-    fill(255);
-    textAlign(CENTER);
-    textSize(28);
-    text("Press ENTER to restart", width / 2, height - 50);
   } else if (victoryScrn.visible) {
     // Victory screen
     victoryScrn.screenDraw(victory);  // Use victory image
-    fill(255);
+    fill(0);
     textAlign(CENTER);
     textSize(28);
     text("Press ENTER to view stats", width / 2, height - 50);
@@ -1088,6 +1124,38 @@ function keyPressed() {
 
   // Handle debug mode commands
   debugMode.handleKey(key);
+
+  // Mute/Unmute controls
+  if (key === 'm' || key === 'M') {
+    musicMuted = !musicMuted;
+    if (musicMuted) {
+      // If muting, stop all music
+      if (currentMusic && currentMusic.isPlaying()) {
+        currentMusic.stop();
+      }
+      if (pauseMusic && pauseMusic.isPlaying()) {
+        pauseMusic.stop();
+      }
+    } else {
+      // If unmuting, restart appropriate music
+      if (playInitiated && !gamePaused) {
+        // Resume level music
+        playLevelMusic(currentLevel);
+      } else if (gamePaused) {
+        // Resume pause music
+        playPauseMenuMusic();
+      } else if (titleScrn.visible || victoryScrn.visible || deathScrn.visible) {
+        // Resume menu music
+        playMenuMusic();
+      }
+    }
+    return false;
+  }
+  
+  if (key === 'p' || key === 'P') {
+    soundEffectsMuted = !soundEffectsMuted;
+    return false;
+  }
 
   // Toggle tutorial on title screen OR go back from tutorial to title
   if (key === '1' && !debugMode.active) {
@@ -1181,15 +1249,6 @@ function keyPressed() {
         return false; // Don't start game yet
       }
       
-      // REMOVED: Tutorial screen Enter handling since we're using '1' instead
-      // Check if we're on tutorial screen - pressing Enter should go back to title
-      // if (tutorialScrn.visible) {
-      //   tutorialScrn.visible = false;
-      //   titleScrn.visible = true;
-      //   showControls = false;
-      //   return false;
-      // }
-      
       // Check if we're on victory screen
       if (victoryScrn.visible) {
         // From victory screen to stats
@@ -1231,6 +1290,19 @@ function keyPressed() {
   return false;
 }
 
+function updateVolume() {
+  if (currentMusic) {
+    currentMusic.setVolume(volumeSlider.value());
+  }
+  if (pauseMusic && pauseMusic.isPlaying()) {
+    pauseMusic.setVolume(volumeSlider.value() * 0.5);
+  }
+}
+
+function updateSoundEffects() {
+  // This updates the volume for future sound effects
+  // Existing sounds will continue at their current volume
+}
 
 /**
  * Completely reset the game to level 1.
@@ -1320,7 +1392,6 @@ function finishGame() {
   deathScrn.visible = false;
   titleScrn.visible = false;
   statScrn.visible = false;
-  //endingScrn.visible = false;
   
   // Stop any level music and menu music
   if (currentMusic && currentMusic.isPlaying()) {
@@ -1336,7 +1407,6 @@ function finishGame() {
   if (soundGameComplete && !soundGameComplete.isPlaying()) {
     playSound(soundGameComplete, 0.7);
   }
-  
 }
 
 

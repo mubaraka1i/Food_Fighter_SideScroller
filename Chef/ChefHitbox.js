@@ -73,12 +73,14 @@ class ChefHitbox{
    * @returns {undefined} exit early if hitboxes are not visible
    */
   drawPlayerHitbox() {
-    if (!this.visible) return;
+    return;
+    /*
     push();
     noFill(); 
     stroke('green');
     rect(this.x, this.y, this.hitWidth, this.hitHeight);
     pop();
+    */
   }
 
   /**
