@@ -236,54 +236,86 @@ class LevelCreator {
         return `${Math.round(powerUp.x)}_${Math.round(powerUp.y)}`;
     }
 
-    /**
-     * Applies the power up effect when called by powerUpReached.
-     * 
-     * @param {number} effect 1-4, dictates the effect that is applied to the player
-     */
-    applyPowerUpEffect(effect) {
-        switch(effect) {
-            case 1: // speed boost
-                if (player.speed <= 5) { // prevents stacking
-                    player.speed += 2;
-                    const duration = 10000; // 10 seconds
-                    setTimeout(() => { player.speed -= 2; }, duration);
-                    speedBoostEndTime = millis() + duration;
-                }
-                break;
-            case 2: // health boost
-                if (health.getHealth() < 50) { // prevents over fill of HP
-                    let healAmount;
-                    if (health.getHealth() + 10 <= 50) {
-                        healAmount = 10;
-                    } else {
-                        healAmount = 50 - health.getHealth(); // sets health to 50
-                    }
-                    health.healthInc(healAmount);
-                    gameStats.healthHealed += healAmount; // TRACK HEALTH HEALED
-                }
-                break;
-            case 3: // protection boost
-                if (!player.shieldActive) {
-                    player.activateShield();
-                    const duration = 5000; // 5 seconds
-                    shieldEndTime = millis() + duration;
-                }
-                break;
-            case 4: // damage boost
-                if (!player.damageBoostActive) {
-                    player.damageBoostActive = true;
-                    player.damageMultiplier = 2; // double damage
-                    const duration = 7000; // 7 seconds
-                    setTimeout(() => {
-                        player.damageBoostActive = false;
-                        player.damageMultiplier = 1;
-                    }, duration);
-                    damageBoostEndTime = millis() + duration;
-                }
-                break;
+  /**
+   * Applies the power up effect when called by powerUpReached.
+   * 
+   * @param {number} effect 1-4, dictates the effect that is applied to the player
+   */
+  applyPowerUpEffect(effect) {
+    switch(effect) {
+      case 1: // speed boost
+        if (player.speed <= 5) { // prevents stacking
+          player.speed += 2;
+          const duration = 10000; // 10 seconds
+          setTimeout(() => { 
+            player.speed -= 2; 
+            activePowerUpSounds.speed = false; // Reset when expires
+          }, duration);
+          speedBoostEndTime = millis() + duration;
+          
+          // Play speed boost sound (only if not already active)
+          if (!activePowerUpSounds.speed && soundSpeedBoost) {
+            activePowerUpSounds.speed = true;
+            playSound(soundSpeedBoost);
+          }
         }
+        break;
+      case 2: // health boost
+        if (health.getHealth() < 50) { // prevents over fill of HP
+          let healAmount;
+          if (health.getHealth() + 10 <= 50) {
+            healAmount = 10;
+          } else {
+            healAmount = 50 - health.getHealth(); // sets health to 50
+          }
+          health.healthInc(healAmount);
+          gameStats.healthHealed += healAmount; // TRACK HEALTH HEALED
+          
+          // Play heal sound
+          if (soundHeal) {
+            playSound(soundHeal, 0.4);
+          }
+        }
+        break;
+      case 3: // protection boost
+        if (!player.shieldActive) {
+          player.activateShield();
+          const duration = 5000; // 5 seconds
+          shieldEndTime = millis() + duration;
+          
+          // Play shield sound (only if not already active)
+          if (!activePowerUpSounds.shield && soundShield) {
+            activePowerUpSounds.shield = true;
+            playSound(soundShield);
+            
+            // Reset when shield expires
+            setTimeout(() => {
+              activePowerUpSounds.shield = false;
+            }, duration);
+          }
+        }
+        break;
+      case 4: // damage boost
+        if (!player.damageBoostActive) {
+          player.damageBoostActive = true;
+          player.damageMultiplier = 2; // double damage
+          const duration = 7000; // 7 seconds
+          setTimeout(() => {
+            player.damageBoostActive = false;
+            player.damageMultiplier = 1;
+            activePowerUpSounds.damage = false; // Reset when expires
+          }, duration);
+          damageBoostEndTime = millis() + duration;
+          
+          // Play damage boost sound (only if not already active)
+          if (!activePowerUpSounds.damage && soundDamageBoost) {
+            activePowerUpSounds.damage = true;
+            playSound(soundDamageBoost);
+          }
+        }
+        break;
     }
+  }
 
     /**
      * Draws active power-up status icons at the bottom left of the screen.

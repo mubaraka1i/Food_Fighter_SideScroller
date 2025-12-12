@@ -126,7 +126,7 @@ class SodaBoss extends Boss {
         // Draw projectiles
         for (let projectile of this.projectiles) {
             projectile.draw();
-            projectile.drawHitbox();
+            //projectile.drawHitbox();
         }
 
         // Draw health bar

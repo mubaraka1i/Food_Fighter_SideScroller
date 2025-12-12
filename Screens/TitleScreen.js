@@ -2,14 +2,19 @@ class TitleScreen {
   /**
    * Creates a title screen to be drawn to the screen if game not started.
    * 
-   * @param {number} type 0, 1, or 2 - gameStart, gameOver, or tutorial
+   * @param {number} type 0, 1, 2, 3, or 4 - title, gameOver, tutorial, stats, or victory
    */
   constructor(type) {
     this.type = type;
     if (this.type == 1 || this.type == 3) {
+      // Death screen and stats screen start hidden
+      this.visible = false;
+    } else if (this.type == 0) {
+      // Title screen starts hidden (will be shown after lore)
       this.visible = false;
     } else {
-      this.visible = true;
+      // Victory screen (type 4) and tutorial (type 2) start hidden
+      this.visible = false;
     }
     this.curFrame = 0;
 
@@ -30,9 +35,10 @@ class TitleScreen {
     if (!this.visible) return;
     
     if (this.type == 2 || this.type == 3) {
-      // Just display normally (one frame) for tutorial
+      // Just display normally (one frame) for tutorial and stats
       image(screen, 0, 0, width, height);
     } else if (this.type == 4) {
+      // Victory screen with animation
       this.curFrame = floor(frameCount / 10) % 3;
       let frameW = screen.width / 3;
       let frameH = screen.height;
@@ -40,6 +46,7 @@ class TitleScreen {
       let curY = 0;
       image(screen, 0, 0, width, height, curX, curY, frameW, frameH);
     } else {
+      // Type 0 (title) and type 1 (game over) with animation
       this.curFrame = floor(frameCount / 10) % 2;
       let frameW = screen.width / 2;
       let frameH = screen.height;

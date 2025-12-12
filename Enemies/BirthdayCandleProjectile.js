@@ -62,16 +62,5 @@ class BirthdayCandleProjectile {
         pop();
     }
 
-    /**
-     * Draws the boss projectile hitbox to the screen.
-     */
-    drawHitbox() {
-        push();
-        noFill();
-        stroke('red');
-        strokeWeight(2);
-        rectMode(CENTER);
-        rect(this.x, this.y, this.size + 1, this.size + 1);
-        pop();
-    }
+
 }

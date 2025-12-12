@@ -1,3 +1,4 @@
+// sketch.js
 let player;
 let playerShoots;
 let health;
@@ -34,6 +35,7 @@ let menuMusic;
 let currentMusic = null;
 let audioStarted = false;
 let pauseMusic;
+let justFinishedLore = false;
 
 let boss;
 let bossActive = false;
@@ -85,19 +87,47 @@ let damageBoostEndTime = 0;
 
 // Lore screen
 let showLore = true;  // Start with lore enabled
-let lorePage = 0;     // Which comic panel we’re on
+let lorePage = 0;     // Which comic panel we're on
 let loreImages = [];  // Comic strip images
 let loreFinished = false;
+let loreStarted = false; // Track if lore has started
+
+let soundGameComplete;
+let soundHeal;
+let soundDamageBoost;
+let soundDamageTaken;
+let soundChefJump;
+let soundChefShoot;
+let soundShield;
+let soundSpeedBoost;
+
+// Track active power-up sounds to prevent stacking
+let activePowerUpSounds = {
+  speed: false,
+  damage: false,
+  shield: false
+}
 
 /**
  * Preloads all images that are used.
  */
 function preload() {
   title = loadImage('Assets/titlescreen.png');
-  death = loadImage('Assets/endingscreen.png');
+  death = loadImage('Assets/gameoverscreen.png');  // Game over screen
+  victory = loadImage('Assets/endingscreen.png');  // Victory screen
   tutorial = loadImage('Assets/tutorialscreen.png');
   chefHat = loadImage('Assets/chef_health.png');
   stats = loadImage('Assets/statScreen.png');
+
+  // Load sound effects
+  soundGameComplete = loadSound('Assets/GameComplete.mp3');
+  soundHeal = loadSound('Assets/Heal.wav');
+  soundDamageBoost = loadSound('Assets/DamageBoost.mp3');
+  soundDamageTaken = loadSound('Assets/DamageTaken.mp3');
+  soundChefJump = loadSound('Assets/ChefJump.mp3');
+  soundChefShoot = loadSound('Assets/ChefShoot.mp3');
+  soundShield = loadSound('Assets/Shield.mp3');
+  soundSpeedBoost = loadSound('Assets/SpeedBoost.mp3');
 
   // Load HP:, hpInc, hpDec, and letters
   hp = loadImage('Assets/hp_G.png'); // "HP:"
@@ -121,7 +151,7 @@ function preload() {
   obstacleImages[4] = loadImage("assets/strawObstacle.png");
   obstacleImages[5] = loadImage("assets/plateObstacle.png");
 
-  // Load level theme music Bebo
+  // Load level theme music
   levelMusic[1] = loadSound('Assets/Level1Music.mp3');
   levelMusic[2] = loadSound('Assets/Level2Music.mp3');
   levelMusic[3] = loadSound('Assets/Level3Music.mp3');
@@ -130,9 +160,6 @@ function preload() {
 
   menuMusic = loadSound('Assets/MenuMusic.mp3');
   pauseMusic = loadSound('Assets/PauseMusic.mp3');
-
-
-
 
   // Load Chef sprites
   chefSprites = {
@@ -190,7 +217,6 @@ function preload() {
   };
 
   // Load Level Minions
-
   cupcakeCandleSprites = [ // Level 1 Minions
     loadImage('Assets/cupcake_minion1.png'),
     loadImage('Assets/cupcake_minion2.png'),
@@ -226,9 +252,9 @@ function preload() {
 
   // Load Flying Enemies
   flyingEnemySprites.left = [
-  loadImage("Assets/eggLeft1.png"),
-  loadImage("Assets/eggLeft2.png"),
-  loadImage("Assets/eggLeft3.png")
+    loadImage("Assets/eggLeft1.png"),
+    loadImage("Assets/eggLeft2.png"),
+    loadImage("Assets/eggLeft3.png")
   ];
 
   flyingEnemySprites.right = [
@@ -259,20 +285,28 @@ function preload() {
   ];
 }
 
+function playSound(sound, volume = 0.7) {
+  if (sound && audioStarted) {
+    // Check if the sound is already playing
+    if (!sound.isPlaying()) {
+      sound.setVolume(volume);
+      sound.play();
+    }
+  }
+}
 
 function startAudioOnFirstInteraction() {
   if (audioStarted) return;
   audioStarted = true;
 
   userStartAudio().then(() => {
-    
-    if (!playInitiated && titleScrn.visible) {
+    // Start menu music if on title or lore screen
+    if ((titleScrn && titleScrn.visible) || (showLore && !loreFinished)) {
       playMenuMusic();
       console.log("Menu music started from user interaction");
     }
   });
 }
-
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -282,43 +316,59 @@ function setup() {
   window.addEventListener("keydown", startAudioOnFirstInteraction);
   window.addEventListener("touchstart", startAudioOnFirstInteraction);
 
-
   player = new Chef(50, 0, chefSprites);
   playerShoots = new PlayerShoots();
   health = new ChefHealth(50, chefHat, hpDec, hpInc, hp, num_G, num_R);
   health.setPlayer(player);
   playerHitbox = new ChefHitbox(player, showHitboxes);
-  titleScrn = new TitleScreen(0);
-  deathScrn = new TitleScreen(1);
-  tutorialScrn = new TitleScreen(2);
-  statScrn = new TitleScreen(3);
-  endingScrn = new TitleScreen(4);
-  endingScrn.visible = false;  
+  
+  // Initialize screens with correct types
+  titleScrn = new TitleScreen(0);      // Type 0: Title screen (animated)
+  deathScrn = new TitleScreen(1);      // Type 1: Death/Game Over screen (NOT animated)
+  tutorialScrn = new TitleScreen(2);   // Type 2: Tutorial screen
+  statScrn = new TitleScreen(3);       // Type 3: Stats screen
+  victoryScrn = new TitleScreen(4);    // Type 4: Victory screen (animated)
+  
+  // Initially only show lore (handled by showLore flag)
+  titleScrn.visible = false;    // Don't show title until lore is done
+  deathScrn.visible = false;    // Don't show death screen
+  victoryScrn.visible = false;  // Don't show victory screen
+  
   pauseMenu = new PauseMenu();
   boss = null;
   canShoot = true;
 
   debugMode = new DebugMode();
 
-
+  // Initialize loreStarted to true
+  loreStarted = true;
 
   document.addEventListener('keydown', (e) => {
     keys[e.key.toLowerCase()] = true;
 
     // --- LORE SCREEN CONTROLS ---
     if (showLore && !loreFinished) {
-        if (e.key === " " || e.key === "Enter") {
-            lorePage++;
+      if (e.key === " " || e.key === "Enter") {
+        lorePage++;
 
-            if (lorePage >= loreImages.length) {
-                // Finished the comic
-                loreFinished = true;
-                showLore = false;
-
-                // Show title screen now
-                titleScrn.visible = true;
-            }
+        if (lorePage >= loreImages.length) {
+          // Finished the comic
+          loreFinished = true;
+          showLore = false;
+          
+          // Show title screen now
+          titleScrn.visible = true;
+          
+          // Set flag to prevent immediate game start
+          justFinishedLore = true;
+          
+          // Stop any level music and start menu music
+          if (currentMusic && currentMusic.isPlaying()) {
+            currentMusic.stop();
+          }
+          playMenuMusic();
         }
+      }
     }
   });
 
@@ -334,23 +384,13 @@ function setup() {
  * @returns {undefined} exit if run out of levels
  */
 function loadLevel(levelNumber) {
-  if (levelNumber > 5) { // Change this number when we implement level 4 and 5
-    playInitiated = false;
-    statScrn.visible = true;
-    titleScrn.visible = false;
-    deathScrn.visible = false;
-
-    // Clear all game state
-    enemiesArray = [];
-    boss = null;
-    bossActive = false;
-    cameraX = 0;
+  if (levelNumber > 5) {
+    // Game completed - show victory flow
+    finishGame();
     return;
-
   }
 
   currentLevel = levelNumber;
-  playLevelMusic(levelNumber);
   obstaclesInitialized = false;
   enemiesArray = [];
   powerList = [];
@@ -379,7 +419,7 @@ function loadLevel(levelNumber) {
     case 1:
       levelWidth = 3000;
       bossSpawnPosition = 2500;
-      enemySpawnRate = 120; // 2 seconds at 60fps
+      enemySpawnRate = 120;
       currentBackground = new Level1Background(level1BackgroundImg, levelWidth);
       currentLayout = new Level1Layout();
       if (currentLayout && currentLayout.levelMaker) {
@@ -387,12 +427,12 @@ function loadLevel(levelNumber) {
         obstaclesInitialized = true;
       }
       levelCreate = new LevelCreator(0, levelWidth, 10, 10, 10, bossSpawnPosition, currentLayout, height);
-      powerList = levelCreate.powerList; // Use the powerList from levelCreate
+      powerList = levelCreate.powerList;
       break;
     case 2:
       levelWidth = 7000;
       bossSpawnPosition = 6500;
-      enemySpawnRate = 90; // 1.5 seconds at 60fps
+      enemySpawnRate = 90;
       currentBackground = new Level2Background(level2BackgroundImg, levelWidth);
       currentLayout = new Level2Layout();
       if (currentLayout && currentLayout.levelMaker) {
@@ -405,7 +445,7 @@ function loadLevel(levelNumber) {
     case 3:
       levelWidth = 7000;
       bossSpawnPosition = 6500;
-      enemySpawnRate = 60; // 1 seconds at 60fps
+      enemySpawnRate = 60;
       currentBackground = new Level3Background(level3BackgroundImg, levelWidth);
       currentLayout = new Level3Layout();
       if (currentLayout && currentLayout.levelMaker) {
@@ -416,9 +456,9 @@ function loadLevel(levelNumber) {
       powerList = levelCreate.powerList;
       break;
     case 4:
-      levelWidth = 8000; // Soda level
+      levelWidth = 8000;
       bossSpawnPosition = 7500;
-      enemySpawnRate = 45; // 0.75 seconds at 60fps
+      enemySpawnRate = 45;
       currentBackground = new Level4Background(level4BackgroundImg, levelWidth);
       currentLayout = new Level4Layout();
       if (currentLayout && currentLayout.levelMaker) {
@@ -428,11 +468,10 @@ function loadLevel(levelNumber) {
       levelCreate = new LevelCreator(0, levelWidth, 25, 25, 25, bossSpawnPosition, currentLayout, height);
       powerList = levelCreate.powerList;
       break;
-    // --- NEW: Case 5 ---
     case 5:
-      levelWidth = 8000; // Cake level
+      levelWidth = 8000;
       bossSpawnPosition = 7500;
-      enemySpawnRate = 30; // 0.5 seconds at 60fps
+      enemySpawnRate = 30;
       currentBackground = new Level5Background(level5BackgroundImg, levelWidth);
       currentLayout = new Level5Layout();
       if (currentLayout && currentLayout.levelMaker) {
@@ -443,11 +482,7 @@ function loadLevel(levelNumber) {
       powerList = levelCreate.powerList;
       break;
     default:
-      // If we run out of levels, go back to title
-      playInitiated = false;
-      titleScrn.visible = true;
-      deathScrn.visible = false;
-      currentLevel = 1; // Reset to level 1
+      finishGame();
       return;
   }
 }
@@ -456,7 +491,15 @@ function loadLevel(levelNumber) {
  * Function to be called from collisions to know what level its on.
  */
 function goToNextLevel() {
+  // Stop current level music before loading next level
+  if (currentMusic && currentMusic.isPlaying()) {
+    currentMusic.stop();
+  }
+  
   loadLevel(currentLevel + 1);
+  
+  // Start new level music
+  playLevelMusic(currentLevel);
 }
 
 /**
@@ -465,11 +508,11 @@ function goToNextLevel() {
 function spawnBoss() {
   // Check debug mode
   if (debugMode.active && !debugMode.canSpawnBoss) {
-    return; // Don't spawn boss if disabled in debug mode
+    return;
   }
 
-  let bossX = levelWidth - 200; // 200px from the end of the level
-  let bossY = height - 175; // On the ground
+  let bossX = levelWidth - 200;
+  let bossY = height - 175;
 
   // Create the appropriate boss for the current level
   switch (currentLevel) {
@@ -491,8 +534,7 @@ function spawnBoss() {
   }
 
   bossActive = true;
-  // Clear out all other enemies when boss spawns
-  enemiesArray = []
+  enemiesArray = [];
 }
 
 /**
@@ -502,8 +544,6 @@ function spawnBoss() {
  */
 function spawnPowerUps() {
   if (!levelCreate || !levelCreate.powerList || levelCreate.powerList.length === 0) return;
-
-  // Use the new drawAllPowerUps method instead of manually drawing
   levelCreate.drawAllPowerUps();
 }
 
@@ -511,9 +551,8 @@ function spawnPowerUps() {
  * Adds an enemy to the enemies array depending on the currentLevel number if enemySpawnTimer is at least enemySpawnRate.
  */
 function spawnEnemies() {
-  // Check debug mode
   if (debugMode.active && !debugMode.canSpawnFlying && !debugMode.canSpawnGround) {
-    return; // Don't spawn any enemies if both are disabled in debug mode
+    return;
   }
 
   if (!bossActive) {
@@ -523,9 +562,7 @@ function spawnEnemies() {
       let spawnX = cameraX + width + 50;
 
       if (random() < 0.5) {
-        // Ground enemy (minion) for current level
         if (debugMode.active && !debugMode.canSpawnGround) {
-          // Skip ground enemies if disabled in debug mode
           enemySpawnTimer = 0;
           return;
         }
@@ -540,9 +577,7 @@ function spawnEnemies() {
         }
         enemiesArray.push(new GroundEnemies(spawnX, height - 90, spritesArray));
       } else {
-        // Flying enemy remains unchanged
         if (debugMode.active && !debugMode.canSpawnFlying) {
-          // Skip flying enemies if disabled in debug mode
           enemySpawnTimer = 0;
           return;
         }
@@ -554,44 +589,47 @@ function spawnEnemies() {
     }
   }
 }
+
 function playLevelMusic(level) {
+  // Stop any currently playing music
   if (currentMusic && currentMusic.isPlaying()) {
     currentMusic.stop();
   }
 
   currentMusic = levelMusic[level];
-  currentMusic.setLoop(true);
-
-  if (level === 2) {
-    // Start Level 2 music at 18 seconds
-    currentMusic.play(0, 1, 1, 18);
-  } else {
-    currentMusic.play();
+  if (currentMusic) {
+    currentMusic.setVolume(0.4); // Lower volume for level music
+    currentMusic.setLoop(true);
+    
+    // Special handling for Level 2 music
+    if (level === 2) {
+      currentMusic.play(0, 1, 1, 18);
+    } else {
+      currentMusic.play();
+    }
   }
 }
 
-
-
-
-
-
-  
-
 function playMenuMusic() {
-  if (currentMusic && currentMusic.isPlaying()) {
-    currentMusic.stop();
-  }
+  // Only start menu music if it's not already playing
+  if (currentMusic !== menuMusic || !currentMusic.isPlaying()) {
+    // Stop any currently playing music
+    if (currentMusic && currentMusic.isPlaying()) {
+      currentMusic.stop();
+    }
 
-  currentMusic = menuMusic;
-
-  if (currentMusic) {
-    currentMusic.setLoop(true);
-    currentMusic.jump(2); 
+    currentMusic = menuMusic;
+    
+    if (currentMusic) {
+      currentMusic.setVolume(0.5); // Lower volume for menu music
+      currentMusic.setLoop(true);
+      currentMusic.play();
+    }
   }
 }
 
 function playPauseMenuMusic() {
-  // Pause the level music (
+  // Pause the level music
   if (currentMusic && currentMusic.isPlaying()) {
     currentMusic.pause();
   }
@@ -614,7 +652,6 @@ function resumeLevelMusic() {
     currentMusic.play();
   }
 }
-
 
 /**
  * Handles shooting controls to prevent continuous shooting.
@@ -651,16 +688,13 @@ function completeReloading() {
   isReloading = false;
   canShoot = true;
   reloadStartTime = null;
-  // Set ammo to the max for current level
   ammo = Math.round(12 - currentLevel);
 }
 
 function ammoReload() {
-  // Only handle reloading if we're currently reloading
   if (isReloading && reloadStartTime) {
     let timeSinceReload = millis() - reloadStartTime;
 
-    // Check if reload time has passed
     if (timeSinceReload >= reloadingTime) {
       completeReloading();
     }
@@ -700,67 +734,51 @@ function drawLowHealthVignette() {
     const currentHealth = health.getHealth();
     const maxHealth = 50;
 
-    // Only show vignette when health is below 30
     if (currentHealth <= 30) {
       push();
       noStroke();
 
-      // Calculate intensity: 0 health = max intensity, 30 health = minimal intensity
       const intensity = map(currentHealth, 0, 30, 120, 30, true);
 
-      // Add pulsing effect when critically low (below 10 health)
       let alpha = intensity;
       if (currentHealth <= 10 && !gamePaused) {
-        // Fast pulse for critical health
         const pulse = sin(millis() * 0.02) * 40;
         alpha = constrain(intensity + pulse, 30, 160);
       }
 
-      // Draw a simple red overlay with transparency
       fill(255, 0, 0, alpha);
 
-      // Draw 4 rectangles from edges for vignette effect
-      const vignetteSize = 200; // How far the red extends from edges
+      const vignetteSize = 200;
 
-      // Top
       rect(0, 0, width, vignetteSize);
-      // Bottom
       rect(0, height - vignetteSize, width, vignetteSize);
-      // Left
       rect(0, 0, vignetteSize, height);
-      // Right
       rect(width - vignetteSize, 0, vignetteSize, height);
 
-
-      // Top-left corner
       for (let i = 0; i < 3; i++) {
         const cornerSize = vignetteSize * (1 + i * 0.5);
         fill(255, 0, 0, alpha * (0.7 - i * 0.2));
         triangle(0, 0, cornerSize, 0, 0, cornerSize);
       }
 
-      // Top-right corner
       for (let i = 0; i < 3; i++) {
         const cornerSize = vignetteSize * (1 + i * 0.5);
         fill(255, 0, 0, alpha * (0.7 - i * 0.2));
         triangle(width, 0, width - cornerSize, 0, width, cornerSize);
       }
 
-      // Bottom-left corner
       for (let i = 0; i < 3; i++) {
         const cornerSize = vignetteSize * (1 + i * 0.5);
         fill(255, 0, 0, alpha * (0.7 - i * 0.2));
         triangle(0, height, 0, height - cornerSize, cornerSize, height);
       }
 
-      // Bottom-right corner
       for (let i = 0; i < 3; i++) {
         const cornerSize = vignetteSize * (1 + i * 0.5);
         fill(255, 0, 0, alpha * (0.7 - i * 0.2));
         triangle(width, height, width, height - cornerSize, width - cornerSize, height);
       }
 
-      // Add subtle screen shake effect when critically low (below 10 health)
       if (currentHealth <= 10 && !gamePaused) {
         const shakeAmount = sin(millis() * 0.03) * 2;
         translate(random(-shakeAmount, shakeAmount), random(-shakeAmount, shakeAmount));
@@ -781,7 +799,6 @@ function drawPowerUpTimers() {
   let spacing = 50;
   let timerYOffset = 25;
 
-  // Draw speed boost timer if active
   if (player && player.speed > 5 && speedBoostEndTime > 0) {
     const timeLeft = max(0, (speedBoostEndTime - millis()) / 1000);
     if (timeLeft > 0) {
@@ -795,7 +812,6 @@ function drawPowerUpTimers() {
     xPos += spacing;
   }
 
-  // Draw shield timer if active
   if (player && player.shieldActive && shieldEndTime > 0) {
     const timeLeft = max(0, (shieldEndTime - millis()) / 1000);
     if (timeLeft > 0) {
@@ -809,7 +825,6 @@ function drawPowerUpTimers() {
     xPos += spacing;
   }
 
-  // Draw damage boost timer if active
   if (player && player.damageBoostActive && damageBoostEndTime > 0) {
     const timeLeft = max(0, (damageBoostEndTime - millis()) / 1000);
     if (timeLeft > 0) {
@@ -831,18 +846,19 @@ function drawPowerUpTimers() {
 function draw() {
   // --- LORE SCREEN HANDLING ---
   if (showLore && !loreFinished) {
-      image(loreImages[lorePage], 0, 0, width, height);
+    image(loreImages[lorePage], 0, 0, width, height);
 
-      // “Press space to continue”
-      fill(0);
-      textAlign(CENTER);
-      textFont("Courier New");
-      textStyle(BOLD);
-      textSize(28);
-      text("Press SPACE to continue", width/1.3, height - 20);
+    // "Press space to continue"
+    fill(0);
+    textAlign(CENTER);
+    textFont("Courier New");
+    textStyle(BOLD);
+    textSize(28);
+    text("Press SPACE to continue", width/2, height - 20);
 
-      return; // Stop draw() — don’t run game yet
+    return;
   }
+  
   if (playInitiated) {
     if (!gamePaused) {
       // --- NORMAL GAME LOGIC (when not paused) ---
@@ -867,14 +883,12 @@ function draw() {
         ammoReload();
       }
 
-      player.updateInput(); // constantly update simultaneous input
+      player.updateInput();
 
-      // prevents constant redraw that causes lag
       if (obstaclesInitialized) {
         currentLayout.drawObstacles(player.currentX(), width);
       }
 
-      // Draw all game objects in world coordinates
       player.draw();
       playerShoots.draw();
       playerHitbox.drawPlayerHitbox();
@@ -882,37 +896,31 @@ function draw() {
       spawnPowerUps();
 
       if (player.shieldActive) {
-        // Draw shield glow/image centered over chef
         imageMode(CENTER);
         image(shieldDome, player.x + player.width / 2, player.y + player.height / 2, player.width, player.height);
       }
 
-      // Draw all enemies
       for (let enemy of enemiesArray) {
         enemy.draw();
       }
 
-      // Draw the boss if he exists
       if (boss !== null) {
         boss.draw();
       }
       pop();
 
-      // Draw ammo display with proper text settings
-      push(); // Save current drawing state
-      textSize(16); // Set consistent text size
+      push();
+      textSize(16);
       textAlign(LEFT, CENTER);
 
       if (!isReloading && ammo > 0) {
         text("Ammo: " + ammo, 50, height - 45);
       } else if (isReloading) {
-        // Show reload progress
         let progress = (millis() - reloadStartTime) / reloadingTime;
         let progressBarWidth = 100;
         let progressX = 50;
         let progressY = height - 35;
 
-        // Draw reload progress bar
         fill(100);
         rect(progressX, progressY, progressBarWidth, 10);
         fill(0, 255, 0);
@@ -923,13 +931,11 @@ function draw() {
         text("Ammo: " + ammo, 50, height - 45);
       }
 
-      // Draw pause hint
       fill(0);
       textSize(16);
       text("Press ESC to pause", width - 200, 60);
-      pop(); // Restore drawing state
+      pop();
 
-      // Draw level progress
       push();
       textSize(16);
       textAlign(RIGHT, TOP);
@@ -942,34 +948,34 @@ function draw() {
 
       debugMode.draw();
 
-      // draw powerUp statuses
       levelCreate.drawActiveStatus();
 
-      // Draw power-up timers
       drawPowerUpTimers();
 
-      health.healthDraw(); // outside of push-pop so health is fixed to screen
+      health.healthDraw();
 
-      // Draw low health vignette
       drawLowHealthVignette();
 
       let playerHitboxX = playerHitbox.getCenterX();
       let playerHitboxY = playerHitbox.getCenterY();
 
+      // CHECK FOR DEATH - show death screen for all levels including level 5
       if (health.getHealth() <= 0) {
         playInitiated = false;
         deathScrn.visible = true;
+        // Stop level music
+        if (currentMusic && currentMusic.isPlaying()) {
+          currentMusic.stop();
+        }
+        // Play menu music on death screen
+        playMenuMusic();
         return;
       }
 
       if (!bossActive && player.currentX() >= bossSpawnPosition) {
         spawnBoss();
-      } else if (currentLevel === 5 && !bossActive && player.currentX() >= bossSpawnPosition) {
-        // Player beat final level
-        finishGame();
       }
 
-      // Only spawn enemies if no boss is active
       if (!bossActive) {
         spawnEnemies();
       }
@@ -988,26 +994,21 @@ function draw() {
       }
 
       checkCollisions();
-      // --- END NORMAL GAME LOGIC ---
     } else {
       // --- GAME IS PAUSED ---
-      // Draw the game in its current state (frozen)
       cameraX = player.currentX() - width / 2;
       cameraX = constrain(cameraX, 0, levelWidth - width);
 
       background(240, 248, 255);
 
-      // Draw current level background (frozen)
       push();
       translate(-cameraX, 0);
       if (currentBackground) currentBackground.draw(cameraX);
 
-      // Draw obstacles (frozen)
       if (obstaclesInitialized) {
         currentLayout.drawObstacles(player.currentX(), width);
       }
 
-      // Draw all game objects (frozen)
       player.draw();
       playerShoots.draw();
       playerHitbox.drawPlayerHitbox();
@@ -1019,18 +1020,15 @@ function draw() {
         image(shieldDome, player.x + player.width / 2, player.y + player.height / 2, player.width, player.height);
       }
 
-      // Draw all enemies (frozen)
       for (let enemy of enemiesArray) {
         enemy.draw();
       }
 
-      // Draw the boss if he exists (frozen)
       if (boss !== null) {
         boss.draw();
       }
       pop();
 
-      // Draw UI elements
       push();
       textSize(16);
       textAlign(LEFT, CENTER);
@@ -1047,44 +1045,35 @@ function draw() {
       levelCreate.drawActiveStatus();
       drawPowerUpTimers();
       drawLowHealthVignette();
-      // --- END PAUSED GAME DRAW ---
     }
 
-    // Draw pause menu on top of everything if visible
     if (pauseMenu && pauseMenu.visible) {
       pauseMenu.draw();
     }
 
   } else if (deathScrn.visible) {
-    deathScrn.screenDraw(death);
-  } else if (showControls) {
-    if (!playInitiated && !gamePaused && currentMusic !== menuMusic) {
-    playMenuMusic();
-}
-
+    // Game Over screen
+    deathScrn.screenDraw(death);  // Use death (game over) image
+    fill(255);
+    textAlign(CENTER);
+    textSize(28);
+    text("Press ENTER to restart", width / 2, height - 50);
+  } else if (victoryScrn.visible) {
+    // Victory screen
+    victoryScrn.screenDraw(victory);  // Use victory image
+    fill(255);
+    textAlign(CENTER);
+    textSize(28);
+    text("Press ENTER to view stats", width / 2, height - 50);
+  } else if (tutorialScrn.visible) {
+    // Tutorial screen
     tutorialScrn.screenDraw(tutorial);
   } else if (statScrn.visible) {
     statScrn.screenDraw(stats);
     drawStats(gameStats);
-  } else if (endingScrn.visible) {
-    endingScrn.screenDraw(death); // or a custom ending image
-    fill(255);
-    textAlign(CENTER);
-    textSize(28);
-    text("Press ENTER to continue", width / 2, height - 50);
-
-    // Wait for player to press ENTER
-    if (keyIsDown(ENTER)) {
-      endingScrn.visible = false;
-      statScrn.visible = true; // show stats after ending
-    }
   } else {
-    if (!playInitiated && !gamePaused && currentMusic !== menuMusic) {
-    playMenuMusic();
-}
-
+    // Title screen (only shows after lore is finished)
     titleScrn.screenDraw(title);
-
   }
 }
 
@@ -1100,10 +1089,45 @@ function keyPressed() {
   // Handle debug mode commands
   debugMode.handleKey(key);
 
-  // Toggle tutorial on title screen
-  if (key === '1' && !debugMode.active) { // Only handle '1' for tutorial if not in debug mode
-    if (titleScrn.visible) {
-      showControls = !showControls; // toggle tutorial visibility
+  // Toggle tutorial on title screen OR go back from tutorial to title
+  if (key === '1' && !debugMode.active) {
+    if (titleScrn.visible && !showLore) {
+      // From title screen to tutorial
+      showControls = true;
+      tutorialScrn.visible = true;
+      titleScrn.visible = false;
+    } else if (tutorialScrn.visible) {
+      // From tutorial screen back to title
+      showControls = false;
+      tutorialScrn.visible = false;
+      titleScrn.visible = true;
+    }
+    return false; // Prevent further key handling
+  }
+
+  // --- LORE SCREEN HANDLING ---
+  if (showLore && !loreFinished) {
+    if (key === " " || key === "Enter") {
+      lorePage++;
+      
+      if (lorePage >= loreImages.length) {
+        // Finished the comic
+        loreFinished = true;
+        showLore = false;
+        
+        // Show title screen now
+        titleScrn.visible = true;
+        
+        // Set flag to prevent immediate game start
+        justFinishedLore = true;
+        
+        // Stop any current music and start menu music
+        if (currentMusic && currentMusic.isPlaying()) {
+          currentMusic.stop();
+        }
+        playMenuMusic();
+      }
+      return false; // Prevent further key handling
     }
   }
 
@@ -1126,7 +1150,6 @@ function keyPressed() {
         if (pauseMusic.isPlaying()) pauseMusic.stop();
         if (!gamePaused && playInitiated) {
           resumeLevelMusic();
-          break;
         }
         if (!playInitiated) {
           if (currentMusic && currentMusic.isPlaying()) currentMusic.stop();
@@ -1152,23 +1175,62 @@ function keyPressed() {
   // Single-trigger keys (only when not paused)
   if (!gamePaused) {
     if (key === 'Enter') {
-      if (titleScrn.visible && !showControls) { // Only start game if tutorial is not visible
-        // Reset the game completely before starting
+      // Check if we just finished lore - prevent immediate game start
+      if (justFinishedLore) {
+        justFinishedLore = false; // Reset the flag
+        return false; // Don't start game yet
+      }
+      
+      // REMOVED: Tutorial screen Enter handling since we're using '1' instead
+      // Check if we're on tutorial screen - pressing Enter should go back to title
+      // if (tutorialScrn.visible) {
+      //   tutorialScrn.visible = false;
+      //   titleScrn.visible = true;
+      //   showControls = false;
+      //   return false;
+      // }
+      
+      // Check if we're on victory screen
+      if (victoryScrn.visible) {
+        // From victory screen to stats
+        victoryScrn.visible = false;
+        statScrn.visible = true;
+        // Victory sound continues playing through stats screen
+      }
+      // Check if we're on title screen (after lore is finished)
+      else if (titleScrn.visible && !showControls && !showLore && loreFinished) {
+        // Start game from title screen
         completeGameReset();
         titleScrn.screenRemove();
         playInitiated = true;
+        // Stop menu music and start level 1 music
+        if (currentMusic && currentMusic.isPlaying()) {
+          currentMusic.stop();
+        }
+        // Stop victory sound if still playing
+        if (soundGameComplete && soundGameComplete.isPlaying()) {
+          soundGameComplete.stop();
+        }
+        playLevelMusic(1);
       } else if (deathScrn.visible) {
+        // Restart from death screen
         restartGame();
-      }
-      // Restart game after seeing Stat Screen
-      if (statScrn.visible && key === 'Enter') {
+        playLevelMusic(currentLevel);
+      } else if (statScrn.visible) {
+        // From stats screen, go back to title
         statScrn.visible = false;
-        completeGameReset(); // this will bring player back to level 1 
+        titleScrn.visible = true;
+        // Stop victory sound when going back to title
+        if (soundGameComplete && soundGameComplete.isPlaying()) {
+          soundGameComplete.stop();
+        }
+        playMenuMusic();
       }
     }
   }
   return false;
 }
+
 
 /**
  * Completely reset the game to level 1.
@@ -1185,6 +1247,13 @@ function completeGameReset() {
     damageTaken: 0,
     healthHealed: 0,
     levelReached: 0
+  };
+
+  // Reset power-up sound states
+  activePowerUpSounds = {
+    speed: false,
+    damage: false,
+    shield: false
   };
 
   // Reset to level 1
@@ -1214,7 +1283,7 @@ function completeGameReset() {
     health.health = 50;
   }
 
-  // Reset ammo and reload state (will be set properly in loadLevel)
+  // Reset ammo and reload state
   canShoot = true;
   isReloading = false;
   reloadStartTime = null;
@@ -1229,23 +1298,47 @@ function completeGameReset() {
   titleScrn.visible = true;
   deathScrn.visible = false;
   statScrn.visible = false;
+  victoryScrn.visible = false; // Reset victory screen
+  tutorialScrn.visible = false; // Reset tutorial screen
+  showControls = false; // Reset tutorial flag
 
   // Clear any keys that might be stuck
   for (let key in keys) {
     keys[key] = false;
   }
 
-  // Load level 1 to reset obstacles and layout (this will also set ammo)
+  // Load level 1
   loadLevel(1);
 }
 
+/**
+ * Called when player completes the game (beats level 5 boss)
+ */
 function finishGame() {
-  playInitiated = false;      // stop normal gameplay
-  endingScrn.visible = true;  // show ending screen
+  playInitiated = false;
+  victoryScrn.visible = true;  // Show victory screen
   deathScrn.visible = false;
   titleScrn.visible = false;
-  statScrn.visible = false;   // stats screen will show after
+  statScrn.visible = false;
+  //endingScrn.visible = false;
+  
+  // Stop any level music and menu music
+  if (currentMusic && currentMusic.isPlaying()) {
+    currentMusic.stop();
+  }
+  
+  // Stop pause music if playing
+  if (pauseMusic && pauseMusic.isPlaying()) {
+    pauseMusic.stop();
+  }
+  
+  // Play game complete sound (play once)
+  if (soundGameComplete && !soundGameComplete.isPlaying()) {
+    playSound(soundGameComplete, 0.7);
+  }
+  
 }
+
 
 /**
  * Restarts the current level.
@@ -1253,6 +1346,13 @@ function finishGame() {
 function restartGame() {
   // Reset only the levelReached stat when player dies
   gameStats.levelReached = 0;
+
+  // Reset power-up sound states
+  activePowerUpSounds = {
+    speed: false,
+    damage: false,
+    shield: false
+  };
 
   // Reset ammo and reload state
   ammo = Math.round(12 - currentLevel);
@@ -1300,11 +1400,19 @@ function restartGame() {
   shieldEndTime = 0;
   damageBoostEndTime = 0;
 
+  // Reset screens
+  deathScrn.visible = false;
+  statScrn.visible = false;
+  victoryScrn.visible = false; // Reset victory screen
+  tutorialScrn.visible = false; // Reset tutorial screen
+  showControls = false; // Reset tutorial flag
+
   for (let key in keys) {
     keys[key] = false;
   }
 
-  deathScrn.visible = false;
-  statScrn.visible = false;
   playInitiated = true;
+  
+  // Play current level music
+  playLevelMusic(currentLevel);
 }

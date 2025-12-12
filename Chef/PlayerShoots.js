@@ -64,6 +64,11 @@ class PlayerShoots {
     });
 
     player.startShooting(ammo);
+    
+    // Play shooting sound
+    if (soundChefShoot) {
+      playSound(soundChefShoot, 0.3);
+    }
   }
 
   /**

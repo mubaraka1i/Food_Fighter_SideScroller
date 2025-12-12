@@ -55,16 +55,5 @@ class CheeseProjectile {
     }
   }
 
-  /**
-  * Draws the rectangular hitbox of the projectile.
-  */
-  drawHitbox() {
-    push();
-    noFill();
-    stroke('red');
-    strokeWeight(2);
-    rectMode(CENTER); 
-    rect(this.x, this.y, this.size+1, this.size+1);
-    pop();
-  }
+
 }

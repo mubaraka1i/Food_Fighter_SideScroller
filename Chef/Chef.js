@@ -255,6 +255,11 @@ class Chef {
     if (this.isOnGround && !this.isTakingDamage) {
       this.velocityY = -this.jumpStrength;
       this.isOnGround = false;
+      
+      // Play jump sound
+      if (soundChefJump) {
+        playSound(soundChefJump, 0.5);
+      }
     }
   }
 
@@ -264,12 +269,16 @@ class Chef {
    * @returns {undefined} early exit if shield is active
    */
   takeDamage() {
-
     if (this.shieldActive) {
       return; // Exit early, no damage taken
     }
 
     this.isTakingDamage = true;
+    
+    // Play damage taken sound
+    if (soundDamageTaken) {
+      playSound(soundDamageTaken);
+    }
     
     // If player is moving jumping, cancel the jump
     if (this.velocityY < 0) {

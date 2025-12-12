@@ -89,20 +89,7 @@ class SodaBubbleProjectile {
         }
     }
 
-    /**
-     * Draws the hitbox for the projectile to the screen.
-     */
-    drawHitbox() {
-        if (this.active) {
-            push();
-            noFill();
-            stroke('red');
-            strokeWeight(2);
-            rectMode(CENTER);
-            rect(this.x, this.y, this.size + 1, this.size + 1);
-            pop();
-        }
-    }
+
 
     /**
      * @returns {boolean} true if projectile should be removed, false if not
