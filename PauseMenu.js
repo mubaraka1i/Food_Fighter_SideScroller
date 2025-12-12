@@ -71,7 +71,9 @@ class PauseMenu {
     }
   }
   
-  selectOption() {
+  
+
+ selectOption() {
     switch(this.selectedOption) {
       case 0: // Continue
         gamePaused = false;
@@ -94,7 +96,7 @@ class PauseMenu {
         this.hide();
         playInitiated = false;
         titleScrn.visible = true;
-        break;
+        break; 
     }
   }
 }
