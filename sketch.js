@@ -4,7 +4,7 @@ let health;
 let showHitboxes = true;
 let playerHitbox;
 let enemiesArray = [];
-let playInitiated = false;
+let playInitiated = false;   
 let gameScale;
 let background1;
 let cameraX = 0;
