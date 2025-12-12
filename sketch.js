@@ -123,7 +123,7 @@ function preload() {
 
   // Load level theme music Bebo
   levelMusic[1] = loadSound('Assets/Level1Music.mp3');
-  // levelMusic[2] = loadSound('Assets/Level2Music.mp3');
+  levelMusic[2] = loadSound('Assets/Level2Music.mp3');
   levelMusic[3] = loadSound('Assets/Level3Music.mp3');
   levelMusic[4] = loadSound('Assets/Level4Music.mp3');
   levelMusic[5] = loadSound('Assets/Level5Music.mp3');
@@ -553,29 +553,41 @@ function spawnEnemies() {
   }
 }
 function playLevelMusic(level) {
-  // Stop currently playing music
   if (currentMusic && currentMusic.isPlaying()) {
     currentMusic.stop();
   }
 
-  // Play new level music
   currentMusic = levelMusic[level];
-  if (currentMusic) {
-    currentMusic.setLoop(true);
+  currentMusic.setLoop(true);
+
+  if (level === 2) {
+    // Start Level 2 music at 18 seconds
+    currentMusic.play(0, 1, 1, 18);
+  } else {
     currentMusic.play();
   }
 }
+
+
+
+
+
+
+  
+
 function playMenuMusic() {
   if (currentMusic && currentMusic.isPlaying()) {
     currentMusic.stop();
   }
 
   currentMusic = menuMusic;
+
   if (currentMusic) {
     currentMusic.setLoop(true);
-    currentMusic.play();
+    currentMusic.jump(2); 
   }
 }
+
 function playPauseMenuMusic() {
   // Pause the level music (
   if (currentMusic && currentMusic.isPlaying()) {
@@ -1041,17 +1053,19 @@ function draw() {
   } else if (deathScrn.visible) {
     deathScrn.screenDraw(death);
   } else if (showControls) {
-    if (!gamePaused && currentMusic !== menuMusic) {
-      playMenuMusic();
-    }
+    if (!playInitiated && !gamePaused && currentMusic !== menuMusic) {
+    playMenuMusic();
+}
+
     tutorialScrn.screenDraw(tutorial);
   } else if (statScrn.visible) {
     statScrn.screenDraw(stats);
     drawStats(gameStats);
   } else {
-    if (!gamePaused && currentMusic !== menuMusic) {
-      playMenuMusic();
-    }
+    if (!playInitiated && !gamePaused && currentMusic !== menuMusic) {
+    playMenuMusic();
+}
+
     titleScrn.screenDraw(title);
 
   }
