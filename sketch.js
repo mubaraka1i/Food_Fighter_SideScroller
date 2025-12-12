@@ -44,6 +44,11 @@ let debugMode;
 let enemySpawnRate; // Frames between enemy spawns
 let enemySpawnTimer = 0;
 
+let flyingEnemySprites = {
+  left: [],
+  right: []
+};
+
 let currentLevel = 1;
 let levelWidth;
 let bossSpawnPosition;
@@ -209,6 +214,19 @@ function preload() {
     loadImage('Assets/cake_minion2.png'),
     loadImage('Assets/cake_minion3.png'),
     loadImage('Assets/cake_minion4.png')
+  ];
+
+  // Load Flying Enemies
+  flyingEnemySprites.left = [
+  loadImage("Assets/eggLeft1.png"),
+  loadImage("Assets/eggLeft2.png"),
+  loadImage("Assets/eggLeft3.png")
+  ];
+
+  flyingEnemySprites.right = [
+    loadImage("Assets/eggRight1.png"),
+    loadImage("Assets/eggRight2.png"),
+    loadImage("Assets/eggRight1.png")
   ];
 
   // Load Power-Up Icons

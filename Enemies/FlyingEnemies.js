@@ -10,6 +10,12 @@ class FlyingEnemies {
     this.y = y;
     this.size = 30; // Diameter of the circle
     this.speed = 1 + (currentLevel * 0.2); // Speed increases with level
+    
+    // for sprite
+    this.radius = this.size / 2;
+    this.direction = random([-1, 1]); // -1 = left, 1 = right
+    this.frame = 0;
+    this.frameTimer = 0;
   }
 
   /**
@@ -34,8 +40,18 @@ class FlyingEnemies {
     let angle = atan2(playerHitboxY - this.y, playerHitboxX - this.x);
     
     // Move on that angle
-    this.x += cos(angle) * this.speed;
-    this.y += sin(angle) * this.speed;
+    let dx = cos(angle) * this.speed;
+    let dy = sin(angle) * this.speed;
+
+    this.x += dx;
+    this.y += dy;
+
+    // Update direction of sprite based on horizontal velocity
+    if (dx < 0) {
+        this.direction = -1;  // left
+    } else {
+        this.direction = 1;   // right
+    }
   }
 
   /**
@@ -45,6 +61,30 @@ class FlyingEnemies {
     fill(0, 150, 255); // Blue
     noStroke();
     circle(this.x, this.y, this.size);
+
+    // --- Choose facing direction based on movement ---
+    let facing = this.direction === -1 ? "left" : "right";
+
+    // --- Update animation frame ---
+    this.frameTimer++;
+    if (this.frameTimer >= 6) {   // Change frames every 6 ticks
+      this.frame = (this.frame + 1) % flyingEnemySprites[facing].length;
+      this.frameTimer = 0;
+    }
+
+    // --- DRAW SPRITE ---
+    let img = flyingEnemySprites[facing][this.frame];
+
+    push();
+    imageMode(CENTER);
+    image(
+      img,
+      this.x,    // offset so it centers
+      this.y,
+      this.radius * 3.7,
+      this.radius * 3.7
+    );
+    pop();
   }
 }
 
