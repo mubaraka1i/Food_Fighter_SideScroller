@@ -32,6 +32,13 @@ class TitleScreen {
     if (this.type == 2 || this.type == 3) {
       // Just display normally (one frame) for tutorial
       image(screen, 0, 0, width, height);
+    } else if (this.type == 4) {
+      this.curFrame = floor(frameCount / 10) % 3;
+      let frameW = screen.width / 3;
+      let frameH = screen.height;
+      let curX = this.curFrame * frameW;
+      let curY = 0;
+      image(screen, 0, 0, width, height, curX, curY, frameW, frameH);
     } else {
       this.curFrame = floor(frameCount / 10) % 2;
       let frameW = screen.width / 2;
