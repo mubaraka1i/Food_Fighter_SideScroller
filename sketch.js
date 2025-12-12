@@ -94,7 +94,7 @@ let loreFinished = false;
  */
 function preload() {
   title = loadImage('Assets/titlescreen.png');
-  death = loadImage('Assets/gameoverscreen.png');
+  death = loadImage('Assets/endingscreen.png');
   tutorial = loadImage('Assets/tutorialscreen.png');
   chefHat = loadImage('Assets/chef_health.png');
   stats = loadImage('Assets/statScreen.png');
@@ -292,6 +292,8 @@ function setup() {
   deathScrn = new TitleScreen(1);
   tutorialScrn = new TitleScreen(2);
   statScrn = new TitleScreen(3);
+  endingScrn = new TitleScreen(4);
+  endingScrn.visible = false;  
   pauseMenu = new PauseMenu();
   boss = null;
   canShoot = true;
@@ -962,6 +964,9 @@ function draw() {
 
       if (!bossActive && player.currentX() >= bossSpawnPosition) {
         spawnBoss();
+      } else if (currentLevel === 5 && !bossActive && player.currentX() >= bossSpawnPosition) {
+        // Player beat final level
+        finishGame();
       }
 
       // Only spawn enemies if no boss is active
@@ -1061,6 +1066,18 @@ function draw() {
   } else if (statScrn.visible) {
     statScrn.screenDraw(stats);
     drawStats(gameStats);
+  } else if (endingScrn.visible) {
+    endingScrn.screenDraw(death); // or a custom ending image
+    fill(255);
+    textAlign(CENTER);
+    textSize(28);
+    text("Press ENTER to continue", width / 2, height - 50);
+
+    // Wait for player to press ENTER
+    if (keyIsDown(ENTER)) {
+      endingScrn.visible = false;
+      statScrn.visible = true; // show stats after ending
+    }
   } else {
     if (!playInitiated && !gamePaused && currentMusic !== menuMusic) {
     playMenuMusic();
@@ -1220,6 +1237,14 @@ function completeGameReset() {
 
   // Load level 1 to reset obstacles and layout (this will also set ammo)
   loadLevel(1);
+}
+
+function finishGame() {
+  playInitiated = false;      // stop normal gameplay
+  endingScrn.visible = true;  // show ending screen
+  deathScrn.visible = false;
+  titleScrn.visible = false;
+  statScrn.visible = false;   // stats screen will show after
 }
 
 /**
