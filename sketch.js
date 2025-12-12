@@ -77,6 +77,12 @@ let speedBoostEndTime = 0;
 let shieldEndTime = 0;
 let damageBoostEndTime = 0;
 
+// Lore screen
+let showLore = true;  // Start with lore enabled
+let lorePage = 0;     // Which comic panel we’re on
+let loreImages = [];  // Comic strip images
+let loreFinished = false;
+
 /**
  * Preloads all images that are used.
  */
@@ -216,6 +222,15 @@ function preload() {
   speedStatus = loadImage('Assets/status_speed.png');
   shieldStatus = loadImage('Assets/status_shield.png');
   damageStatus = loadImage('Assets/status_damage.png');
+
+  // LORE IMAGES (comic strip)
+  loreImages = [
+    loadImage('Assets/lorescreen1.png'),
+    loadImage('Assets/lorescreen2.png'),
+    loadImage('Assets/lorescreen3.png'),
+    loadImage('Assets/lorescreen4.png'),
+    loadImage('Assets/lorescreen5.png')
+  ];
 }
 
 
@@ -259,6 +274,22 @@ function setup() {
 
   document.addEventListener('keydown', (e) => {
     keys[e.key.toLowerCase()] = true;
+
+    // --- LORE SCREEN CONTROLS ---
+    if (showLore && !loreFinished) {
+        if (e.key === " " || e.key === "Enter") {
+            lorePage++;
+
+            if (lorePage >= loreImages.length) {
+                // Finished the comic
+                loreFinished = true;
+                showLore = false;
+
+                // Show title screen now
+                titleScrn.visible = true;
+            }
+        }
+    }
   });
 
   document.addEventListener('keyup', (e) => {
@@ -756,6 +787,20 @@ function drawPowerUpTimers() {
  * @returns {undefined} exit if health is 0
  */
 function draw() {
+  // --- LORE SCREEN HANDLING ---
+  if (showLore && !loreFinished) {
+      image(loreImages[lorePage], 0, 0, width, height);
+
+      // “Press space to continue”
+      fill(0);
+      textAlign(CENTER);
+      textFont("Courier New");
+      textStyle(BOLD);
+      textSize(28);
+      text("Press SPACE to continue", width/1.3, height - 20);
+
+      return; // Stop draw() — don’t run game yet
+  }
   if (playInitiated) {
     if (!gamePaused) {
       // --- NORMAL GAME LOGIC (when not paused) ---
