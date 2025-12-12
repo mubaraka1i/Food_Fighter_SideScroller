@@ -54,6 +54,7 @@ let levelWidth;
 let bossSpawnPosition;
 let currentBackground;
 let currentLayout;
+let obstacleImages = []; // Will store images for each level
 
 let speedBoost, healthBoost, shieldBoost, damageBoost, shieldDome;
 let level1BackgroundImg, level2BackgroundImg, level3BackgroundImg, level4BackgroundImg, level5BackgroundImg;
@@ -112,6 +113,13 @@ function preload() {
   level3BackgroundImg = loadImage('Assets/Kitchen3.png');
   level4BackgroundImg = loadImage('Assets/Kitchen4.png');
   level5BackgroundImg = loadImage('Assets/Kitchen5.png');
+
+  // Load Obstacle Images
+  obstacleImages[1] = loadImage("assets/candleObstacle.png");
+  obstacleImages[2] = loadImage("assets/bakingpanObstacle.png");
+  obstacleImages[3] = loadImage("assets/papertrayObstacle.png");
+  obstacleImages[4] = loadImage("assets/strawObstacle.png");
+  obstacleImages[5] = loadImage("assets/plateObstacle.png");
 
   // Load level theme music Bebo
   levelMusic[1] = loadSound('Assets/Level1Music.mp3');

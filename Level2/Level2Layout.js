@@ -3,7 +3,7 @@ class Level2Layout {
      * Creates an obstacles array that can be used to add and draw obstacles.
      */
     constructor() {
-        this.obstacles = new ObstacleTracker();
+        this.obstacles = new ObstacleTracker(2);
         this.cookieColor = '#8B4513'; // Brown for cookies
         this.counterColor = '#D2B48C'; // Tan for counters
         this.applianceColor = '#A9A9A9'; // Gray for appliances

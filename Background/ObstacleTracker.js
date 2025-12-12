@@ -2,7 +2,8 @@ class ObstacleTracker {
     /**
      * Creates an Obstacle Tracker object that instantiates an empty array of ObstacleCreator objects.
      */
-    constructor() {
+    constructor(level) {
+        this.level = level;
         this.obstacles = [];
     }
 
@@ -51,6 +52,8 @@ class ObstacleTracker {
      * @param {number} screenWidth: width of the canvas
      */
     obstacleDraw(primaryColor, secondaryColor, playerX, screenWidth) {
+        let img = obstacleImages[this.level]; // Get image for the level
+
         for (let i = 0; i < this.obstacles.length; i++) {
             let obstacle = this.obstacles[i];
             let obsX = obstacle.topLeft[0];
@@ -64,9 +67,14 @@ class ObstacleTracker {
                 let fillColor = i % 2 === 0 ? primaryColor : secondaryColor;
                 push();
                 noStroke();
-                fill(fillColor);
+                noFill();
                 rect(obsX, obsY, obsW, obsH);
                 pop();
+
+                // Draw image on top
+                if (img) {
+                    image(img, obsX, obsY, obsW, obsH); // scale image to rectangle size
+                }
             }
         }
     }

@@ -3,7 +3,7 @@ class Level5Layout {
      * Creates an obstacles array that can be used to add and draw obstacles.
      */
     constructor() {
-        this.obstacles = new ObstacleTracker();
+        this.obstacles = new ObstacleTracker(5);
         this.primaryColor = '#F9E79F';
         this.secondaryColor = '#D4AC0D';
     }
