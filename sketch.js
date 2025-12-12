@@ -509,6 +509,12 @@ function loadLevel(levelNumber) {
  * Function to be called from collisions to know what level its on.
  */
 function goToNextLevel() {
+  // Check if this is the final level
+  if (currentLevel >= 5) {
+    finishGame();
+    return;
+  }
+  
   // Stop current level music before loading next level
   if (currentMusic && currentMusic.isPlaying()) {
     currentMusic.stop();
@@ -516,7 +522,7 @@ function goToNextLevel() {
   
   loadLevel(currentLevel + 1);
   
-  // Start new level music
+  // Start new level music (currentLevel is now the new level after loadLevel)
   playLevelMusic(currentLevel);
 }
 
@@ -1119,6 +1125,33 @@ function draw() {
  * @returns {boolean} false to prevent default browser behavior
  */
 function keyPressed() {
+  // --- LORE SCREEN HANDLING ---
+  // Prevent any key handling during lore screen
+  if (showLore && !loreFinished) {
+    if (key === " " || key === "Enter") {
+      lorePage++;
+      
+      if (lorePage >= loreImages.length) {
+        // Finished the comic
+        loreFinished = true;
+        showLore = false;
+        
+        // Show title screen now
+        titleScrn.visible = true;
+        
+        // Set flag to prevent immediate game start
+        justFinishedLore = true;
+        
+        // Stop any current music and start menu music
+        if (currentMusic && currentMusic.isPlaying()) {
+          currentMusic.stop();
+        }
+        playMenuMusic();
+      }
+    }
+    return false; // Prevent all other key handling during lore screen
+  }
+
   // Debug mode sequence checking
   debugMode.checkSequence(key);
 
@@ -1173,32 +1206,6 @@ function keyPressed() {
     return false; // Prevent further key handling
   }
 
-  // --- LORE SCREEN HANDLING ---
-  if (showLore && !loreFinished) {
-    if (key === " " || key === "Enter") {
-      lorePage++;
-      
-      if (lorePage >= loreImages.length) {
-        // Finished the comic
-        loreFinished = true;
-        showLore = false;
-        
-        // Show title screen now
-        titleScrn.visible = true;
-        
-        // Set flag to prevent immediate game start
-        justFinishedLore = true;
-        
-        // Stop any current music and start menu music
-        if (currentMusic && currentMusic.isPlaying()) {
-          currentMusic.stop();
-        }
-        playMenuMusic();
-      }
-      return false; // Prevent further key handling
-    }
-  }
-
   // Pause menu controls
   if (playInitiated && pauseMenu && pauseMenu.visible) {
     switch (key) {
@@ -1243,10 +1250,10 @@ function keyPressed() {
   // Single-trigger keys (only when not paused)
   if (!gamePaused) {
     if (key === 'Enter') {
-      // Check if we just finished lore - prevent immediate game start
+      // Check if we just finished lore - reset the flag immediately
       if (justFinishedLore) {
-        justFinishedLore = false; // Reset the flag
-        return false; // Don't start game yet
+        justFinishedLore = false; // Reset the flag immediately
+        return false; // Don't start game on this press
       }
       
       // Check if we're on victory screen
@@ -1396,6 +1403,7 @@ function finishGame() {
   // Stop any level music and menu music
   if (currentMusic && currentMusic.isPlaying()) {
     currentMusic.stop();
+    currentMusic = null;
   }
   
   // Stop pause music if playing
