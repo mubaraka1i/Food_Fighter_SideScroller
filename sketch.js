@@ -82,7 +82,7 @@ let gameStats = {
   damageDone: 0,
   damageTaken: 0,
   healthHealed: 0,
-  levelReached: 0
+  
 };
 
 // Timer variables for power-ups
@@ -412,7 +412,7 @@ function loadLevel(levelNumber) {
   obstaclesInitialized = false;
   enemiesArray = [];
   powerList = [];
-  gameStats.levelReached = 0;
+  
   boss = null;
   bossActive = false;
   cameraX = 0;
@@ -908,9 +908,7 @@ function draw() {
   if (playInitiated) {
     if (!gamePaused) {
       // --- NORMAL GAME LOGIC (when not paused) ---
-      if (player.currentX() > gameStats.levelReached) {
-        gameStats.levelReached = player.currentX();
-      }
+      
 
       cameraX = player.currentX() - width / 2;
       cameraX = constrain(cameraX, 0, levelWidth - width);
@@ -985,11 +983,7 @@ function draw() {
       push();
       textSize(16);
       textAlign(RIGHT, TOP);
-      let percentage = floor(gameStats.levelReached / bossSpawnPosition * 100);
-      if (percentage > 100) {
-        percentage = 100;
-      }
-      text("Level Reached: " + percentage + "%", width - 50, 25);
+     
       pop();
 
       debugMode.draw();
@@ -1080,11 +1074,7 @@ function draw() {
       textAlign(LEFT, CENTER);
       text("Ammo: " + ammo, 50, height - 45);
       textAlign(RIGHT, TOP);
-      let percentage = floor(gameStats.levelReached / bossSpawnPosition * 100);
-      if (percentage > 100) {
-        percentage = 100;
-      }
-      text("Level Reached: " + percentage + "%", width - 50, 25);
+      
       pop();
 
       health.healthDraw();
@@ -1325,7 +1315,7 @@ function completeGameReset() {
     damageDone: 0,
     damageTaken: 0,
     healthHealed: 0,
-    levelReached: 0
+    
   };
 
   // Reset power-up sound states
@@ -1422,8 +1412,7 @@ function finishGame() {
  * Restarts the current level.
  */
 function restartGame() {
-  // Reset only the levelReached stat when player dies
-  gameStats.levelReached = 0;
+  
 
   // Reset power-up sound states
   activePowerUpSounds = {
