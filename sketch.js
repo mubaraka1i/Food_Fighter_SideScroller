@@ -650,7 +650,7 @@ function playLevelMusic(level) {
   }
 
   currentMusic = levelMusic[level];
-  if (currentMusic) {
+  if (currentMusic && currentMusic.isLoaded()) {
     const volumeLevel = currentVolume; // Use currentVolume instead of slider.value()
     currentMusic.setVolume(volumeLevel);
     currentMusic.setLoop(true);
@@ -677,7 +677,8 @@ function playMenuMusic() {
 
     currentMusic = menuMusic;
     
-    if (currentMusic) {
+    if (currentMusic && currentMusic.isLoaded()) {
+
       const volumeLevel = currentVolume * 0.5; // Use currentVolume
       currentMusic.setVolume(volumeLevel);
       currentMusic.setLoop(true);
@@ -1137,7 +1138,8 @@ function mousePressed() {
   // 2. We aren't looking at controls/tutorial
   // 3. We aren't looking at Lore
   // 4. Lore has actually finished
-  if (titleScrn.visible && !showControls && !showLore && loreFinished) {
+  if (titleScrn && titleScrn.visible && !showControls && !showLore && loreFinished) {
+
     
     // Check if the click hit the specific arrow coordinates defined in TitleScreen
     if (titleScrn.isPlayButtonClicked(mouseX, mouseY)) {
