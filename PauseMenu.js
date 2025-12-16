@@ -56,10 +56,33 @@ class PauseMenu {
   show() {
     this.visible = true;
     this.selectedOption = 0;
+    
+    // Show volume controls when pausing
+    if (window.volumeControls) {
+      window.volumeControls.controlsText.show();
+      window.volumeControls.musicLabel.show();
+      window.volumeControls.volumeSlider.show();
+      window.volumeControls.soundLabel.show();
+      window.volumeControls.soundEffectsSlider.show();
+      
+      // Style them to match paused theme
+      window.volumeControls.controlsText.style('color', 'white');
+      window.volumeControls.musicLabel.style('color', 'white');
+      window.volumeControls.soundLabel.style('color', 'white');
+    }
   }
   
   hide() {
     this.visible = false;
+    
+    // Hide volume controls when unpausing
+    if (window.volumeControls) {
+      window.volumeControls.controlsText.hide();
+      window.volumeControls.musicLabel.hide();
+      window.volumeControls.volumeSlider.hide();
+      window.volumeControls.soundLabel.hide();
+      window.volumeControls.soundEffectsSlider.hide();
+    }
   }
   
   moveSelection(direction) {
@@ -71,9 +94,7 @@ class PauseMenu {
     }
   }
   
-  
-
- selectOption() {
+  selectOption() {
     switch(this.selectedOption) {
       case 0: // Continue
         gamePaused = false;

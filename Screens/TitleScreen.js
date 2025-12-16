@@ -1,8 +1,7 @@
 class TitleScreen {
   /**
    * Creates a title screen to be drawn to the screen if game not started.
-   * 
-   * @param {number} type 0, 1, 2, 3, or 4 - title, gameOver, tutorial, stats, or victory
+   * * @param {number} type 0, 1, 2, 3, or 4 - title, gameOver, tutorial, stats, or victory
    */
   constructor(type) {
     this.type = type;
@@ -54,6 +53,49 @@ class TitleScreen {
       let curY = 0;
       image(screen, 0, 0, width, height, curX, curY, frameW, frameH);
     }
+
+    // Visual Debug Box 
+    /*
+    if (this.type === 0) { 
+      push();
+      noFill();
+      stroke(255, 0, 0);
+      strokeWeight(3);
+      
+      let boxX = width * 0.69; 
+      let boxY = height * 0.71;
+      let boxW = width * 0.079;
+      let boxH = height * 0.14;
+      
+      rect(boxX, boxY, boxW, boxH);
+      pop();
+    }
+      */
+  }
+
+  /**
+   * Checks if a mouse click x,y is inside the "Play" arrow area.
+   * @param {number} mx Mouse X position
+   * @param {number} my Mouse Y position
+   * @returns {boolean} true if clicked inside the arrow
+   */
+  isPlayButtonClicked(mx, my) {
+    // Left Bound is the same as boxX
+    let leftBound = width * 0.69; 
+    
+    // Right Bound is boxX + boxW (0.69 + 0.079 = 0.769)
+    let rightBound = width * (0.69 + 0.079); 
+    
+    // Top Bound is the same as boxY
+    let topBound = height * 0.71;
+    
+    // Bottom Bound is boxY + boxH (0.71 + 0.14 = 0.85)
+    let bottomBound = height * (0.71 + 0.14); 
+
+    if (mx > leftBound && mx < rightBound && my > topBound && my < bottomBound) {
+      return true;
+    }
+    return false;
   }
   
   /**

@@ -42,6 +42,9 @@ let soundEffectsMuted = false;
 let volumeSlider;
 let soundEffectsSlider;
 
+let currentVolume = 0.5;
+let currentSoundEffectsVolume = 0.7;
+
 let boss;
 let bossActive = false;
 
@@ -294,7 +297,8 @@ function playSound(sound, volume = 0.7) {
   if (sound && audioStarted && !soundEffectsMuted) {
     // Check if the sound is already playing
     if (!sound.isPlaying()) {
-      sound.setVolume(volume * (soundEffectsSlider ? soundEffectsSlider.value() : 1));
+      // Use currentSoundEffectsVolume
+      sound.setVolume(volume * currentSoundEffectsVolume);
       sound.play();
     }
   }
@@ -316,18 +320,38 @@ function startAudioOnFirstInteraction() {
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
-  // Create volume controls (position them in a corner)
-  createP('Controls: M = Toggle Music, P = Toggle Sound Effects').position(10, 200).style('color', 'black').style('font-size', '14px');
+  // Create volume controls (position them in a corner) - initially hidden
+  let controlsText = createP('Controls: M = Toggle Music, P = Toggle Sound Effects');
+  controlsText.position(10, 200).style('color', 'black').style('font-size', '14px');
+  controlsText.hide(); // Hide initially
   
   // Create volume slider
-  createP('Music Volume:').position(10, 240).style('color', 'black').style('font-size', '14px');
-  volumeSlider = createSlider(0, 1, 0.5, 0.1).position(10, 270).size(150);
-  volumeSlider.input(updateVolume);
+  let musicLabel = createP('Music Volume:');
+  musicLabel.position(10, 240).style('color', 'black').style('font-size', '14px');
+  musicLabel.hide(); // Hide initially
+  
+  volumeSlider = createSlider(0, 1, currentVolume, 0.1).position(10, 270).size(150); // Use currentVolume
+  volumeSlider.hide(); // Hide initially
   
   // Create sound effects slider
-  createP('Sound Effects:').position(10, 300).style('color', 'black').style('font-size', '14px');
-  soundEffectsSlider = createSlider(0, 1, 0.7, 0.1).position(10, 330).size(150);
-  soundEffectsSlider.input(updateSoundEffects);
+  let soundLabel = createP('Sound Effects:');
+  soundLabel.position(10, 300).style('color', 'black').style('font-size', '14px');
+  soundLabel.hide(); // Hide initially
+  
+  soundEffectsSlider = createSlider(0, 1, currentSoundEffectsVolume, 0.1).position(10, 330).size(150); // Use currentSoundEffectsVolume
+  soundEffectsSlider.hide(); // Hide initially
+
+  // Store references to show/hide later
+  window.volumeControls = {
+    controlsText: controlsText,
+    musicLabel: musicLabel,
+    volumeSlider: volumeSlider,
+    soundLabel: soundLabel,
+    soundEffectsSlider: soundEffectsSlider
+  };
+
+  volumeSlider.input(updateVolume);
+  soundEffectsSlider.input(updateVolume);
 
   window.addEventListener("mousemove", startAudioOnFirstInteraction);
   window.addEventListener("mousedown", startAudioOnFirstInteraction);
@@ -624,7 +648,7 @@ function playLevelMusic(level) {
 
   currentMusic = levelMusic[level];
   if (currentMusic) {
-    const volumeLevel = volumeSlider ? volumeSlider.value() : 0.4;
+    const volumeLevel = currentVolume; // Use currentVolume instead of slider.value()
     currentMusic.setVolume(volumeLevel);
     currentMusic.setLoop(true);
     
@@ -651,7 +675,7 @@ function playMenuMusic() {
     currentMusic = menuMusic;
     
     if (currentMusic) {
-      const volumeLevel = volumeSlider ? volumeSlider.value() * 0.5 : 0.25;
+      const volumeLevel = currentVolume * 0.5; // Use currentVolume
       currentMusic.setVolume(volumeLevel);
       currentMusic.setLoop(true);
       currentMusic.play();
@@ -669,7 +693,7 @@ function playPauseMenuMusic() {
 
   // Start pause menu music
   if (!pauseMusic.isPlaying()) {
-    const volumeLevel = volumeSlider ? volumeSlider.value() * 0.5 : 0.25;
+    const volumeLevel = currentVolume * 0.5; // Use currentVolume
     pauseMusic.setVolume(volumeLevel);
     pauseMusic.setLoop(true);
     pauseMusic.play();
@@ -684,6 +708,8 @@ function resumeLevelMusic() {
 
   // Resume the level music exactly where it paused
   if (currentMusic && !currentMusic.isPlaying()) {
+    // Apply the current volume before resuming
+    currentMusic.setVolume(currentVolume);
     currentMusic.play();
   }
 }
@@ -894,17 +920,6 @@ function draw() {
     return;
   }
   
-  // Draw mute status indicators
-  if (playInitiated || titleScrn.visible || victoryScrn.visible || deathScrn.visible) {
-    push();
-    fill(0);
-    textSize(14);
-    textAlign(LEFT, TOP);
-    text(`Music: ${musicMuted ? 'MUTED' : 'ON'} (M to toggle)`, width - 200, 10);
-    text(`Sound FX: ${soundEffectsMuted ? 'MUTED' : 'ON'} (S to toggle)`, width - 200, 30);
-    pop();
-  }
-  
   if (playInitiated) {
     if (!gamePaused) {
       // --- NORMAL GAME LOGIC (when not paused) ---
@@ -1109,6 +1124,54 @@ function draw() {
   }
 }
 
+function mousePressed() {
+  // Ensure audio starts on first click (existing requirement)
+  startAudioOnFirstInteraction();
+
+  // Handle Title Screen Play Button Click
+  // Check if: 
+  // 1. Title screen is visible
+  // 2. We aren't looking at controls/tutorial
+  // 3. We aren't looking at Lore
+  // 4. Lore has actually finished
+  if (titleScrn.visible && !showControls && !showLore && loreFinished) {
+    
+    // Check if the click hit the specific arrow coordinates defined in TitleScreen
+    if (titleScrn.isPlayButtonClicked(mouseX, mouseY)) {
+      
+      // --- START GAME LOGIC (Copied from your keyPressed 'Enter' logic) ---
+      completeGameReset();
+      titleScrn.screenRemove();
+      playInitiated = true;
+      
+      // Stop menu music and start level 1 music
+      if (currentMusic && currentMusic.isPlaying()) {
+        currentMusic.stop();
+      }
+      // Stop victory sound if still playing
+      if (soundGameComplete && soundGameComplete.isPlaying()) {
+        soundGameComplete.stop();
+      }
+      playLevelMusic(1);
+    }
+  }
+  
+  // You can also add click handling for Lore navigation here if you want:
+  if (showLore && !loreFinished) {
+     lorePage++;
+     if (lorePage >= loreImages.length) {
+          loreFinished = true;
+          showLore = false;
+          titleScrn.visible = true;
+          justFinishedLore = true;
+          if (currentMusic && currentMusic.isPlaying()) {
+            currentMusic.stop();
+          }
+          playMenuMusic();
+     }
+  }
+}
+
 /**
  * Called if a keyboard button is pressed by the player.
  * 
@@ -1231,7 +1294,7 @@ function keyPressed() {
   if (playInitiated && key === 'Escape' && !gamePaused) {
     gamePaused = true;
     if (pauseMenu) {
-      pauseMenu.show();
+      pauseMenu.show(); // This will show volume controls
     }
     playPauseMenuMusic();
     return false;
@@ -1288,11 +1351,22 @@ function keyPressed() {
 }
 
 function updateVolume() {
-  if (currentMusic) {
-    currentMusic.setVolume(volumeSlider.value());
+  currentVolume = volumeSlider.value();
+  currentSoundEffectsVolume = soundEffectsSlider.value();
+  
+  // Update any currently playing music
+  if (currentMusic && currentMusic.isPlaying()) {
+    // Adjust volume based on what type of music is playing
+    if (currentMusic === menuMusic || currentMusic === pauseMusic) {
+      currentMusic.setVolume(currentVolume * 0.5);
+    } else {
+      currentMusic.setVolume(currentVolume);
+    }
   }
+  
+  // Update pause music if playing
   if (pauseMusic && pauseMusic.isPlaying()) {
-    pauseMusic.setVolume(volumeSlider.value() * 0.5);
+    pauseMusic.setVolume(currentVolume * 0.5);
   }
 }
 
