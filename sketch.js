@@ -41,6 +41,9 @@ let musicMuted = false;
 let soundEffectsMuted = false;
 let volumeSlider;
 let soundEffectsSlider;
+let titleScrn, deathScrn, tutorialScrn, statScrn, victoryScrn;
+let speedStatus, shieldStatus, damageStatus;
+
 
 let currentVolume = 0.5;
 let currentSoundEffectsVolume = 0.7;
@@ -153,11 +156,11 @@ function preload() {
   level5BackgroundImg = loadImage('Assets/Kitchen5.png');
 
   // Load Obstacle Images
-  obstacleImages[1] = loadImage("assets/candleObstacle.png");
-  obstacleImages[2] = loadImage("assets/bakingpanObstacle.png");
-  obstacleImages[3] = loadImage("assets/papertrayObstacle.png");
-  obstacleImages[4] = loadImage("assets/strawObstacle.png");
-  obstacleImages[5] = loadImage("assets/plateObstacle.png");
+  obstacleImages[1] = loadImage("Assets/candleObstacle.png");
+  obstacleImages[2] = loadImage("Assets/bakingpanObstacle.png");
+  obstacleImages[3] = loadImage("Assets/papertrayObstacle.png");
+  obstacleImages[4] = loadImage("Assets/strawObstacle.png");
+  obstacleImages[5] = loadImage("Assets/plateObstacle.png");
 
   // Load level theme music
   levelMusic[1] = loadSound('Assets/Level1Music.mp3');
@@ -268,7 +271,7 @@ function preload() {
   flyingEnemySprites.right = [
     loadImage("Assets/eggRight1.png"),
     loadImage("Assets/eggRight2.png"),
-    loadImage("Assets/eggRight1.png")
+    loadImage("Assets/eggRight3.png")
   ];
 
   // Load Power-Up Icons
